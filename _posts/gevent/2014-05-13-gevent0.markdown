@@ -1,8 +1,9 @@
 ---
 layout: post
-title:  "gevent"
+title:  "gevent 学习笔记 —— 协程"
 date:   2014-05-08 13:34:03
-categories: jekyll update
+categories: gevent
+author: young
 ---
 
 在学习gevent之前，你肯定要知道你学的这个东西是什么。

@@ -9,7 +9,7 @@
 html, body { height: 100%; }
 
 body {
-  font-family: "Helvetica", "Open Sans",Arial,"Hiragino Sans GB","Microsoft YaHei","微软雅黑","STHeiti","WenQuanYi Micro Hei",SimSun,sans-serif;
+  font-family: "Monaco", "Helvetica", "Open Sans",Arial,"Hiragino Sans GB","Microsoft YaHei","微软雅黑","STHeiti","WenQuanYi Micro Hei",SimSun,sans-serif;
   font-size: 16px;
   line-height: 1.2em;
   font-weight: 300;
@@ -24,9 +24,9 @@ body {
 
 h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: 400; }
 
-a         { color: #2a7ae2; text-decoration: none; }
-a:hover   { color: #000; text-decoration: none; }
-a:visited { color: #205caa; }
+a         { color: #41464a; text-decoration: none; }
+a:hover   { color: #818181; text-decoration: none; }
+/*a:visited { color: #205caa; }*/
 
 /* Utility */
 
@@ -175,10 +175,11 @@ a:visited { color: #205caa; }
 .post-header { margin: 10px 0 30px; }
 
 .post-header h1 {
-  font-size: 42px;
-  letter-spacing: -1.75px;
-  line-height: 1;
+  font-size: 30px;
+  letter-spacing: 1px;
+  line-height: 1.2em;
   font-weight: 300;
+  color: #41464a
 }
 
 .post-header .meta {
@@ -247,8 +248,8 @@ a:visited { color: #205caa; }
 
 .post pre,
 .post code {
-  border: 1px solid #99999E;
-  background-color: #E4E4E9;
+  border: 1px solid #C4C4DB;
+  /*background-color: #E4E4E9;*/
   padding: 8px 12px;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;

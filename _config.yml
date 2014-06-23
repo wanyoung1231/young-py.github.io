@@ -2,7 +2,7 @@
 name: 小乌龟 の blog
 title: iPython
 email: xiaowugui244345021@163.com
-description: "Python技术、gevent高并发库以及生活随记"
+description: "关于Python及生活随记"
 baseurl: ""
 url: "http://yourdomain.com"
 

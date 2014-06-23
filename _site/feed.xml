@@ -2,22 +2,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>小乌龟 の blog</title>
-    <description>Python技术、gevent高并发库以及生活随记</description>
+    <description>关于Python及生活随记</description>
     <link></link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
-        <title>Welcome to My Blog!</title>
-        <description>&lt;p&gt;终于有了一个自己搭建的博客了，哈哈哈哈！！！&lt;/p&gt;
-
-</description>
-        <pubDate>Thu, 08 May 2014 21:34:03 +0800</pubDate>
-        <link>/jekyll/update/2014/05/08/welcome-to-jekyll.html</link>
-        <guid isPermaLink="true">/jekyll/update/2014/05/08/welcome-to-jekyll.html</guid>
-      </item>
-    
-      <item>
-        <title>gevent</title>
+        <title>gevent 学习笔记 —— 协程</title>
         <description>&lt;p&gt;在学习gevent之前，你肯定要知道你学的这个东西是什么。&lt;/p&gt;
 
 &lt;h4 id=&quot;gevent&quot;&gt;官方是这样描述gevent的&lt;/h4&gt;
@@ -159,8 +149,8 @@ ping end: 1
 
 </description>
         <pubDate>Thu, 08 May 2014 21:34:03 +0800</pubDate>
-        <link>/jekyll/update/2014/05/08/gevent.html</link>
-        <guid isPermaLink="true">/jekyll/update/2014/05/08/gevent.html</guid>
+        <link>/gevent/2014/05/08/gevent0.html</link>
+        <guid isPermaLink="true">/gevent/2014/05/08/gevent0.html</guid>
       </item>
     
   </channel>
