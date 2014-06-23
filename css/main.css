@@ -11,7 +11,7 @@ html, body { height: 100%; }
 body {
   font-family: "Helvetica", "Open Sans",Arial,"Hiragino Sans GB","Microsoft YaHei","微软雅黑","STHeiti","WenQuanYi Micro Hei",SimSun,sans-serif;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.2em;
   font-weight: 300;
   background-color: #fdfdfd;
   letter-spacing: 1px;
@@ -254,7 +254,7 @@ a:visited { color: #205caa; }
   -moz-border-radius: 3px;
   border-radius: 3px;
   font-size: 15px;
-  line-height: 1em;
+  line-height: 1.2em;
   letter-spacing: 0px;
 }
 
