@@ -9,11 +9,17 @@
 html, body { height: 100%; }
 
 body {
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: "Helvetica", "Open Sans",Arial,"Hiragino Sans GB","Microsoft YaHei","微软雅黑","STHeiti","WenQuanYi Micro Hei",SimSun,sans-serif;
   font-size: 16px;
   line-height: 1.5;
   font-weight: 300;
   background-color: #fdfdfd;
+  letter-spacing: 1px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-transform: translate3d(0,0,0);
+  margin: 0;
+  padding: 0;
+
 }
 
 h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: 400; }
@@ -181,9 +187,26 @@ a:visited { color: #205caa; }
   margin-top: 5px;
 }
 
-.post-content { margin: 0 0 30px; }
+.post-content { 
+  margin: 0 0 30px; 
+  color: #525d67;
+  display: block;
+  -webkit-margin-before: 1em;
+  -webkit-margin-after: 1em;
+  -webkit-margin-start: 0px;
+  -webkit-margin-end: 0px;
+  line-height: 2.2em;
+}
 
-.post-content > * { margin: 20px 0; }
+.post-content > * { 
+  margin: 20px 0; 
+  color: #525d67;
+  display: block;
+  -webkit-margin-before: 1em;
+  -webkit-margin-after: 1em;
+  -webkit-margin-start: 0px;
+  -webkit-margin-end: 0px;
+}
 
 
 .post-content h1,
@@ -199,17 +222,14 @@ a:visited { color: #205caa; }
 
 .post-content h2 {
   font-size: 32px;
-  letter-spacing: -1.25px;
 }
 
 .post-content h3 {
   font-size: 26px;
-  letter-spacing: -1px;
 }
 
 .post-content h4 {
   font-size: 20px;
-  letter-spacing: -1px;
 }
 
 .post-content blockquote {
@@ -227,16 +247,18 @@ a:visited { color: #205caa; }
 
 .post pre,
 .post code {
-  border: 1px solid #d5d5e9;
-  background-color: #eef;
+  border: 1px solid #99999E;
+  background-color: #E4E4E9;
   padding: 8px 12px;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
   font-size: 15px;
+  line-height: 1em;
+  letter-spacing: 0px;
 }
 
-.post code { padding: 1px 5px; }
+.post code { padding: 0px 0px; }
 
 .post ul,
 .post ol { margin-left: 1.35em; }
