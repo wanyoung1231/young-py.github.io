@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>gevent</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="Python技术、gevent高并发库以及生活随记">
+    <link rel="canonical" href="/jekyll/update/2014/05/08/gevent.html">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+
+</head>
+
+
+    <body>
+
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <a class="site-title" href="">小乌龟 の blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+          <a class="page-link" href="/about/">About</a>
+        
+          <a class="page-link" href="/feed.xml"></a>
+        
+          <a class="page-link" href="/index.html"></a>
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>gevent</h1>
+    <p class="meta">May 8, 2014</p>
+  </header>
+
+  <article class="post-content">
+  <p>在学习gevent之前，你肯定要知道你学的这个东西是什么。</p>
+
+<h4 id="gevent">官方是这样描述gevent的</h4>
+
+<p>gevent is a coroutine-based Python networking library that uses greenlet to provide a high-level synchronous API on top of the libev event loop.</p>
+
+<p>翻译：gevent是一个基于协程的Python网络库。我们先理解这句，也就是我想学习的重点——<strong>协程</strong>。</p>
+
+<h4 id="wiki">wiki是这样描述协程的</h4>
+
+<p>与子例程一样，协程也是一种程序组件。相对子例程而言，协程更为一般和灵活，但在实践中使用没有子例程那样广泛。子例程的起始处是惟一的入口点，一旦退出即完成了子例程的执行，子例程的一个实例只会返回一次；协程可以通过yield来调用其它协程。通过yield方式转移执行权的协程之间不是调用者与被调用者的关系，而是彼此对称、平等的。</p>
+
+<p>是不是让人很捉急？我想是的！看完之后我仍不知道协程是什么，能干什么，莫名其妙的抛出个子例程就表示大家能看懂？查阅很多资料后，我给出的解释：协程就是人们在有了进程、线程之后仍觉得效率不够，而追求的另一种高并发解决方案。</p>
+
+<p>是不是还不明白？没关系，至少有了大致的方向，是解决高并发实现多任务，所以我们可以尽量往这个方向去想。</p>
+
+<p>在这之前我们先讲讲函数，函数是描述每个输入值对应唯一输出值的一种对应关系。</p>
+
+<p>如果让大家实现这样一个功能，写两个函数ping和pong，各执行5次。我想到的是下面这样的代码：</p>
+
+<div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+   
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">ping</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">pong</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">ping</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+   
+    <span class="k">print</span> <span class="s">&quot;ping: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+
+<span class="k">def</span> <span class="nf">pong</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+   
+    <span class="k">print</span> <span class="s">&quot;pong: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span></code></pre></div>
+
+<p>有个新的要求：
+如果我现在想要在执行ping函数的时候中断，去执行pong函数；执行pong函数的时候中断，去执行ping函数呢？我用的是下面的代码：</p>
+
+<div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">ping</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+   
+    <span class="k">print</span> <span class="s">&quot;ping start: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+
+    <span class="n">pong</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+   
+    <span class="k">print</span> <span class="s">&quot;ping end: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+
+<span class="k">def</span> <span class="nf">pong</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+   
+    <span class="k">print</span> <span class="s">&quot;pong start: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">ping</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+   
+    <span class="k">print</span> <span class="s">&quot;pong end: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">ping</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></code></pre></div>
+
+<p>输出结果是这样的:</p>
+
+<pre><code>ping start: 1
+pong start: 2
+ping start: 3
+pong start: 4
+ping start: 5
+pong start: 6
+ping start: 7
+pong start: 8
+ping start: 9
+pong start: 10
+ping end: 9
+pong end: 8
+ping end: 7
+pong end: 6
+ping end: 5
+pong end: 4
+ping end: 3
+pong end: 2
+ping end: 1
+</code></pre>
+
+<p>不知道大家觉得这个结果会不会很意外？为什么会输出这么多的end？其实也没啥意外的，如果了解函数调用的底层机制就应该会明白的。在底层都是用栈来存放函数的参数，所以每次调用一个函数都是将该函数压入栈中，当函数返回的时候又会将函数从栈中弹出，所以当最后一次调用pong函数的时候函数返回到pong函数的调用者ping函数，然后输出end，该ping函数又调用它的调用者pong函数，如此就形成了后面的那些end。</p>
+
+<p>从上面这些分析，大家觉得这是交替执行吗？其实不是的，因为每次从ping函数中断跳到pong函数或者相反，都是重新在栈空间中开辟了新的栈空间（叫栈帧），虽然5次调用了ping函数和pong函数，每次函数的参数和局部变量都重新初始化了，每次操作的都不是同一个局部变量。况且这才是互相调用了5次，如果是无限次数的调用话，很快栈空间就会被消耗掉，导致栈溢出。</p>
+
+<p>那怎样才能做到我们想要的交替执行呢？</p>
+
+<p>如果我想要实现这样一种功能：
+有两个任务需要完成，分别用ping函数和pong函数代替。每个任务都是完成一个变量i自增的功能，只不过每次只有一个任务自增，自增完一次后就换另一个任务自增，总共自增5次。意思就是首先让ping函数自增，自增完后交给pong函数自增。 </p>
+
+<p>想用普通的函数去完成是不可能的。因为每次任务的切换普通的函数都会在栈中生成新的栈帧。新的栈帧就是新初始化的函数内部变量，如果ping函数执行+1，切换到pong函数执行+1，再切换回来的时候其实是重新初始化局部变量，ping函数还是输出1。</p>
+
+<p>而协程就提供这样一种功能，当你重新进入ping函数的时候，ping函数的局部变量还保留上一次退出该函数时的局部变量，并从上次中断的地方开始执行。</p>
+
+<p>从上面这些你就可以知道其实协程是模拟了多线程的操作，多线程在切换的时候都会有一个上下文切换，在退出的时候将现场保存起来，等到下一次进入的时候从保存的现场开始，继续执行。</p>
+
+<p>看下协程是怎样实现的：</p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">greenlet</span> <span class="kn">import</span> <span class="n">greenlet</span>
+
+<span class="nd">@greenlet</span>
+<span class="k">def</span> <span class="nf">ping</span><span class="p">():</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">print</span> <span class="s">&quot;ping </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">pong</span><span class="o">.</span><span class="n">switch</span><span class="p">()</span>
+
+<span class="nd">@greenlet</span>
+<span class="k">def</span> <span class="nf">pong</span><span class="p">():</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">print</span> <span class="s">&quot;pong </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ping</span><span class="o">.</span><span class="n">switch</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">ping</span><span class="o">.</span><span class="n">switch</span><span class="p">()</span></code></pre></div>
+
+<h4 id="section">总结</h4>
+<p>协程其实模拟了人类活动的一种过程。例如：你准备写文档，然后修复bug。这时候接到电话说这个bug很严重，必须立即修复（可以看作CPU通知）。于是你暂停写文档，开始去填坑，终于你把坑填完了。你回来写文档，这个时候你肯定是接着之前写的文档继续，难道你要把之前写的给删了，重新写？这就是协程。</p>
+
+<p>那如果是函数呢？那你就必须重新写了，因为退出函数以后，栈帧就会被弹出销毁，再次调用就是开辟新的栈空间了。</p>
+
+<p>协程就是拥有这种能力的东西。它可以让你从一个函数反映了程序逻辑的一种需求：可重入能力。这个能力很重要，因为大多数语言的一个最重要的组件–函数，其实就依赖这个能力的弱化版本。函数中的局部变量，被你初始化为特定的值，每次你调函数，换种说法:重入函数，语言都保证这些局部变量的值不会改变。相同的输入，得到相同的输出。当然你跟我扯全局变量就没意思了。</p>
+
+<p>语言实现到函数这一步，可以满足绝大多数日常需求了。但工程师就是又懒又爱折腾啊。函数在很多语言特别是早期语言中，有个别名：过程（具体特性不一定相同，就不追究了，整体的行为还是差不离的）。我觉得过程这个词比函数更贴切。现在我们把“函数中局部变量的值”换种说法，叫做“过程中的局部状态”，这个说法更广泛了。每次重入过程，过程中的局部状态都被重置。要想得到不同的输出状态，唯有改变输入的状态。要想明确一个输出状态，对应的输入状态，唯有记录下输入状态。so simple，so native。问题是那帮懒惰的工程师甚至连输入状态都不想保存判断啊。他们希望有这么一种过程，每次进入，过程里的局部状态，都能保留上一次进入的状态。自然也就不需要干针对输入状态的保存或判断工作了。换言之，这个特殊过程把原来需要在过程之外的用来控制过程输出状态的那些输入状态的管理工作，都交给过程本身了。</p>
+
+<p>这个特殊的过程，就叫做协程。它能保留上一次调用时的状态（即所有局部状态的一个特定组合），每次过程重入时，就相当于进入上一次调用的状态，换种说法：进入上一次离开时所处逻辑流的位置。普通过程（函数）可看成这个特殊过程的一个特例：只有一个状态，每次进入时局部状态重置。这种逻辑控制上的方便当然让这帮懒惰的工程师乐翻了天，少打了好多字，可以向老板叫嚣生产力提高了，其实又可以多lol几把了，对不对？用协程的好处是，你处在更高的逻辑层面去审视需求，整理代码。没有函数之前，你只有表达式，没有表达式之前，你只有mov。没有if-else之前，你只有jump。脱离低级的逻辑处理，就意味着能在更高的抽象层面看问题。就好像如果你在算傅里叶变换时，还要每次去思考四则混合运算规则，只能是自作死。协程之所以陌生，是因为这个能力很强大，因此通常跟实际业务联系很紧密吧。</p>
+
+
+  </article>
+
+</div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <h2 class="footer-heading">小乌龟 の blog</h2>
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>iPython</li>
+        <li><a href="mailto:xiaowugui244345021@163.com">xiaowugui244345021@163.com</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://twitter.com/">
+            <span class="icon twitter">
+              <svg version="1.1" class="twitter-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill="#C2C2C2" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27
+                c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767
+                c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206
+                C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271
+                c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469
+                c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">Python技术、gevent高并发库以及生活随记</p>
+    </div>
+
+  </div>
+
+</footer>
+
+
+    </body>
+</html>

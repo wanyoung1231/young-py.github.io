@@ -1,8 +1,8 @@
 # Site settings
-name: Dat site title tho
+name: 小乌龟 の blog
 title: iPython
 email: xiaowugui244345021@163.com
-description: "Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description."
+description: "Python技术、gevent高并发库以及生活随记"
 baseurl: ""
 url: "http://yourdomain.com"
 
