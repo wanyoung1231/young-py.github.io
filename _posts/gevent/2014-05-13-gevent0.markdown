@@ -6,7 +6,7 @@ categories: gevent
 author: young
 ---
 
-![](http://0.0.0.0:4000/imgs/yyzt.jpeg)
+![](http://young-py.github.io/imgs/yyzt.jpeg)
 
 在学习gevent之前，你肯定要知道你学的这个东西是什么。
 
