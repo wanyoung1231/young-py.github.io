@@ -57,25 +57,32 @@
 
   <header class="post-header">
     <h1>gevent 学习笔记 —— 协程</h1>
+    <br />
     <p class="meta">May 8, 2014 • young</p>
   </header>
 
   <article class="post-content">
-  <p>在学习gevent之前，你肯定要知道你学的这个东西是什么。</p>
+  <p><img src="http://0.0.0.0:4000/imgs/yyzt.jpeg" alt="" /></p>
 
-<h4 id="gevent">官方是这样描述gevent的</h4>
+<p>在学习gevent之前，你肯定要知道你学的这个东西是什么。</p>
+
+<h3 id="gevent"><strong>官方是这样描述gevent的</strong></h3>
 
 <p>gevent is a coroutine-based Python networking library that uses greenlet to provide a high-level synchronous API on top of the libev event loop.</p>
 
 <p>翻译：gevent是一个基于协程的Python网络库。我们先理解这句，也就是我想学习的重点——<strong>协程</strong>。</p>
 
-<h4 id="wiki">wiki是这样描述协程的</h4>
+<hr />
+
+<h3 id="wiki"><strong>wiki是这样描述协程的</strong></h3>
 
 <p>与子例程一样，协程也是一种程序组件。相对子例程而言，协程更为一般和灵活，但在实践中使用没有子例程那样广泛。子例程的起始处是惟一的入口点，一旦退出即完成了子例程的执行，子例程的一个实例只会返回一次；协程可以通过yield来调用其它协程。通过yield方式转移执行权的协程之间不是调用者与被调用者的关系，而是彼此对称、平等的。</p>
 
 <p>是不是让人很捉急？我想是的！看完之后我仍不知道协程是什么，能干什么，莫名其妙的抛出个子例程就表示大家能看懂？查阅很多资料后，我给出的解释：协程就是人们在有了进程、线程之后仍觉得效率不够，而追求的另一种高并发解决方案。</p>
 
 <p>是不是还不明白？没关系，至少有了大致的方向，是解决高并发实现多任务，所以我们可以尽量往这个方向去想。</p>
+
+<hr />
 
 <p>在这之前我们先讲讲函数，函数是描述每个输入值对应唯一输出值的一种对应关系。</p>
 
@@ -189,7 +196,7 @@ ping end: 1
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">ping</span><span class="o">.</span><span class="n">switch</span><span class="p">()</span></code></pre></div>
 
-<h4 id="section">总结</h4>
+<h3 id="section"><strong>总结</strong></h3>
 <p>协程其实模拟了人类活动的一种过程。例如：你准备写文档，然后修复bug。这时候接到电话说这个bug很严重，必须立即修复（可以看作CPU通知）。于是你暂停写文档，开始去填坑，终于你把坑填完了。你回来写文档，这个时候你肯定是接着之前写的文档继续，难道你要把之前写的给删了，重新写？这就是协程。</p>
 
 <p>那如果是函数呢？那你就必须重新写了，因为退出函数以后，栈帧就会被弹出销毁，再次调用就是开辟新的栈空间了。</p>
