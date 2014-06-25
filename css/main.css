@@ -273,8 +273,8 @@ a:hover   { color: #818181; text-decoration: none; }
   background-color: #f7fafb;
   padding: 8px 12px;
   -webkit-border-radius: 4px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
   font-size: 15px;
   line-height: 1.2em;
   letter-spacing: 0px;
