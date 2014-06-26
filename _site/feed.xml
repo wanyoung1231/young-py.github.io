@@ -30,14 +30,32 @@
 
 &lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;子例程&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;过程有两种，一种叫子例程 (Subroutine)，我们通常叫做 Sub；另外一种叫函数，通常叫 Function。两者区别在于，Sub 只执行操作，没有返回值；Function 不但执行操作，并且有返回值。请原谅我用百度百科。&lt;/p&gt;
+&lt;p&gt;过程有两种，一种叫子例程（Subroutine），通常叫Sub；另一种叫函数（Function）。底层实现机制是一样的，区别在于，Sub只执行操作，没有返回值；Function不但执行操作，并且有返回值。用过VB的应该会比较清楚这点。（原谅我用了百度百科）&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;call a&amp;quot;&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;call b&amp;quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;call b&amp;quot;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img style=&quot;height: 50px; width: 50px;&quot; src=&quot;http://young-py.github.io/imgs/yyzt.jpeg&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;子例程的起始处是惟一的入口点，一旦退出即完成了子例程的执行，子例程的一个实例只会返回一次。
+协程的起始处是第一个入口点，在协程里，返回点之后是接下来的入口点。子例程的生命期遵循后进先出（最后一个被调用的子例程最先返回）；相反，协程的生命期完全由他们的使用的需要决定。&lt;/p&gt;
+
+&lt;p&gt;每个协程在用yield命令向另一个协程交出控制时都尽可能做了更多的工作。放弃控制使得另一个例程从这个例程停止的地方开始，但因为现在队列被修改了所以他可以做更多事情。尽管这个例子常用来介绍多线程，实际没有必要用多线程实现这种动态：yield语句可以通过由一个协程向另一个协程直接分支的方式实现。&lt;/p&gt;
+
+&lt;p&gt;因为相对于子例程协程可以有多个入口和出口点，可以用协程来实现任何的子例程。事实上，正如Knuth所说：“子例程是协程的特例。”&lt;/p&gt;
+
+&lt;p&gt;每当子例程被调用时，执行从被调用子例程的起始处开始；然而，接下来的每次协程被调用时，从协程返回（或yield）的位置接着执行。&lt;/p&gt;
+
+&lt;p&gt;因为子例程只返回一次，要返回多个值就要通过集合的形式。这在有些语言，如Forth里很方便；而其他语言，如C，只允许单一的返回值，所以就需要引用一个集合。相反地，因为协程可以返回多次，返回多个值只需要在后继的协程调用中返回附加的值即可。在后继调用中返回附加值的协程常被称为产生器。&lt;/p&gt;
+
+&lt;p&gt;子例程容易实现于堆栈之上，因为子例程将调用的其他子例程作为下级。相反地，协程对等地调用其他协程，最好的实现是用continuations（由有垃圾回收的堆实现）以跟踪控制流程。&lt;/p&gt;
 
 &lt;p&gt;函数b是函数a的子例程，它们之间有严格的从属关系，函数a调用函数b，函数a是调用者，函数b是被调用者。如果这个时候函数b又调用函数a，也就是说函数a是函数b的子例程，这样做是否可行？&lt;/p&gt;
 
