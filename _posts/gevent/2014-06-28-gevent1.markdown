@@ -6,6 +6,6 @@ categories: gevent
 author: young
 ---
 
-![](http://young-py.github.io/imgs/yyzt2.jpeg)
+![](http://young-py.github.io/imgs/yyzt2.jpg)
 
 敬请期待。。。
