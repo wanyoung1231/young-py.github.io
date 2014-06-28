@@ -76,7 +76,7 @@
 
 <h3 id="wiki"><strong>wiki描述协程</strong></h3>
 
-<p><strong>与子例程一样，协程也是一种程序组件</strong>。相对子例程而言，协程更为一般和灵活，但在实践中使用没有子例程那样广泛。子例程的起始处是惟一的入口点，一旦退出即完成了子例程的执行，子例程的一个实例只会返回一次；协程可以通过yield来调用其它协程。通过yield方式转移执行权的协程之间不是调用者与被调用者的关系，而是彼此对称、平等的。</p>
+<p><strong>与子例程一样，协程也是一种程序组件</strong>。相对子例程而言，协程更为一般和灵活，但在实践中使用没有子例程那样广泛。子例程的起始处是惟一的入口点，一旦退出即完成了子例程的执行，子例程的一个实例只会返回一次；协程可以通过yield来调用其它协程。通过yield方式转移执行权的协程之间不是调用者与被调用者的关系，而是彼此对称、平等的。协程允许多个入口点，可以在指定位置挂起和恢复执行。</p>
 
 <p>没看懂？没关系，我也没看懂，不过算是有点线索：<strong>子例程</strong>。</p>
 
@@ -87,172 +87,87 @@
 <p>过程有两种，一种叫子例程（Subroutine），通常叫Sub；另一种叫函数（Function）。底层实现机制是一样的，区别在于，Sub只执行操作，没有返回值；Function不但执行操作，并且有返回值。用过VB的应该会比较清楚这点。（原谅我用了百度百科）</p>
 
 <div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">a</span><span class="p">():</span>
+    <span class="k">print</span> <span class="s">&quot;push b&quot;</span>
+    <span class="n">b</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;pop a&quot;</span>
+
+<span class="k">def</span> <span class="nf">b</span><span class="p">():</span>
+    <span class="k">print</span> <span class="s">&quot;pop b&quot;</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&quot;push a&quot;</span>
+    <span class="n">a</span><span class="p">()</span></code></pre></div>
+
+<div class="highlight"><pre><code class="python"><span class="n">push</span> <span class="n">a</span>
+<span class="n">push</span> <span class="n">b</span>
+<span class="n">pop</span> <span class="n">b</span>
+<span class="n">pop</span> <span class="n">a</span></code></pre></div>
+
+<p>每当子例程被调用时，都会生成一个新的子例程实例，表现在底层就是在栈中开辟新的栈空间。执行从被调用子例程的起始处开始，子例程的起始处是唯一的入口点，一旦退出即完成了子例程的执行，该子例程的实例就会从栈中弹出。它的生命周期遵循后进先出，最后一个被调用的子例程最先返回。</p>
+
+<hr />
+
+<h3 id="section-1"><strong>升级版</strong></h3>
+
+<p>组织构建一个大型程序通常是非常艰难的工作。经常会碰到这样一种特殊问题：如果你有一段代码生产数据，另外一段代码消费数据，哪个应该是调用者，哪个应该是被调用者？</p>
+
+<p>例如：生产者 —— 消费者问题，先抛开进程、线程等实现方法。假设有两个子例程producer和consumer，当缓冲区满了，producer调用consumer，当缓冲区空了，consumer调用producer，但是这样的子例程互相调用会出什么问题？</p>
+
+<div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">producer</span><span class="p">():</span>
     <span class="k">print</span> <span class="s">&quot;call a&quot;</span>
     <span class="n">b</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">b</span><span class="p">():</span>
-    <span class="k">print</span> <span class="s">&quot;call b&quot;</span>
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">a</span><span class="p">()</span></code></pre></div>
-
-<p><img style="height: 50px; width: 50px;" src="http://young-py.github.io/imgs/yyzt.jpeg" /></p>
-
-<p>子例程的起始处是惟一的入口点，一旦退出即完成了子例程的执行，子例程的一个实例只会返回一次。
-协程的起始处是第一个入口点，在协程里，返回点之后是接下来的入口点。子例程的生命期遵循后进先出（最后一个被调用的子例程最先返回）；相反，协程的生命期完全由他们的使用的需要决定。</p>
-
-<p>每个协程在用yield命令向另一个协程交出控制时都尽可能做了更多的工作。放弃控制使得另一个例程从这个例程停止的地方开始，但因为现在队列被修改了所以他可以做更多事情。尽管这个例子常用来介绍多线程，实际没有必要用多线程实现这种动态：yield语句可以通过由一个协程向另一个协程直接分支的方式实现。</p>
-
-<p>因为相对于子例程协程可以有多个入口和出口点，可以用协程来实现任何的子例程。事实上，正如Knuth所说：“子例程是协程的特例。”</p>
-
-<p>每当子例程被调用时，执行从被调用子例程的起始处开始；然而，接下来的每次协程被调用时，从协程返回（或yield）的位置接着执行。</p>
-
-<p>因为子例程只返回一次，要返回多个值就要通过集合的形式。这在有些语言，如Forth里很方便；而其他语言，如C，只允许单一的返回值，所以就需要引用一个集合。相反地，因为协程可以返回多次，返回多个值只需要在后继的协程调用中返回附加的值即可。在后继调用中返回附加值的协程常被称为产生器。</p>
-
-<p>子例程容易实现于堆栈之上，因为子例程将调用的其他子例程作为下级。相反地，协程对等地调用其他协程，最好的实现是用continuations（由有垃圾回收的堆实现）以跟踪控制流程。</p>
-
-<p>函数b是函数a的子例程，它们之间有严格的从属关系，函数a调用函数b，函数a是调用者，函数b是被调用者。如果这个时候函数b又调用函数a，也就是说函数a是函数b的子例程，这样做是否可行？</p>
-
-<div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">a</span><span class="p">():</span>
-    <span class="k">print</span> <span class="s">&quot;call a&quot;</span>
-    <span class="n">b</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">b</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">consumer</span><span class="p">():</span>
     <span class="k">print</span> <span class="s">&quot;call b&quot;</span>
     <span class="n">a</span><span class="p">()</span></code></pre></div>
 
-<p>理论上是不可行的，它们之间有着严格的从属关系，通俗点讲b是a的儿子，a却不能是b的儿子。但是，实际情况，如果函数堆栈无限大的情况下是可以的，子例程是可以多次被调用的，因为每次调用都是在函数栈中创建新的空间，虽然实现的功能是一致的，但因为是在不同的内存空间中，所以本质上不是同一个东西。所以a调用b，b又调用a是可以的，只是此a不是子例程a，而是子例程a众多实例中的一个。不过函数堆栈无限大只是个如果，所以实际上也是不可行的。否则就会因为无限的在函数堆栈上创建新的空间，导致栈空间不足造成堆栈溢出错误。上面的代码应该是一眼就可以看出错误来的，只是这里细说了一下为什么不行。</p>
+<p>我们知道每当子例程被调用时，都会生成一个新的子例程实例，在栈中开辟新的空间。这样无限次数的调用，很快就会栈空间不足造成堆栈溢出错误。因为子例程的本身设计就是不完美的，子例程每次退出都会清空该子例程实例的栈帧，每次进入都是重新开始。子例程不具备保存退出点和局部状态的能力。</p>
 
-<p>为什么要实现互相调用呢？</p>
+<p>那什么东西有这样的能力呢？我们很快就可以想到进程、线程，但是你真的想使用进程、线程如此重量级的东西在这么简单的程序上吗？野蛮的抢占式机制和笨重的上下文切换！</p>
 
-<p>子例程的一个实例</p>
+<p>协程就是拥有这种能力的神器。它能保留上一次调用时的状态，每次重新进入该过程的时候，就相当于回到上一次离开时所处逻辑流的位置。协程的起始处是第一个入口点，在协程里，返回点之后是接下来的入口点。协程的生命期完全由他们的使用的需要决定。每个协程在用yield命令向另一个协程交出控制时都尽可能做了更多的工作，放弃控制使得另一个协程从这个协程停止的地方开始，接下来的每次协程被调用时，都是从协程返回（或yield）的位置接着执行。</p>
 
-<p>协程的一个实例</p>
-
-<p>子例程 - 函数 - 函数底层机制</p>
-
-<p>协程 彼此对称、平等 没有调用与被调用的关系 - 相互协作 - 协程底层机制</p>
-
-<p>根据协程机制分析 怎么模拟线程 为什么高效</p>
-
-<p>在这之前我们先讲讲函数，函数是描述每个输入值对应唯一输出值的一种对应关系。</p>
-
-<p>如果让大家实现这样一个功能，写两个函数ping和pong，各执行5次。我想到的是下面这样的代码：</p>
-
-<div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-   
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-        <span class="n">ping</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">pong</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">ping</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-   
-    <span class="k">print</span> <span class="s">&quot;ping: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
-
-<span class="k">def</span> <span class="nf">pong</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-   
-    <span class="k">print</span> <span class="s">&quot;pong: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">main</span><span class="p">()</span></code></pre></div>
-
-<p>有个新的要求：
-如果我现在想要在执行ping函数的时候中断，去执行pong函数；执行pong函数的时候中断，去执行ping函数呢？我用的是下面的代码：</p>
-
-<div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">ping</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-   
-    <span class="k">print</span> <span class="s">&quot;ping start: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
-
-    <span class="n">pong</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-   
-    <span class="k">print</span> <span class="s">&quot;ping end: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
-
-<span class="k">def</span> <span class="nf">pong</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-   
-    <span class="k">print</span> <span class="s">&quot;pong start: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
-    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
-        <span class="k">return</span>
-    <span class="n">ping</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-   
-    <span class="k">print</span> <span class="s">&quot;pong end: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">ping</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></code></pre></div>
-
-<p>输出结果是这样的:</p>
-
-<pre><code>ping start: 1
-pong start: 2
-ping start: 3
-pong start: 4
-ping start: 5
-pong start: 6
-ping start: 7
-pong start: 8
-ping start: 9
-pong start: 10
-ping end: 9
-pong end: 8
-ping end: 7
-pong end: 6
-ping end: 5
-pong end: 4
-ping end: 3
-pong end: 2
-ping end: 1
-</code></pre>
-
-<p>不知道大家觉得这个结果会不会很意外？为什么会输出这么多的end？其实也没啥意外的，如果了解函数调用的底层机制就应该会明白的。在底层都是用栈来存放函数的参数，所以每次调用一个函数都是将该函数压入栈中，当函数返回的时候又会将函数从栈中弹出，所以当最后一次调用pong函数的时候函数返回到pong函数的调用者ping函数，然后输出end，该ping函数又调用它的调用者pong函数，如此就形成了后面的那些end。</p>
-
-<p>从上面这些分析，大家觉得这是交替执行吗？其实不是的，因为每次从ping函数中断跳到pong函数或者相反，都是重新在栈空间中开辟了新的栈空间（叫栈帧），虽然5次调用了ping函数和pong函数，每次函数的参数和局部变量都重新初始化了，每次操作的都不是同一个局部变量。况且这才是互相调用了5次，如果是无限次数的调用话，很快栈空间就会被消耗掉，导致栈溢出。</p>
-
-<p>那怎样才能做到我们想要的交替执行呢？</p>
-
-<p>如果我想要实现这样一种功能：
-有两个任务需要完成，分别用ping函数和pong函数代替。每个任务都是完成一个变量i自增的功能，只不过每次只有一个任务自增，自增完一次后就换另一个任务自增，总共自增5次。意思就是首先让ping函数自增，自增完后交给pong函数自增。 </p>
-
-<p>想用普通的函数去完成是不可能的。因为每次任务的切换普通的函数都会在栈中生成新的栈帧。新的栈帧就是新初始化的函数内部变量，如果ping函数执行+1，切换到pong函数执行+1，再切换回来的时候其实是重新初始化局部变量，ping函数还是输出1。</p>
-
-<p>而协程就提供这样一种功能，当你重新进入ping函数的时候，ping函数的局部变量还保留上一次退出该函数时的局部变量，并从上次中断的地方开始执行。</p>
-
-<p>从上面这些你就可以知道其实协程是模拟了多线程的操作，多线程在切换的时候都会有一个上下文切换，在退出的时候将现场保存起来，等到下一次进入的时候从保存的现场开始，继续执行。</p>
+<p>从上面这些你就可以知道其实协程是模拟了多线程（或多进程）的操作，多线程在切换的时候都会有一个上下文切换，在退出的时候将现场保存起来，等到下一次进入的时候从保存的现场开始，继续执行。</p>
 
 <p>看下协程是怎样实现的：</p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<div class="highlight"><pre><code class="python"><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
 <span class="kn">from</span> <span class="nn">greenlet</span> <span class="kn">import</span> <span class="n">greenlet</span>
+<span class="kn">from</span> <span class="nn">Queue</span> <span class="kn">import</span> <span class="n">Queue</span>
+
+<span class="n">queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="nd">@greenlet</span>
-<span class="k">def</span> <span class="nf">ping</span><span class="p">():</span>
-
-    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">print</span> <span class="s">&quot;ping </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+<span class="k">def</span> <span class="nf">producer</span><span class="p">():</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="s">&#39;e&#39;</span><span class="p">]</span>
+    <span class="k">global</span> <span class="n">queue</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">char</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span>
+        <span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;Produced: &quot;</span><span class="p">,</span> <span class="n">char</span>
         <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">pong</span><span class="o">.</span><span class="n">switch</span><span class="p">()</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">switch</span><span class="p">()</span>
 
 <span class="nd">@greenlet</span>
-<span class="k">def</span> <span class="nf">pong</span><span class="p">():</span>
-
-    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">print</span> <span class="s">&quot;pong </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+<span class="k">def</span> <span class="nf">consumer</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">queue</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">char</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&quot;Consumed: &quot;</span><span class="p">,</span> <span class="n">char</span>
         <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">ping</span><span class="o">.</span><span class="n">switch</span><span class="p">()</span>
+        <span class="n">producer</span><span class="o">.</span><span class="n">switch</span><span class="p">()</span>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">ping</span><span class="o">.</span><span class="n">switch</span><span class="p">()</span></code></pre></div>
+    <span class="n">producer</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></code></pre></div>
 
-<h3 id="section-1"><strong>总结</strong></h3>
-<p>协程其实模拟了人类活动的一种过程。例如：你准备写文档，然后修复bug。这时候接到电话说这个bug很严重，必须立即修复（可以看作CPU通知）。于是你暂停写文档，开始去填坑，终于你把坑填完了。你回来写文档，这个时候你肯定是接着之前写的文档继续，难道你要把之前写的给删了，重新写？这就是协程。</p>
+<hr />
 
-<p>那如果是函数呢？那你就必须重新写了，因为退出函数以后，栈帧就会被弹出销毁，再次调用就是开辟新的栈空间了。</p>
+<h3 id="section-2"><strong>总结</strong></h3>
+<p>协程其实模拟了人类活动的一种过程。例如：你准备先写文档，然后修复bug。这时候接到电话说这个bug很严重，必须立即修复（可以看作CPU通知）。于是你暂停写文档，开始去填坑，终于你把坑填完了，你回来写文档，这个时候你肯定是接着之前写的文档继续，难道你要把之前写的给删了，重新写？这就是协程。那如果是子例程呢？那你就必须重新写了，因为退出之后，栈帧就会被弹出销毁，再次调用就是开辟新的栈空间了。</p>
 
-<p>总结出：协程就是用户态下的线程，是人们在有了进程、线程之后仍觉得效率不够，而追求的又一种高并发解决方案。</p>
+<p>总结出：协程就是用户态下的线程，是人们在有了进程、线程之后仍觉得效率不够，而追求的又一种高并发解决方案。为什么说是用户态，是因为操作系统并不知道它的存在，它是由程序员自己控制、互相协作的让出控制权而不是像进程、线程那样由操作系统去决定是否让出控制权。</p>
 
 
   </article>
