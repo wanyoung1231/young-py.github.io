@@ -68,12 +68,10 @@ pop a
 {% highlight python %}
 
 def producer():
-    print "call a"
-    b()
+    consumer()
 
 def consumer():
-    print "call b"
-    a()
+    producer()
 
 {% endhighlight %}
 

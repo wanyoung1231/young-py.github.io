@@ -114,12 +114,10 @@
 <p>例如：生产者 —— 消费者问题，先抛开进程、线程等实现方法。假设有两个子例程producer和consumer，当缓冲区满了，producer调用consumer，当缓冲区空了，consumer调用producer，但是这样的子例程互相调用会出什么问题？</p>
 
 <div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">producer</span><span class="p">():</span>
-    <span class="k">print</span> <span class="s">&quot;call a&quot;</span>
-    <span class="n">b</span><span class="p">()</span>
+    <span class="n">consumer</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">consumer</span><span class="p">():</span>
-    <span class="k">print</span> <span class="s">&quot;call b&quot;</span>
-    <span class="n">a</span><span class="p">()</span></code></pre></div>
+    <span class="n">producer</span><span class="p">()</span></code></pre></div>
 
 <p>我们知道每当子例程被调用时，都会生成一个新的子例程实例，在栈中开辟新的空间。这样无限次数的调用，很快就会栈空间不足造成堆栈溢出错误。因为子例程的本身设计就是不完美的，子例程每次退出都会清空该子例程实例的栈帧，每次进入都是重新开始。子例程不具备保存退出点和局部状态的能力。</p>
 
@@ -167,7 +165,7 @@
 <h3 id="section-2"><strong>总结</strong></h3>
 <p>协程其实模拟了人类活动的一种过程。例如：你准备先写文档，然后修复bug。这时候接到电话说这个bug很严重，必须立即修复（可以看作CPU通知）。于是你暂停写文档，开始去填坑，终于你把坑填完了，你回来写文档，这个时候你肯定是接着之前写的文档继续，难道你要把之前写的给删了，重新写？这就是协程。那如果是子例程呢？那你就必须重新写了，因为退出之后，栈帧就会被弹出销毁，再次调用就是开辟新的栈空间了。</p>
 
-<p>总结出：协程就是用户态下的线程，是人们在有了进程、线程之后仍觉得效率不够，而追求的又一种高并发解决方案。为什么说是用户态，是因为操作系统并不知道它的存在，它是由程序员自己控制、互相协作的让出控制权而不是像进程、线程那样由操作系统去决定是否让出控制权。</p>
+<p>总结出：协程就是用户态下的线程，是人们在有了进程、线程之后仍觉得效率不够，而追求的又一种高并发解决方案。为什么说是用户态，是因为操作系统并不知道它的存在，它是由程序员自己控制、互相协作的让出控制权而不是像进程、线程那样由操作系统调度决定是否让出控制权。</p>
 
 
   </article>
