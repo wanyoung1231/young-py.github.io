@@ -64,7 +64,38 @@
   <article class="post-content">
   <p><img src="http://young-py.github.io/imgs/yyzt2.jpg" alt="" /></p>
 
-<p>敬请期待。。。</p>
+<p>从gevent官方描述中又提到：that uses greenlet to provide a high-level synchronous API.</p>
+
+<p>翻译：使用greenlet来提供高级同步API。这次学习的主要内容——<strong>greenlet</strong>。</p>
+
+<hr />
+
+<h3 id="greenlet"><strong>Greenlet</strong></h3>
+
+<p>greenlet是python中实现我们所谓的”Coroutine(协程)”的一个基础库。前面我们知道了协程是个什么样的东西，但是我们还不知道协程在底层是怎样实现的。在协程篇我们知道，子例程是协程的特例。我们花了比较长的篇幅讲述协程是怎么从子例程中演变过来的。我们知道协程有个特别的地方，就是它能够和进程、线程一样保存上下文。这个上下文是怎样保存的呢？</p>
+
+<hr />
+
+<h3 id="section"><strong>源码分析</strong></h3>
+
+<div class="highlight"><pre><code class="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_greenlet</span> <span class="p">{</span>
+    <span class="n">PyObject_HEAD</span>
+    <span class="kt">char</span><span class="o">*</span> <span class="n">stack_start</span><span class="p">;</span>
+    <span class="kt">char</span><span class="o">*</span> <span class="n">stack_stop</span><span class="p">;</span>
+    <span class="kt">char</span><span class="o">*</span> <span class="n">stack_copy</span><span class="p">;</span>
+    <span class="kt">intptr_t</span> <span class="n">stack_saved</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">_greenlet</span><span class="o">*</span> <span class="n">stack_prev</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">_greenlet</span><span class="o">*</span> <span class="n">parent</span><span class="p">;</span>
+    <span class="n">PyObject</span><span class="o">*</span> <span class="n">run_info</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">_frame</span><span class="o">*</span> <span class="n">top_frame</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">recursion_depth</span><span class="p">;</span>
+    <span class="n">PyObject</span><span class="o">*</span> <span class="n">weakreflist</span><span class="p">;</span>
+    <span class="n">PyObject</span><span class="o">*</span> <span class="n">exc_type</span><span class="p">;</span>
+    <span class="n">PyObject</span><span class="o">*</span> <span class="n">exc_value</span><span class="p">;</span>
+    <span class="n">PyObject</span><span class="o">*</span> <span class="n">exc_traceback</span><span class="p">;</span>
+    <span class="n">PyObject</span><span class="o">*</span> <span class="n">dict</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">PyGreenlet</span><span class="p">;</span></code></pre></div>
+
 
   </article>
 
