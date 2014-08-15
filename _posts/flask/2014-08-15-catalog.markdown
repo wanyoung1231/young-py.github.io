@@ -1,0 +1,128 @@
+---
+layout: post
+title:  "Flask Web Development 翻译"
+date:   2014-08-15 10:35:03
+categories: flask
+author: young
+---
+
+
+## 第一部分、Flask介绍
+
+#### 1、安装
+
+    使用虚拟环境
+
+    使用pip安装python包
+
+#### 2、基本应用程序结构
+
+    初始化
+
+    Routes和view函数
+
+    服务启动
+
+    一个完整的应用程序
+
+    请求-响应周期
+
+        应用程序和请求上下文
+
+        请求派发
+
+        请求hooks
+
+        响应
+
+    Flask扩展
+
+    命令行选项和Flask-Script
+
+#### 3、模板
+
+    jinja2木板引擎
+
+        渲染模板
+
+        变量
+
+        控制结构
+
+    集成在Flask-Bootstrap中的Twitter Bootstrap
+
+    自定义错误页面
+
+    链接
+
+    静态文件
+
+    Flask-Moment中的本地化日期和时间
+
+#### 4、Web表单
+
+    跨站请求伪造(CSRF)保护
+
+    表单类
+
+    HTML渲染的表单
+
+    View函数中的表单操作
+
+    重定向和用户sessions
+
+    Message闪现
+
+#### 5、数据库
+    SQL数据库
+
+    NoSQL数据库
+
+    SQL还是NoSQL
+
+    python数据库框架
+
+    使用Flask-SQLAlchemy管理数据库
+
+    模型定义
+
+    关系
+
+    数据库操作
+
+        创建表
+
+        插入行
+
+        修改行
+
+        删除行
+
+        返回行
+
+    View函数中数据库的使用
+
+    与python shell的集成
+
+    使用Flask-Migrate迁移数据库
+
+        创建迁移仓库
+
+        创建迁移脚本
+
+        更新数据库
+
+#### 6、邮箱
+    使用Flask-Mail作为邮件支持
+
+        使用python shell发送邮件
+
+        集成邮件到应用程序
+
+        发送异步邮件
+
+#### 7、大型应用程序结构
+
+
+
+
