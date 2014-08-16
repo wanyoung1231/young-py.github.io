@@ -1,13 +1,10 @@
 ---
 layout: post
-title:  "Flask Web Development 翻译"
+title:  "Flask Web Development 第一部分 Flask介绍 目录"
 date:   2014-08-15 10:35:03
 categories: flask
 author: young
 ---
-
-
-## 第一部分、Flask介绍
 
 #### 1、安装
 
@@ -122,6 +119,23 @@ author: young
         发送异步邮件
 
 #### 7、大型应用程序结构
+    项目结构
+
+    配置选项
+
+    应用程序包
+
+        使用一个应用程序工厂
+
+        在Blueprint中实现应用程序的功能
+    
+    启动脚本
+
+    所需文件
+
+    单元测试
+
+    数据库启动
 
 
 

@@ -7,10 +7,114 @@
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
-        <title>Flask Web Development 翻译</title>
-        <description>&lt;h2 id=&quot;flask&quot;&gt;第一部分、Flask介绍&lt;/h2&gt;
+        <title>使用pip安装python包</title>
+        <description>&lt;p&gt;大多数的Python包是通过&lt;strong&gt;pip&lt;/strong&gt;程序安装的，在创建虚拟环境的时候virtualenv会自动添加进去。当一个虚拟环境被激活后，pip程序的位置会被添加到&lt;code&gt;PATH&lt;/code&gt;中。&lt;/p&gt;
 
-&lt;h4 id=&quot;section&quot;&gt;1、安装&lt;/h4&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;注：如果你使用pyvenv创建虚拟环境在Python 3.3中，则必须手动安装pip。安装指令在pip网站上可以找到。在Python 3.4下，pyvenv会自动安装pip。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;安装Flask到虚拟环境中，使用下面的命令：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv)$ pip install flask
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;通过这个命令，Flask和它的依赖集都会安装到虚拟环境中。你可以验证Flask是否正确安装通过启动Python解释器并试着导入它：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv)$ python
+&amp;gt;&amp;gt;&amp;gt; import flask
+&amp;gt;&amp;gt;&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果没有出现错误，祝贺你：你可以准备进入下一章节，接着你就可以写你的第一个web应用程序了。&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 17 Aug 2014 00:55:38 +0800</pubDate>
+        <link>/flask/2014/08/17/flask-1-2.html</link>
+        <guid isPermaLink="true">/flask/2014/08/17/flask-1-2.html</guid>
+      </item>
+    
+      <item>
+        <title>使用虚拟环境</title>
+        <description>&lt;p&gt;安装&lt;strong&gt;Flask&lt;/strong&gt;最方便的方法就是使用虚拟环境。虚拟环境是在Python解释器上的一个私有复制，你可以在一个隔绝的环境下安装packages，不会影响到你系统中全局的Python解释器。&lt;/p&gt;
+
+&lt;p&gt;虚拟环境非常有用，因为它可以防止系统出现包管理混乱和版本冲突的问题。为每个应用程序创建一个虚拟环境可以确保应用程序只能访问它们自己使用的包，从而全局解释器只作为一个源且依然整洁干净，更多的虚拟环境可以被创建。另一个好处是，虚拟环境不需要管理员权限。&lt;/p&gt;
+
+&lt;p&gt;虚拟环境由第三方程序&lt;strong&gt;virtualenv&lt;/strong&gt;创建。检查在你的系统中是否已经安装，可以输入以下命令：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ virtualenv --version
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果你得到一个错误，你需要安装该程序。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;注：Python 3.3增加了本地支持的虚拟环境通过venv模块和pyvenv命令。pyenv可以用来代替virtualenv，但是注意通过pyvenv创建的虚拟环境不包含pip，需要手动安装。这个限制会在Python 3.4中移除，到时候pyvenv可以当作完整的virtualenv替代品。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;大多数Linux发行版都提供一个virtualenv包。例如，Ubuntu用户就可以使用以下命令进行安装：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo apt-get install python-virtualenv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果你使用的是Mac OSX，你可以使用easy_install安装virtualenv：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo easy_install virtualenv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果你使用的是Microsoft Windows或者是任何没有提供官方virtualenv包的操作系统，接下来你会有一个稍微复杂的安装过程。&lt;/p&gt;
+
+&lt;p&gt;使用你的web浏览器，导航到&lt;a href=&quot;https://bitbucket.org/pypa/setuptools&quot;&gt;https://bitbucket.org/pypa/setuptools&lt;/a&gt;，setuptools安装程序的主页，找到链接下载一个叫ez_setup.py安装程序脚本。保存这个文件到你电脑的临时文件夹中，然后在那个目录下运行以下命令：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ python ez_setup.py
+$ easy_install virtualenv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;注：前一个命令必须由管理员权限的账户发出。在Microsoft Windows，以管理员身份选项运行命令提示符窗口。在基于Unix的系统中，两个安装命令前面必须加上&lt;code&gt;sudo&lt;/code&gt;或作为&lt;code&gt;root&lt;/code&gt;用户执行。一旦安装完毕，virtualenv程序可以通过普通账户执行。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;现在你需要创建文件夹用来组织从GitHub仓库中获取的示例代码。在十三页中《如何使用示例代码》讨论的那样，最方便的方法就是使用Git客户端直接从Github中检出代码。下面的命令从GitHub中下载示例代码并初始化应用程序文件目录为“1a”版本，初始版本的应用程序：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ git clone https://github.com/miguelgrinberg/flasky.git
+$ cd flasky
+$ git checkout 1a
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;下一步就是使用virtualenv命令创建Python虚拟环境到flasky文件夹中。这个命令有一个需要的参数：虚拟环境的名称。一个指定名称的文件夹和在里面的、与虚拟环境相关的所有文件会在当前目录下被创建。一般给虚拟环境约定命名为venv：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ virtualenv venv
+New python executable in venv/bin/python2.7
+Also creating executable in venv/bin/python
+Installing setuptools............done.
+Installing pip...............done.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;现在你有一个venv文件夹在flasky文件夹里面和一个全新的虚拟环境，包含一个私有的Python解释器。使用虚拟环境的时候，你必须“激活”它。如果你是使用bash命令行工具(Linux和Mac OSX用户)，你可以使用这个命令激活虚拟环境：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ source venv/bin/activate
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果你是使用Microsoft Windows，激活命令是：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ venv\Scripts\activate
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;当虚拟环境被激活了，Python解释器的位置会被添加到&lt;code&gt;PATH&lt;/code&gt;中，但是这个改动并不是永久的；它只影响当前命令会话。提醒一下，你激活了虚拟环境，该激活命令会将环境的名称包含在命令提示符里面：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv)$ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;当你在虚拟环境中完成工作并想回到全局Python解释器，在命令提示符中输入&lt;code&gt;deactivate&lt;/code&gt;就可以了。&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 16 Aug 2014 19:32:38 +0800</pubDate>
+        <link>/flask/2014/08/16/flask-1-1.html</link>
+        <guid isPermaLink="true">/flask/2014/08/16/flask-1-1.html</guid>
+      </item>
+    
+      <item>
+        <title>Flask Web Development 第一部分 Flask介绍 目录</title>
+        <description>&lt;h4 id=&quot;section&quot;&gt;1、安装&lt;/h4&gt;
 
 &lt;pre&gt;&lt;code&gt;使用虚拟环境
 
@@ -129,6 +233,24 @@ View函数中数据库的使用
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h4 id=&quot;section-5&quot;&gt;7、大型应用程序结构&lt;/h4&gt;
+&lt;pre&gt;&lt;code&gt;项目结构
+
+配置选项
+
+应用程序包
+
+    使用一个应用程序工厂
+
+    在Blueprint中实现应用程序的功能
+
+启动脚本
+
+所需文件
+
+单元测试
+
+数据库启动
+&lt;/code&gt;&lt;/pre&gt;
 
 </description>
         <pubDate>Fri, 15 Aug 2014 18:35:03 +0800</pubDate>

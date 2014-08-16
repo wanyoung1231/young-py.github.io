@@ -1,0 +1,24 @@
+---
+layout: post
+title:  "使用pip安装python包"
+date:   2014-08-16 16:55:38
+categories: flask
+author: young
+---
+
+大多数的Python包是通过**pip**程序安装的，在创建虚拟环境的时候virtualenv会自动添加进去。当一个虚拟环境被激活后，pip程序的位置会被添加到`PATH`中。
+
+>注：如果你使用pyvenv创建虚拟环境在Python 3.3中，则必须手动安装pip。安装指令在pip网站上可以找到。在Python 3.4下，pyvenv会自动安装pip。
+
+安装Flask到虚拟环境中，使用下面的命令：
+    
+    (venv)$ pip install flask
+
+通过这个命令，Flask和它的依赖集都会安装到虚拟环境中。你可以验证Flask是否正确安装通过启动Python解释器并试着导入它：
+    
+    (venv)$ python
+    >>> import flask
+    >>>
+
+如果没有出现错误，祝贺你：你可以准备进入下一章节，接着你就可以写你的第一个web应用程序了。
+
