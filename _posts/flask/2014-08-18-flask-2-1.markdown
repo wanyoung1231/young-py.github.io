@@ -1,0 +1,24 @@
+---
+layout: post
+title:  "初始化"
+date:   2014-08-18 17:26:38
+categories: flask
+author: young
+---
+
+在这章，你将学到Flask应用程序的不同部分。同时，你将编写和运行你的第一个Flask web应用程序。
+
+所有的Flask应用程序都必须创建一个_应用程序实例_。使用web服务器网关接口协议将所有从客户端接收的请求传递给这个对象处理。这个应用程序实例是**Flask**类的一个对象，通常使用下面的方式创建：
+    
+{% highlight python %}
+
+from flask import Flask
+app = Flask(__name__)
+
+{% endhighlight %}
+
+Flask类构造函数唯一需要的参数就是应用程序的主模块或包。对于大多数应用程序，Python的`__name__`变量是正确的值。
+
+>注：
+
+

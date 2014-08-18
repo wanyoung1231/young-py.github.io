@@ -20,5 +20,24 @@ author: young
     >>> import flask
     >>>
 
+如果需要安装的包比较多的时候，这样做会比较繁琐，我们还有一键安装的方法。首先新建一个文本文件，如：`requirements.txt`，然后将你需要安装的包名保存到该文件中(根据自己的需要)，如下：
+
+    Babel==1.3
+    Flask==0.10.1
+    Flask-Login==0.2.7
+    Flask-SQLAlchemy==1.0
+    Flask-WTF==0.9.3
+    Jinja2==2.7.1
+    SQLAlchemy==0.8.2
+    WTForms==1.0.5
+    Werkzeug==0.9.4
+    psycopg2==2.5.1
+    ...
+
+最后你只需要输入以下命令，所有需要的包就可以全部安装好了：
+
+    pip install -r requirements.txt
+
+
 如果没有出现错误，祝贺你：你可以准备进入下一章节，接着你就可以写你的第一个web应用程序了。
 

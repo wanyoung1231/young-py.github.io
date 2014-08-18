@@ -7,6 +7,27 @@
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>初始化</title>
+        <description>&lt;p&gt;在这章，你将学到Flask应用程序的不同部分。同时，你将编写和运行你的第一个Flask web应用程序。&lt;/p&gt;
+
+&lt;p&gt;所有的Flask应用程序都必须创建一个_应用程序实例_。使用web服务器网关接口协议将所有从客户端接收的请求传递给这个对象处理。这个应用程序实例是&lt;strong&gt;Flask&lt;/strong&gt;类的一个对象，通常使用下面的方式创建：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Flask类构造函数唯一需要的参数就是应用程序的主模块或包。对于大多数应用程序，Python的&lt;code&gt;__name__&lt;/code&gt;变量是正确的值。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;注：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+</description>
+        <pubDate>Tue, 19 Aug 2014 01:26:38 +0800</pubDate>
+        <link>/flask/2014/08/19/flask-2-1.html</link>
+        <guid isPermaLink="true">/flask/2014/08/19/flask-2-1.html</guid>
+      </item>
+    
+      <item>
         <title>使用pip安装python包</title>
         <description>&lt;p&gt;大多数的Python包是通过&lt;strong&gt;pip&lt;/strong&gt;程序安装的，在创建虚拟环境的时候virtualenv会自动添加进去。当一个虚拟环境被激活后，pip程序的位置会被添加到&lt;code&gt;PATH&lt;/code&gt;中。&lt;/p&gt;
 
@@ -24,6 +45,26 @@
 &lt;pre&gt;&lt;code&gt;(venv)$ python
 &amp;gt;&amp;gt;&amp;gt; import flask
 &amp;gt;&amp;gt;&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果需要安装的包比较多的时候，这样做会比较繁琐，我们还有一键安装的方法。首先新建一个文本文件，如：&lt;code&gt;requirements.txt&lt;/code&gt;，然后将你需要安装的包名保存到该文件中(根据自己的需要)，如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Babel==1.3
+Flask==0.10.1
+Flask-Login==0.2.7
+Flask-SQLAlchemy==1.0
+Flask-WTF==0.9.3
+Jinja2==2.7.1
+SQLAlchemy==0.8.2
+WTForms==1.0.5
+Werkzeug==0.9.4
+psycopg2==2.5.1
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最后你只需要输入以下命令，所有需要的包就可以全部安装好了：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;pip install -r requirements.txt
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;如果没有出现错误，祝贺你：你可以准备进入下一章节，接着你就可以写你的第一个web应用程序了。&lt;/p&gt;
