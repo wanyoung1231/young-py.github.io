@@ -303,19 +303,37 @@ View函数中数据库的使用
         <title>gevent 学习笔记 —— greenlet</title>
         <description>&lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/yyzt2.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;从gevent官方描述中又提到：that uses greenlet to provide a high-level synchronous API.&lt;/p&gt;
+&lt;p&gt;gevent文档：that uses greenlet to provide a high-level synchronous API.&lt;/p&gt;
 
-&lt;p&gt;翻译：使用greenlet来提供高级同步API。这次学习的主要内容——&lt;strong&gt;greenlet&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;意思是：使用&lt;strong&gt;greenlet&lt;/strong&gt;来提供&lt;strong&gt;高级同步API&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;那greenlet又是怎样一种机制呢？这个后面会稍微简单的讲一下原理，不过在后续的几篇会着重分析它的源码。在开始之前先看看提到的几个关键字『高级』、『同步』，高级不高级暂时还不知道，毕竟在实际生产环境中才看得到效果。而同步这个概念，不知道大家理解深不深刻，总之我当初理解不是很深刻，所以遇到了就聊聊呗！&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;同步&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;不明白为什么会叫同步，总是让我有一种错觉，让我联想到的第一个词汇就是同时进行。不知道大家是不是和我一样，至少我看到同步是不会去想到它的正确意思。我曾一度怀疑是不是翻译错了，但是在质疑别人错之前，应该先质疑一下自己。所以我开始怀疑我的语文没学好，然后我去查了一下汉语词典，结果就悲剧了，我已经开始怀疑我的人生了。 %&amp;gt;_&amp;lt;%&lt;/p&gt;
+
+&lt;p&gt;同步：指两个或两个以上随时间变化的量在变化过程中保持一定的相对关系。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;《光明日报》1984.6.2：“城市改革的步子要加快，要从解决国家与企业、企业与职工的关系入手，把适合于当前情况的各项改革措施初步配起套来，同步进行。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;从上面引用的话应该可以看出，国家与企业、企业与职工，都是两个相对的关系，有着各自的利益。但是他们必须合作才能完成一个共同目标，例如买票看电影。这个场景有两个动作需要完成，一个出票、一个买票，只有出票才能买票，并且这个买票的人还只能傻等，不能做其他事。&lt;/p&gt;
+
+&lt;p&gt;同步真心不是同时进行，所以还是要多读书啊！尤其是语文！&lt;/p&gt;
 
 &lt;hr /&gt;
 
 &lt;h3 id=&quot;greenlet&quot;&gt;&lt;strong&gt;Greenlet&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;greenlet是python中实现我们所谓的”Coroutine(协程)”的一个基础库。前面我们知道了协程是个什么样的东西，但是我们还不知道协程在底层是怎样实现的。在协程篇我们知道，子例程是协程的特例。我们花了比较长的篇幅讲述协程是怎么从子例程中演变过来的。我们知道协程有个特别的地方，就是它能够和进程、线程一样保存上下文。这个上下文是怎样保存的呢？&lt;/p&gt;
+&lt;p&gt;还记得在&lt;a style=&quot;border-bottom: 2px solid #ecf0f1;&quot; href=&quot;http://blog.segmentfault.com/young_ipython/1190000000534263&quot;&gt;协程篇&lt;/a&gt;中学习的吗？花了较长篇幅讲协程及从其子例程演变的过程。而greenlet就是python中实现Coroutine「协程」的一个基础库。前面我们了解了协程的相关概念及思想，但我们还不知道它在底层是怎样实现的。只知道它有个特别的地方，就是能够和进程、线程一样保存上下文，那协程的上下文是怎样保存的呢？&lt;/p&gt;
 
 &lt;hr /&gt;
 
-&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;源码分析&lt;/strong&gt;&lt;/h3&gt;
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;源码初探&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;c&quot;&gt;&lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_greenlet&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;PyObject_HEAD&lt;/span&gt;
@@ -334,6 +352,28 @@ View函数中数据库的使用
     &lt;span class=&quot;n&quot;&gt;PyObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exc_traceback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;PyObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PyGreenlet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;上面给出的是greenlet的结构体定义，有兴趣的可以去下一份源代码看看，里面也有很好的解释。&lt;/p&gt;
+
+&lt;p&gt;这里我们主要了解一下关于堆栈的几个操作，从命名规则就可以找到我们想要的东西，就是它们几个了：&lt;code&gt;stack_start&lt;/code&gt;、&lt;code&gt;stack_stop&lt;/code&gt;、&lt;code&gt;stack_copy&lt;/code&gt;、&lt;code&gt;stack_saved&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;其实仔细想想，你会发现非常的简单。假设有『函数A』和『函数B』，『函数A』进栈执行到一半的时候需要调用『函数B』，没事我们可以将『函数B』进栈(图stack-01)。&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;width:130px; height:190px;&quot; src=&quot;http://0.0.0.0:4000/imgs/gevent2-03.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;好了『函数B』现在又想调用『函数A』了，怎么办？让『函数A』进栈(图stack-02)，这个其实就是普通的函数调用，此『函数A』并不是第一次进栈的那个『函数A』，而是重新在栈中创建的一个实例，该实例的数据并不是之前『函数A』的数据，所以并不能实现我们想要的切换。&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;width:130px; height:245px;&quot; src=&quot;http://0.0.0.0:4000/imgs/gevent2-04.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;那怎样才能做到我们想要的呢？很简单，既然『函数B』完成了当前的任务，它就应该退出来了，但并不是直接出栈，而是通过某种方式将现有的state给记录下来，方便下次用到的时候能够找到。怎么记录呢？这里就可以回到上面我们需要了解的几个栈操作了。&lt;/p&gt;
+
+&lt;p&gt;首先，每个greenlet都有属于它们自己的&lt;code&gt;stack_start&lt;/code&gt;和&lt;code&gt;stack_stop&lt;/code&gt;，通过这两个可以找到你准备出栈的greenlet也就是『函数B』的所有数据，之后在调用&lt;code&gt;PyMem_Realloc&lt;/code&gt;这个方法，就可以在heap中创建一个内存空间用来存放『函数B』，地址为stack_copy，大小为stack_saved字节，通过这两个就可以定位到你存放的『函数B』的数据了(图stack-03)。&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;width:575px; height:205px;&quot; src=&quot;http://0.0.0.0:4000/imgs/gevent2-05.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;之后变成下面(图stack-04)这样了&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;width:250px; height:140px;&quot; src=&quot;http://0.0.0.0:4000/imgs/gevent2-06.png&quot; /&gt;&lt;/p&gt;
 
 </description>
         <pubDate>Sun, 29 Jun 2014 00:48:45 +0800</pubDate>
