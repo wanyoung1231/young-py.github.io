@@ -64,19 +64,37 @@
   <article class="post-content">
   <p><img src="http://young-py.github.io/imgs/yyzt2.jpg" alt="" /></p>
 
-<p>从gevent官方描述中又提到：that uses greenlet to provide a high-level synchronous API.</p>
+<p>gevent文档：that uses greenlet to provide a high-level synchronous API.</p>
 
-<p>翻译：使用greenlet来提供高级同步API。这次学习的主要内容——<strong>greenlet</strong>。</p>
+<p>意思是：使用<strong>greenlet</strong>来提供<strong>高级同步API</strong>。</p>
+
+<p>那greenlet又是怎样一种机制呢？这个后面会稍微简单的讲一下原理，不过在后续的几篇会着重分析它的源码。在开始之前先看看提到的几个关键字『高级』、『同步』，高级不高级暂时还不知道，毕竟在实际生产环境中才看得到效果。而同步这个概念，不知道大家理解深不深刻，总之我当初理解不是很深刻，所以遇到了就聊聊呗！</p>
+
+<hr />
+
+<h3 id="section"><strong>同步</strong></h3>
+
+<p>不明白为什么会叫同步，总是让我有一种错觉，让我联想到的第一个词汇就是同时进行。不知道大家是不是和我一样，至少我看到同步是不会去想到它的正确意思。我曾一度怀疑是不是翻译错了，但是在质疑别人错之前，应该先质疑一下自己。所以我开始怀疑我的语文没学好，然后我去查了一下汉语词典，结果就悲剧了，我已经开始怀疑我的人生了。 %&gt;_&lt;%</p>
+
+<p>同步：指两个或两个以上随时间变化的量在变化过程中保持一定的相对关系。</p>
+
+<blockquote>
+  <p>《光明日报》1984.6.2：“城市改革的步子要加快，要从解决国家与企业、企业与职工的关系入手，把适合于当前情况的各项改革措施初步配起套来，同步进行。</p>
+</blockquote>
+
+<p>从上面引用的话应该可以看出，国家与企业、企业与职工，都是两个相对的关系，有着各自的利益。但是他们必须合作才能完成一个共同目标，例如买票看电影。这个场景有两个动作需要完成，一个出票、一个买票，只有出票才能买票，并且这个买票的人还只能傻等，不能做其他事。</p>
+
+<p>同步真心不是同时进行，所以还是要多读书啊！尤其是语文！</p>
 
 <hr />
 
 <h3 id="greenlet"><strong>Greenlet</strong></h3>
 
-<p>greenlet是python中实现我们所谓的”Coroutine(协程)”的一个基础库。前面我们知道了协程是个什么样的东西，但是我们还不知道协程在底层是怎样实现的。在协程篇我们知道，子例程是协程的特例。我们花了比较长的篇幅讲述协程是怎么从子例程中演变过来的。我们知道协程有个特别的地方，就是它能够和进程、线程一样保存上下文。这个上下文是怎样保存的呢？</p>
+<p>还记得在<a style="border-bottom: 2px solid #ecf0f1;" href="http://blog.segmentfault.com/young_ipython/1190000000534263">协程篇</a>中学习的吗？花了较长篇幅讲协程及从其子例程演变的过程。而greenlet就是python中实现Coroutine「协程」的一个基础库。前面我们了解了协程的相关概念及思想，但我们还不知道它在底层是怎样实现的。只知道它有个特别的地方，就是能够和进程、线程一样保存上下文，那协程的上下文是怎样保存的呢？</p>
 
 <hr />
 
-<h3 id="section"><strong>源码分析</strong></h3>
+<h3 id="section-1"><strong>源码初探</strong></h3>
 
 <div class="highlight"><pre><code class="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_greenlet</span> <span class="p">{</span>
     <span class="n">PyObject_HEAD</span>
@@ -95,6 +113,16 @@
     <span class="n">PyObject</span><span class="o">*</span> <span class="n">exc_traceback</span><span class="p">;</span>
     <span class="n">PyObject</span><span class="o">*</span> <span class="n">dict</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">PyGreenlet</span><span class="p">;</span></code></pre></div>
+
+<p>上面给出的是greenlet的结构体定义，有兴趣的可以去下一份源代码看看，里面也有很好的解释。</p>
+
+<p>这里我们主要了解一下关于堆栈的几个操作，从命名规则就可以找到我们想要的东西，就是它们了：<code>stack_start</code>、<code>stack_stop</code>、<code>stack_copy</code>、<code>stack_saved</code>。</p>
+
+<p>其实仔细想想，你会发现非常的简单。假设有『函数A』和『函数B』，『函数A』进栈执行到一半的时候需要调用『函数B』，没事我们可以将『函数B』进栈。然后就是下面图stack-01这个样子了：</p>
+
+<p><img style="width:180px; height:205px;" src="http://0.0.0.0:4000/imgs/gevent2-03.png" /></p>
+
+<p>好了『函数B』现在又想调用『函数A』了，普通的做法是</p>
 
 
   </article>
