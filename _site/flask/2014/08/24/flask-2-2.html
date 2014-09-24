@@ -4,10 +4,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>小乌龟 の blog</title>
+    <title>路由和视图函数</title>
     <meta name="viewport" content="width=device-width">
     <meta name="description" content="关于Python及生活随记">
-    <link rel="canonical" href="/">
+    <link rel="canonical" href="/flask/2014/08/24/flask-2-2.html">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/main.css">
@@ -53,63 +53,34 @@
 
     <div class="page-content">
       <div class="wrap">
-      <div class="home">
+      <div class="post">
 
-  <h1>Posts</h1>
+  <header class="post-header">
+    <h1>路由和视图函数</h1>
+    <br />
+    <p class="meta">Aug 24, 2014 by young</p>
+  </header>
 
-  <ul class="posts">
-    
-      <li>
-        <a class="post-link" href="/flask/2014/08/24/flask-2-2.html" target="_blank">路由和视图函数</a>
-      </li>
-      <span class="post-date">Aug 24, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/flask/2014/08/19/flask-2-1.html" target="_blank">初始化</a>
-      </li>
-      <span class="post-date">Aug 19, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/flask/2014/08/17/flask-1-2.html" target="_blank">使用pip安装python包</a>
-      </li>
-      <span class="post-date">Aug 17, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/flask/2014/08/16/flask-1-1.html" target="_blank">使用虚拟环境</a>
-      </li>
-      <span class="post-date">Aug 16, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/flask/2014/08/15/catalog.html" target="_blank">Flask Web Development 第一部分 Flask介绍 目录</a>
-      </li>
-      <span class="post-date">Aug 15, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/gevent/2014/06/29/gevent2.html" target="_blank">gevent 学习笔记 —— greenlet源码剖析</a>
-      </li>
-      <span class="post-date">Jun 29, 2014 • gevent</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/gevent/2014/06/29/gevent1.html" target="_blank">gevent 学习笔记 —— greenlet</a>
-      </li>
-      <span class="post-date">Jun 29, 2014 • gevent</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/gevent/2014/05/08/gevent0.html" target="_blank">gevent 学习笔记 —— 协程</a>
-      </li>
-      <span class="post-date">May 8, 2014 • gevent</span>
-      <hr />
-    
-  </ul>
+  <article class="post-content">
+  <p>客户端例如web浏览器发送_请求_给web服务，进而将它们发送给Flask应用程序实例。应用程序实例需要知道对于各个URL请求需要运行哪些代码，所以它给Python函数建立了一个URLs映射。这些在URL和函数之间建立联系的操作被称之为_路由_。</p>
+
+<p>在Flask应程序中定义路由的最便捷的方式是通过显示定义在应用程序实例之上的<code>app.route</code>装饰器，注册被装饰的函数来作为一个路由。下面的例子会演示怎样使用装饰器来申明一个路由：</p>
+
+<div class="highlight"><pre><code class="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&#39;&lt;h1&gt;Hello World!&lt;/h1&gt;&#39;</span></code></pre></div>
+
+<blockquote>
+  <p>注：装饰器是Python语言的标准特性；它们可以以不同方式改变函数的行为。一个常见的模式是使用装饰器来注册函数作为一个事件处理程序。</p>
+</blockquote>
+
+<p>在上一个例子中给应用程序的根URL注册<code>index()</code>函数作为事件处理程序。</p>
+
+<p>如果这个应用程序被部署在</p>
+
+  </article>
+
 </div>
-
       </div>
     </div>
 

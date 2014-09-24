@@ -7,4 +7,42 @@ author: young
 ---
 ![](http://young-py.github.io/imgs/yyzt3.jpg)
 
-请继续关注。。。
+在<a style="border-bottom: 2px solid #ecf0f1;" href="http://blog.segmentfault.com/young_ipython/1190000000626309">greenlet篇</a>中只是简单讲述了一下greenlet原理，不知道有没有人对源码感兴趣的，不过我还是比较感兴趣的。对于技术我一直都觉得知其然，然后知其所以然才是最好的，不希望自己只知道用，而不知道为什么这样用，不希望当别人问起原理的时候回答：“我也不知道，我只知道这样用就可以了”。
+
+一篇可能介绍不完，所以可能需要分几部分来介绍。当我写到这的时候突然发现自己是不是写跑题了，本来是写greenlet源码分析的，结果变成了怎么去写Python扩展了。不过不管怎样，就当多学习了一些其他知识，况且分析源码肯定少不了对这些知识的了解。
+
+-----
+
+### **定义新类型**
+
+
+### **模块初始化**
+
+greenlet是由C去实现的，也就是用C编写的一个扩展模块。什么意思呢？就是说用Python去调用C程序。那像下面这样的用法，内部都是怎样的一个过程呢？
+
+{% highlight python %}
+from greenlet import greenlet
+
+def test1():
+    print 12
+    gr2.switch()
+    print 34
+
+def test2():
+    print 56
+    gr1.switch()
+    print 78
+
+gr1 = greenlet(test1)
+gr2 = greenlet(test2)
+gr1.switch()
+{% endhighlight %}
+
+首先在使用任何一个模块的时候，我们都要将这个模块导入进来，就像java导入jar包，.net引用命名空间一样。那在导入模块的时候发生了什么事情呢？
+
+
+
+
+
+
+
