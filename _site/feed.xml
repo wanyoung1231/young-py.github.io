@@ -328,7 +328,8 @@ View函数中数据库的使用
         <title>gevent 学习笔记 —— greenlet源码剖析</title>
         <description>&lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/yyzt3.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;在&lt;a style=&quot;border-bottom: 2px solid #ecf0f1;&quot; href=&quot;http://blog.segmentfault.com/young_ipython/1190000000626309&quot;&gt;greenlet篇&lt;/a&gt;中只是简单讲述了一下greenlet原理，不知道有没有人对源码感兴趣的，不过我还是比较感兴趣的。对于技术我一直都觉得知其然，然后知其所以然才是最好的，不希望自己只知道用，而不知道为什么这样用，不希望当别人问起原理的时候回答：“我也不知道，我只知道这样用就可以了”。&lt;/p&gt;
+&lt;p&gt;在&lt;a style=&quot;border-bottom: 2px solid #ecf0f1;&quot; href=&quot;http://blog.segmentfault.com/young_ipython/1190000000626309&quot;&gt;greenlet篇&lt;/a&gt;中只是简单讲述了一下greenlet原理，不知道有没有人对源码感兴趣的，不过我还是比较感兴趣的。对于技术我一直都觉得『
+知其然，然后知其所以然』才是最好的，不希望自己只停留在知道用，而不知道为什么这样用，更不希望当别人问起原理的时候回答：“我也不知道，我只知道这样用”。&lt;/p&gt;
 
 &lt;p&gt;一篇可能介绍不完，所以可能需要分几部分来介绍。当我写到这的时候突然发现自己是不是写跑题了，本来是写greenlet源码分析的，结果变成了怎么去写Python扩展了。不过不管怎样，就当多学习了一些其他知识，况且分析源码肯定少不了对这些知识的了解。&lt;/p&gt;
 
@@ -336,7 +337,7 @@ View函数中数据库的使用
 
 &lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;模块初始化&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;greenlet是由C去实现的，也就是用C编写的一个扩展模块。什么意思呢？就是说用Python去调用C程序。那像下面这样的用法，内部都是怎样的一个过程呢？&lt;/p&gt;
+&lt;p&gt;greenlet是用C编写的一个扩展模块，即用Python去调用C程序。像下面这段代码，内部都是怎样的一个过程呢？&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;greenlet&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;greenlet&lt;/span&gt;
 
@@ -353,6 +354,9 @@ View函数中数据库的使用
 &lt;span class=&quot;n&quot;&gt;gr1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;greenlet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;test1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;gr2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;greenlet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;test2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;gr1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;switch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这段代码中，我们看到&lt;code&gt;from greenlet import greenlet&lt;/code&gt;这句，相信都能明白是导入了一个模块。为什么要导入这个模块呢？这个问题有点瞧不起大家了，因为我们可能需要使用这个模块的某个功能。那在导入这个模块的时候，Python解释器都做了哪些操作呢？&lt;/p&gt;
+
 </description>
         <pubDate>Sun, 29 Jun 2014 00:48:45 +0800</pubDate>
         <link>/gevent/2014/06/29/gevent2.html</link>
