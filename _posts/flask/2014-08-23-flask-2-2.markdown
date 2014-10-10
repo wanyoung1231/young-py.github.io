@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "初始化"
+title:  "路由和视图函数"
 date:   2014-08-23 21:03:40
 categories: flask
 author: young

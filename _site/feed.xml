@@ -7,21 +7,44 @@
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>路由和视图函数</title>
+        <description>&lt;p&gt;客户端例如web浏览器发送_请求_给web服务，进而将它们发送给Flask应用程序实例。应用程序实例需要知道对于各个URL请求需要运行哪些代码，所以它给Python函数建立了一个URLs映射。这些在URL和函数之间建立联系的操作被称之为_路由_。&lt;/p&gt;
+
+&lt;p&gt;在Flask应程序中定义路由的最便捷的方式是通过显示定义在应用程序实例之上的&lt;code&gt;app.route&lt;/code&gt;装饰器，注册被装饰的函数来作为一个路由。下面的例子会演示怎样使用装饰器来申明一个路由：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;lt;h1&amp;gt;Hello World!&amp;lt;/h1&amp;gt;&amp;#39;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;注：装饰器是Python语言的标准特性；它们可以以不同方式改变函数的行为。一个常见的模式是使用装饰器来注册函数作为一个事件处理程序。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;在上一个例子中给应用程序的根URL注册&lt;code&gt;index()&lt;/code&gt;函数作为事件处理程序。&lt;/p&gt;
+
+&lt;p&gt;如果这个应用程序被部署在&lt;/p&gt;
+</description>
+        <pubDate>Sun, 24 Aug 2014 05:03:40 +0800</pubDate>
+        <link>/flask/2014/08/24/flask-2-2.html</link>
+        <guid isPermaLink="true">/flask/2014/08/24/flask-2-2.html</guid>
+      </item>
+    
+      <item>
         <title>初始化</title>
         <description>&lt;p&gt;在这章，你将学到Flask应用程序的不同部分。同时，你将编写和运行你的第一个Flask web应用程序。&lt;/p&gt;
 
-&lt;p&gt;所有的Flask应用程序都必须创建一个_应用程序实例_。使用web服务器网关接口协议将所有从客户端接收的请求传递给这个对象处理。这个应用程序实例是&lt;strong&gt;Flask&lt;/strong&gt;类的一个对象，通常使用下面的方式创建：&lt;/p&gt;
+&lt;p&gt;所有的Flask应用程序都必须创建一个_应用程序实例_。使用web服务器网关接口协议将所有从客户端接收的请求传递给这个对象处理。这个应用程序实例就是&lt;strong&gt;Flask&lt;/strong&gt;类的一个对象，通常使用下面的方式创建：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;Flask类构造函数唯一需要的参数就是应用程序的主模块或包。对于大多数应用程序，Python的&lt;code&gt;__name__&lt;/code&gt;变量是正确的值。&lt;/p&gt;
+&lt;p&gt;Flask类构造函数唯一需要的参数就是应用程序的主模块或包。对于大多数应用程序，Python的&lt;code&gt;__name__&lt;/code&gt;变量就是那个正确的、你需要传递的值。&lt;/p&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;注：&lt;/p&gt;
+  &lt;p&gt;注：对于Flask开发者来说，传给Flask应用程序构造函数的&lt;code&gt;name&lt;/code&gt;参数是比较容易弄混淆的。Flask使用这个参数来确定应用程序的根目录，这样以后可以相对这个路径来找到资源文件。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;未完待续。。。&lt;/p&gt;
+&lt;p&gt;稍后你可以看到更复杂的应用程序实例初始化，但是对于简单应用程序这些已经足够了。&lt;/p&gt;
 
 </description>
         <pubDate>Tue, 19 Aug 2014 01:26:38 +0800</pubDate>
@@ -302,8 +325,72 @@ View函数中数据库的使用
       </item>
     
       <item>
-        <title>gevent 学习笔记 —— greenlet源码剖析</title>
-        <description>&lt;p&gt;&lt;img src=&quot;http://0.0.0.0:4000/imgs/yyzt3.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+        <title>gevent 学习笔记 —— greenlet源码剖析1</title>
+        <description>&lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/yyzt3.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在&lt;a style=&quot;border-bottom: 2px solid #ecf0f1;&quot; href=&quot;http://blog.segmentfault.com/young_ipython/1190000000626309&quot;&gt;greenlet篇&lt;/a&gt;中只是简单讲述了一下greenlet原理，不知道有没有人对源码感兴趣的，不过我还是比较感兴趣的。对于技术我一直都觉得『
+知其然，然后知其所以然』才是最好的，不希望自己只停留在知道用，而不知道为什么这样用，更不希望当别人问起原理的时候回答：“我也不知道，我只知道这样用”。&lt;/p&gt;
+
+&lt;p&gt;一篇可能介绍不完，所以可能需要分几部分来介绍。当我写到这的时候突然发现自己是不是写跑题了，本来是写greenlet源码分析的，结果变成了怎么去写Python扩展了。不过不管怎样，就当多学习了一些其他知识，况且分析源码肯定少不了对这些知识的了解。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;模块初始化&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;greenlet是用C编写的一个扩展模块，即用Python去调用C程序。像下面这段代码，内部都是怎样的一个过程呢？&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;greenlet&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;greenlet&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;12&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;gr2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;switch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;34&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;56&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;gr1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;switch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;78&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;gr1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;greenlet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;test1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;gr2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;greenlet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;test2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;gr1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;switch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这段代码中，我们看到&lt;code&gt;from greenlet import greenlet&lt;/code&gt;这句，相信都能明白是导入了一个模块。为什么要导入这个模块呢？这个问题有点瞧不起大家了，因为我们可能需要使用这个模块的某个功能。那在导入这个模块的时候，Python解释器需要做哪些工作呢？在使用一个类的时候，我们肯定是需要调用构造函数来初始化的，导入模块就类似于这样的一个初始化过程。所以肯定会有一个初始化函数，它长啥样？&lt;/p&gt;
+
+&lt;p&gt;在文档中有这样一句：The initialization function must be named &lt;code&gt;initname()&lt;/code&gt;, where &lt;em&gt;name&lt;/em&gt; is the name of the module, and should be the only non-static item defined in the module file。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;所以对于greenlet，我们就能找到&lt;code&gt;initgreenlet(void)&lt;/code&gt;函数。&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;c&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#define INITERROR return&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 第一次导入greenlet模块时调用&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;PyMODINIT_FUNC&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initgreenlet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;PyObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;char&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;PyObject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c_api_object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_PyGreenlet_API&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PyGreenlet_API_pointers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;GREENLET_NOINLINE_INIT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Py_InitModule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;greenlet&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GreenMethods&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;INITERROR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;首先根据模块名查找相应的初始化函数，然后&lt;code&gt;Py_InitModule()&lt;/code&gt;函数向Python解释器注册该模块中所有可以用到的方法。而&lt;code&gt;Py_InitModule()&lt;/code&gt;函数是由Python提供的C API，对于使用C API只需要包含一个头文件就可以了。&lt;/p&gt;
+
+&lt;p&gt;官方文档描述：All function, type and macro definitions needed to use the Python/C API are included in your code by the following line:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;c&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include &amp;quot;Python.h&amp;quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;方法列表&lt;/strong&gt;&lt;/h3&gt;
+
 </description>
         <pubDate>Sun, 29 Jun 2014 00:48:45 +0800</pubDate>
         <link>/gevent/2014/06/29/gevent2.html</link>

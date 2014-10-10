@@ -64,18 +64,18 @@
   <article class="post-content">
   <p>在这章，你将学到Flask应用程序的不同部分。同时，你将编写和运行你的第一个Flask web应用程序。</p>
 
-<p>所有的Flask应用程序都必须创建一个_应用程序实例_。使用web服务器网关接口协议将所有从客户端接收的请求传递给这个对象处理。这个应用程序实例是<strong>Flask</strong>类的一个对象，通常使用下面的方式创建：</p>
+<p>所有的Flask应用程序都必须创建一个_应用程序实例_。使用web服务器网关接口协议将所有从客户端接收的请求传递给这个对象处理。这个应用程序实例就是<strong>Flask</strong>类的一个对象，通常使用下面的方式创建：</p>
 
 <div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span></code></pre></div>
 
-<p>Flask类构造函数唯一需要的参数就是应用程序的主模块或包。对于大多数应用程序，Python的<code>__name__</code>变量是正确的值。</p>
+<p>Flask类构造函数唯一需要的参数就是应用程序的主模块或包。对于大多数应用程序，Python的<code>__name__</code>变量就是那个正确的、你需要传递的值。</p>
 
 <blockquote>
-  <p>注：</p>
+  <p>注：对于Flask开发者来说，传给Flask应用程序构造函数的<code>name</code>参数是比较容易弄混淆的。Flask使用这个参数来确定应用程序的根目录，这样以后可以相对这个路径来找到资源文件。</p>
 </blockquote>
 
-<p>未完待续。。。</p>
+<p>稍后你可以看到更复杂的应用程序实例初始化，但是对于简单应用程序这些已经足够了。</p>
 
 
   </article>
