@@ -76,6 +76,9 @@ PyMODINIT_FUNC initgreenlet(void)
 
 ### **方法列表**
 
+根据函数名我们可以找到一句关键的代码`m = Py_InitModule("greenlet", GreenMethods)`。官方文档描述：Create a new module object based on a name and table of functions, returning the new module object.
+
+里面提到了table of functions，即`GreenMethods`，一般称它为方法列表。该列表给出了所有可以被Python解释器使用的方法，将这些方法注册到这个模块中，这样在我们导入模块后就可以直接使用了。
 
 
 
