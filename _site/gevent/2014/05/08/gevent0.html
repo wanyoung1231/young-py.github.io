@@ -84,46 +84,65 @@
 
 <h3 id="section"><strong>子例程</strong></h3>
 
-<p>过程有两种，一种叫子例程（Subroutine），通常叫Sub；另一种叫函数（Function）。底层实现机制是一样的，区别在于，Sub只执行操作，没有返回值；Function不但执行操作，并且有返回值。用过VB的应该会比较清楚这点。（原谅我用了百度百科）</p>
+<p>过程有两种，一种叫子例程（Subroutine），通常叫Sub；另一种叫函数（Function）。底层实现机制是一样的，区别在于，Sub只执行操作，没有返回值；Function不但执行操作，并且有返回值。用过VB的应该会比较清楚这点。（原谅我用了百度百科）说到底子例程就是过程，我们一般叫它函数。</p>
+
+<p>说到函数，我就想吐槽了，不明白为什么要叫函数。很多时候我们写一个函数是为了封装、模块化某个功能，它是一个功能、或者说是一个过程。因为它包含的是类似于流程图那样的具体逻辑，先怎样做，然后怎样做；如果遇到A情况则怎样，如果遇到B情况又怎样。叫做函数就让人很纠结了，难道因为回归到底层还是计算问题，出于数学的角度把它称为函数？这个略坑啊！为了符合大家的口味，我还是称之为函数好了（其实我也习惯叫函数了%&gt;_&lt;%）。</p>
+
+<p>讲到子例程，我们就往底层挖掘一下，看看下面的代码：</p>
 
 <div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">a</span><span class="p">():</span>
-    <span class="k">print</span> <span class="s">&quot;push b&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;a start&quot;</span>
     <span class="n">b</span><span class="p">()</span>
-    <span class="k">print</span> <span class="s">&quot;pop a&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;a end&quot;</span>
 
 <span class="k">def</span> <span class="nf">b</span><span class="p">():</span>
-    <span class="k">print</span> <span class="s">&quot;pop b&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;b start&quot;</span>
+    <span class="n">c</span><span class="p">()</span>
+    <span class="k">print</span> <span class="s">&quot;b end&quot;</span>
+
+<span class="k">def</span> <span class="nf">c</span><span class="p">():</span>
+    <span class="k">print</span> <span class="s">&quot;c start&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;c end&quot;</span>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="k">print</span> <span class="s">&quot;push a&quot;</span>
-    <span class="n">a</span><span class="p">()</span></code></pre></div>
+    <span class="n">a</span><span class="p">()</span>
 
-<div class="highlight"><pre><code class="python"><span class="n">push</span> <span class="n">a</span>
-<span class="n">push</span> <span class="n">b</span>
-<span class="n">pop</span> <span class="n">b</span>
-<span class="n">pop</span> <span class="n">a</span></code></pre></div>
+<span class="n">a</span> <span class="n">start</span>
+<span class="n">b</span> <span class="n">start</span>
+<span class="n">c</span> <span class="n">start</span>
+<span class="n">c</span> <span class="n">end</span>
+<span class="n">b</span> <span class="n">end</span>
+<span class="n">a</span> <span class="n">end</span></code></pre></div>
 
-<p>每当子例程被调用时，都会生成一个新的子例程实例，表现在底层就是在栈中开辟新的栈空间。执行从被调用子例程的起始处开始，子例程的起始处是唯一的入口点，一旦退出即完成了子例程的执行，该子例程的实例就会从栈中弹出。它的生命周期遵循后进先出，最后一个被调用的子例程最先返回。</p>
+<p>对于这样的结果大家肯定不会意外的。每当函数被调用，就会在栈中开辟一个栈空间，调用结束后再回收该空间。</p>
+
+<p>假设一个这样的场景：有个讲台，每个人都可以上去发表言论，但是每次讲台只能站一个人。现在a在上面演讲，当他说到“大家好！”的时候，b有个紧急通知要告诉大家，所以a就先下来让b讲完通知，然后a再上讲台继续演讲。如果用函数的思想解决，堆栈示意图是这样的：</p>
+
+<p><img style="width:461px; height:172px;" src="http://young-py.github.io/imgs/gevent0-01.png" /></p>
+
+<p>大家会不会发现问题，就是每次a继续演讲都要重新开始。因为函数在重新调用的时候，它的局部变量是会被重置的，对于之前他说的那句“大家好”，他是不会记得的（可能a的记性不好）。那有没有什么办法可以不让他重复，而是在打断之后继续呢？很简单，在他走下讲台之前记住当前说过的话。表现在函数中就是在退出之前，保存该函数的局部变量，方便在重新进入该函数的时候，能够从之前的局部变量开始继续执行。</p>
 
 <hr />
 
 <h3 id="section-1"><strong>升级版</strong></h3>
 
-<p>组织构建一个大型程序通常是非常艰难的工作。经常会碰到这样一种特殊问题：如果你有一段代码生产数据，另外一段代码消费数据，哪个应该是调用者，哪个应该是被调用者？</p>
+<p>如果你有一段代码生产数据，另外一段代码消费数据，哪个应该是调用者，哪个应该是被调用者？</p>
 
-<p>例如：生产者 —— 消费者问题，先抛开进程、线程等实现方法。假设有两个子例程producer和consumer，当缓冲区满了，producer调用consumer，当缓冲区空了，consumer调用producer，但是这样的子例程互相调用会出什么问题？</p>
+<p>例如：生产者 —— 消费者问题，先抛开进程、线程等实现方法。假设有两个函数producer和consumer，当缓冲区满了，producer调用consumer，当缓冲区空了，consumer调用producer，但是这样的函数互相调用会出什么问题？</p>
 
 <div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">producer</span><span class="p">():</span>
+    <span class="k">print</span> <span class="s">&quot;生产一个&quot;</span>
     <span class="n">consumer</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">consumer</span><span class="p">():</span>
+    <span class="k">print</span> <span class="s">&quot;消费一个&quot;</span>
     <span class="n">producer</span><span class="p">()</span></code></pre></div>
 
-<p>我们知道每当子例程被调用时，都会生成一个新的子例程实例，在栈中开辟新的空间。这样无限次数的调用，很快就会栈空间不足造成堆栈溢出错误。因为子例程的本身设计就是不完美的，子例程每次退出都会清空该子例程实例的栈帧，每次进入都是重新开始。子例程不具备保存退出点和局部状态的能力。</p>
+<p>producer调用consumer，producer并没有退出，这个时候consumer又继续调用producer，consumer也没有退出。这样无限次数的调用，都会在栈中开辟空间，很快就会因为栈空间不足造成堆栈溢出错误。其实函数并不具备解决这类问题的能力，函数每次退出都会清空该实例的栈帧，每次进入都是重新开始，函数不具备保存退出点和局部状态的能力。</p>
 
 <p>那什么东西有这样的能力呢？我们很快就可以想到进程、线程，但是你真的想使用进程、线程如此重量级的东西在这么简单的程序上吗？野蛮的抢占式机制和笨重的上下文切换！</p>
 
-<p>协程就是拥有这种能力的神器。它能保留上一次调用时的状态，每次重新进入该过程的时候，就相当于回到上一次离开时所处逻辑流的位置。协程的起始处是第一个入口点，在协程里，返回点之后是接下来的入口点。协程的生命期完全由他们的使用的需要决定。每个协程在用yield命令向另一个协程交出控制时都尽可能做了更多的工作，放弃控制使得另一个协程从这个协程停止的地方开始，接下来的每次协程被调用时，都是从协程返回（或yield）的位置接着执行。</p>
+<p>还有一种程序组件，那就是协程。它能保留上一次调用时的状态，每次重新进入该过程的时候，就相当于回到上一次离开时所处逻辑流的位置。协程的起始处是第一个入口点，<strong>在协程里，返回点之后是接下来的入口点</strong>。协程的生命期完全由他们的使用的需要决定。每个协程在用yield命令向另一个协程交出控制时都尽可能做了更多的工作，放弃控制使得另一个协程从这个协程停止的地方开始，接下来的每次协程被调用时，都是从协程返回（或yield）的位置接着执行。</p>
 
 <p>从上面这些你就可以知道其实协程是模拟了多线程（或多进程）的操作，多线程在切换的时候都会有一个上下文切换，在退出的时候将现场保存起来，等到下一次进入的时候从保存的现场开始，继续执行。</p>
 
@@ -165,7 +184,7 @@
 <h3 id="section-2"><strong>总结</strong></h3>
 <p>协程其实模拟了人类活动的一种过程。例如：你准备先写文档，然后修复bug。这时候接到电话说这个bug很严重，必须立即修复（可以看作CPU通知）。于是你暂停写文档，开始去填坑，终于你把坑填完了，你回来写文档，这个时候你肯定是接着之前写的文档继续，难道你要把之前写的给删了，重新写？这就是协程。那如果是子例程呢？那你就必须重新写了，因为退出之后，栈帧就会被弹出销毁，再次调用就是开辟新的栈空间了。</p>
 
-<p>总结出：协程就是用户态下的线程，是人们在有了进程、线程之后仍觉得效率不够，而追求的又一种高并发解决方案。为什么说是用户态，是因为操作系统并不知道它的存在，它是由程序员自己控制、互相协作的让出控制权而不是像进程、线程那样由操作系统调度决定是否让出控制权。</p>
+<p>总结：协程就是用户态下的线程，是人们在有了进程、线程之后仍觉得效率不够，而追求的又一种高并发解决方案。为什么说是用户态，是因为操作系统并不知道它的存在，它是由程序员自己控制、互相协作的让出控制权而不是像进程、线程那样由操作系统调度决定是否让出控制权。</p>
 
 
   </article>
