@@ -329,7 +329,7 @@ View函数中数据库的使用
         <description>&lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/yyzt3.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;在&lt;a style=&quot;border-bottom: 2px solid #ecf0f1;&quot; href=&quot;http://blog.segmentfault.com/young_ipython/1190000000626309&quot;&gt;greenlet篇&lt;/a&gt;中只是简单讲述了一下greenlet原理，不知道有没有人对源码感兴趣的，不过我还是比较感兴趣的。对于技术我一直都觉得『
-知其然，然后知其所以然』才是最好的，不希望自己只停留在知道用，而不知道为什么这样用，更不希望当别人问起原理的时候回答：“我也不知道，我只知道这样用”。&lt;/p&gt;
+知其然，知其所以然』才是最好的，不希望自己只停留在知道用，而不知道为什么这样用。&lt;/p&gt;
 
 &lt;p&gt;一篇可能介绍不完，所以可能需要分几部分来介绍。当我写到这的时候突然发现自己是不是写跑题了，本来是写greenlet源码分析的，结果变成了怎么去写Python扩展了。不过不管怎样，就当多学习了一些其他知识，况且分析源码肯定少不了对这些知识的了解。&lt;/p&gt;
 
@@ -357,7 +357,7 @@ View函数中数据库的使用
 
 &lt;p&gt;这段代码中，我们看到&lt;code&gt;from greenlet import greenlet&lt;/code&gt;这句，相信都能明白是导入了一个模块。为什么要导入这个模块呢？这个问题有点瞧不起大家了，因为我们可能需要使用这个模块的某个功能。那在导入这个模块的时候，Python解释器需要做哪些工作呢？在使用一个类的时候，我们肯定是需要调用构造函数来初始化的，导入模块就类似于这样的一个初始化过程。所以肯定会有一个初始化函数，它长啥样？&lt;/p&gt;
 
-&lt;p&gt;在文档中有这样一句：The initialization function must be named &lt;code&gt;initname()&lt;/code&gt;, where &lt;em&gt;name&lt;/em&gt; is the name of the module, and should be the only non-static item defined in the module file。&lt;/p&gt;
+&lt;p&gt;在文档中有这样一句：The initialization function must be named &lt;code&gt;initname()&lt;/code&gt;, where &lt;em&gt;name&lt;/em&gt; is the name of the module, and should be the only non-static item defined in the module file.&lt;/p&gt;
 
 &lt;hr /&gt;
 
@@ -391,29 +391,35 @@ View函数中数据库的使用
 
 &lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;方法列表&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;根据函数名我们可以找到一句关键的代码&lt;code&gt;m = Py_InitModule(&quot;greenlet&quot;, GreenMethods)&lt;/code&gt;。官方文档描述：Create a new module object based on a name and table of functions, returning the new module object.&lt;/p&gt;
+&lt;p&gt;看下关键代码&lt;code&gt;m = Py_InitModule(&quot;greenlet&quot;, GreenMethods)&lt;/code&gt;。官方文档描述：Create a new module object based on a name and table of functions, returning the new module object.&lt;/p&gt;
 
-&lt;p&gt;里面提到了table of functions，即&lt;code&gt;GreenMethods&lt;/code&gt;，一般称它为方法列表。该列表给出了所有可以被Python解释器使用的方法，将这些方法注册到这个模块中，这样在我们导入模块后就可以直接使用了。&lt;/p&gt;
+&lt;p&gt;里面提到了table of functions，在这个模块中指的就是&lt;code&gt;GreenMethods&lt;/code&gt;，一般称它为方法列表。该列表给出了所有可以被Python解释器使用的方法，将这些方法注册到这个模块中，这样在我们导入模块后就可以直接使用了。&lt;/p&gt;
 
-&lt;p&gt;当Python程序第一次导入greenlet模块的时候，&lt;code&gt;initgreenlet()&lt;/code&gt;会被调用。它将调用&lt;code&gt;Py_InitModule()&lt;/code&gt;创建一个“模块对象”（它将被插入到&lt;code&gt;sys.modules&lt;/code&gt;字典下的“greenlet”键下），并且将插入方法列表（PyMethodDef结构数组）构成的内建函数对象作为它的第二个参数传到最新被创建的模块种。&lt;code&gt;Py_InitModule()&lt;/code&gt;返回一个指向它创建的模块对象的指针。方法列表代码：&lt;/p&gt;
+&lt;p&gt;当Python程序第一次导入greenlet模块的时候，调用&lt;code&gt;initgreenlet()&lt;/code&gt;函数。接着&lt;code&gt;Py_InitModule()&lt;/code&gt;会创建一个“模块对象”（它将被插入到&lt;code&gt;sys.modules&lt;/code&gt;字典下的“greenlet”键下），并且将方法列表（PyMethodDef结构数组）构成的内建函数对象作为它的第二个参数传到刚被创建的模块中。&lt;code&gt;Py_InitModule()&lt;/code&gt;返回一个指向它创建的模块对象的指针。方法列表代码：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;c&quot;&gt;&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PyMethodDef&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GreenMethods&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;getcurrent&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PyCFunction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mod_getcurrent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;METH_NOARGS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;cm&quot;&gt;/*XXX*/&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
-&lt;span class=&quot;cp&quot;&gt;#if GREENLET_USE_TRACING&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;settrace&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PyCFunction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mod_settrace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;METH_VARARGS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;gettrace&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PyCFunction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mod_gettrace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;METH_NOARGS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
-&lt;span class=&quot;cp&quot;&gt;#endif&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;     &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;        &lt;span class=&quot;cm&quot;&gt;/* Sentinel */&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;仔细看下方法列表中的每项，它都是由四个部分组成：方法名、导出函数、参数传递方式和方法描述。
-方法名：从Python解释器中调用该方法时所使用的名字。&lt;/p&gt;
+&lt;p&gt;方法列表中的各项参数如下：
+&lt;img src=&quot;http://0.0.0.0:4000/imgs/gevent3-01.png&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;参数传递方式：则规定了Python向C函数传递参数的具体形式，可选的两种方式是METH_VARARGS和METH_KEYWORDS，其中METH_VARARGS是参数传递的标准形式，它通过Python的元组在Python解释器和C函数之间传递参数，若采用METH_KEYWORD方式，则Python解释器和C函数之间将通过Python的字典类型在两者之间进行参数传递。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;(PyCFunction)mod_getcurrent&lt;/code&gt;函数如下：&lt;/p&gt;
 
-&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;导出函数&lt;/strong&gt;&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;c&quot;&gt;&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PyObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;mod_getcurrent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PyObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;STATE_OK&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;NULL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Py_INCREF&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ts_current&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PyObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ts_current&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;讲到这，一个模块的初始化工作基本就完成了。不过发现一个问题，模块初始化的时候只提供了&lt;code&gt;getcurrent&lt;/code&gt;方法使用，其他的像&lt;code&gt;switch&lt;/code&gt;、&lt;code&gt;run&lt;/code&gt;怎么没有看到？具体的这些就放到下一篇再讲了！&lt;/p&gt;
+&lt;p&gt;该函数的作用就是获取当前greenlet对象，并添加引用计数。&lt;/p&gt;
+
+&lt;p&gt;讲到这，一个模块的初始化工作基本就完成了。不过发现一个问题，模块初始化的时候只提供了&lt;code&gt;getcurrent&lt;/code&gt;方法使用，其他的像&lt;code&gt;switch&lt;/code&gt;、&lt;code&gt;run&lt;/code&gt;怎么没有看到？&lt;/p&gt;
+
+&lt;p&gt;greenlet官方文档中，&lt;code&gt;greenlet.getcurrent()&lt;/code&gt;和&lt;code&gt;g.switch(*args, **kwargs)&lt;/code&gt;，它们之间有什么区别呢？具体的这些就放到下一篇再讲了！&lt;/p&gt;
 
 </description>
         <pubDate>Sun, 29 Jun 2014 00:48:45 +0800</pubDate>
