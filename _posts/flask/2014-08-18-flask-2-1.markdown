@@ -6,11 +6,13 @@ categories: flask
 author: young
 ---
 
+在这一章，你将学习Flask应用程序不同部分。同时你将编写和运行你的第一个Flask web应用程序。
+
 ### **1、初始化**
 
 在这章，你将学到Flask应用程序的不同部分。同时，你将编写和运行你的第一个Flask web应用程序。
 
-所有的Flask应用程序都必须创建一个_应用程序实例_。使用web服务器网关接口协议将所有从客户端接收的请求传递给这个对象处理。这个应用程序实例就是**Flask**类的一个对象，通常使用下面的方式创建：
+所有的Flask应用程序都必须创建一个 _应用程序实例_ 。使用web服务器网关接口协议将所有从客户端接收的请求传递给这个对象处理。这个应用程序实例就是**Flask**类的一个对象，通常使用下面的方式创建：
     
 {% highlight python %}
 
@@ -27,7 +29,7 @@ Flask类构造函数唯一需要的参数就是应用程序的主模块或包。
 
 ### **2、路由和视图函数**
 
-客户端例如web浏览器发送_请求_给web服务，进而将它们发送给Flask应用程序实例。应用程序实例需要知道对于各个URL请求需要运行哪些代码，所以它给Python函数建立了一个URLs映射。这些在URL和函数之间建立联系的操作被称之为_路由_。
+客户端例如web浏览器发送_请求_给web服务，进而将它们发送给Flask应用程序实例。应用程序实例需要知道对于各个URL请求需要运行哪些代码，所以它给Python函数建立了一个URLs映射。这些在URL和函数之间建立联系的操作被称之为 _路由_ 。
 
 在Flask应程序中定义路由的最便捷的方式是通过显示定义在应用程序实例之上的`app.route`装饰器，注册被装饰的函数来作为一个路由。下面的例子会演示怎样使用装饰器来申明一个路由：
 
@@ -41,19 +43,109 @@ def index():
 
 >注：装饰器是Python语言的标准特性；它们可以以不同方式改变函数的行为。一个常见的模式是使用装饰器来注册函数作为一个事件处理程序。
 
-在上一个示例给应用程序的根URL注册`index()`函数作为事件的处理程序。如果这个应用程序被部署在服务器上并绑定了__www.example.com__域名，然后在你的浏览器地址栏中输入__http://www.example.com__将触发`index()`来运行服务。客户端接收到的这个函数的返回值被称为__响应__。如果客户端是web浏览器，响应则是显示给用户的文档。
+在上一个示例给应用程序的根URL注册`index()`函数作为事件的处理程序。如果这个应用程序被部署在服务器上并绑定了 _www.example.com_ 域名，然后在你的浏览器地址栏中输入 _http://www.example.com_ 将触发`index()`来运行服务。客户端接收到的这个函数的返回值被称为 _响应_ 。如果客户端是web浏览器，响应则是显示给用户的文档。
 
-类似于`index()`的函数被称作__视图函数__。通过视图返回的响应可以是简单的HTML内容的字符串，但它也可以市更复杂的形式，正如您将看到的。
+类似于`index()`的函数被称作 _视图函数_ 。通过视图返回的响应可以是简单的HTML内容的字符串，但它也可以市更复杂的形式，正如您将看到的。
 
->注：响应字符串嵌入在Python代码中
+>注：响应字符串嵌入在Python代码中导致代码难以掌控，在此只是介绍响应的概念。你将在第三章学习正确的方法来生成响应。
 
+如果你注意到你每天使用的一些网站URLs如何形成的，你将会发现很多都有变量。例如，你的Facebook个人信息页的URL是 _http://www.facebook.com/\<username\>_ ，所以你的用户名是它的一部分。Flask在路由装饰器中使用特殊的语法支持这些类型的URLs。下面的示例定义了一个拥有动态名称组件的路由：
 
+{% highlight python %}
 
+@app.route('/user/<name>') 
+def user(name):
+    return '<h1>Hello, %s!</h1>' % name
 
+{% endhighlight %}
 
+用尖括号括起来的部分是动态的部分，所以任何URLs匹配到静态部分都将映射到这个路由。当视图函数被调用，Flask发送动态组件作为一个参数。在前面的示例的视图函数中，这个参数是用于生成一个个性的问候作为响应。
 
+在路由中动态组件默认为字符串，但是可以定义为其他类型。例如，路由`/user/<int:id>`只匹配有一个整数在id动态段的URLs。Flask路由支持int、float和path。path同样是字符串类型，但并不认为斜杠是分隔符，而认为它们是动态组件的一部分。
 
+### **3、服务启动**
 
+应用程序实例有一个`run`方法用于启动Flask集成的web服务：
+
+{% highlight python %}
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+{% endhighlight %}
+
+`__name__ == '__main__'`在此处使用是用于确保web服务已经启动当脚本被立即执行。当脚本被另一个脚本导入，它被看做父脚本将启动不同的服务，所以`app.run()`调用会被跳过。
+
+一旦服务启动，它将进入循环等待请求并为之服务。这个循环持续到应用程序停止，例如通过按下`Ctrl-C`。
+
+有几个选项参数可以给`app.run()`配置web服务的操作模式。在开发期间，可以很方便的开启debug模式，将激活 _debugger_ 和 _reloader_ 。这样做是通过传递debug为True来实现的。
+
+>注：Flask提供的web服务并不用于生产环境。你将在十七章学习生产环境的web服务。
+
+### **一个完整的应用程序**
+
+在上一节，你学习了Flask web应用程序的不同部分，现在是时候写一个了。整个 _hello.py_ 应用程序脚本只不过将前面描述的三个部分结合在一个文件中。应用程序示例2-1所示。
+
+_示例2-1 hello.py：一个完整的Flask应用程序_
+
+{% highlight python %}
+
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return '<h1>Hello World!</h1>'
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+{% endhighlight %}
+
+>建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行`git checkout 2a`来切换到这个版本的应用程序。
+
+运行应用程序之前，请确保你在之前创建的虚拟环境已经是激活状态且已安装Flask。现在打开你的web浏览器并在地址栏输入 _http://127.0.0.1:5000/_ 。图像2-1显示连接到应用程序后的web浏览器。
+
+![](http://young-py.github.io/imgs/flask2-01.png)
+
+_图像2-1 hello.py Flask应用程序_
+
+然后输入以下命令启动应用程序：
+    (venv) $ python hello.py
+     * Running on http://127.0.0.1:5000/
+     * Restarting with reloader
+
+如果你输入任何其他URL，应用程序将不知道如何操作它并且将返回错误代码404给浏览器——当你访问一个不存在的网页也会得到该错误。
+
+示例2-2所示应用程序的增强版添加了第二个动态路由。当你访问这个URI，你应该可以看到一个个性的问候。
+
+_示例2-2 hello.py：带有动态路由的Flask应用程序_
+
+{% highlight python %}
+
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return '<h1>Hello World!</h1>'
+
+@app.route('/user/<name>')
+def user(name):
+    return '<h1>Hello, %s!</h1>' % name
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+{% endhighlight %}
+
+>建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行`git checkout 2b`来切换到这个版本的应用程序。
+
+测试动态路由，确保服务正在运行随后访问 _http://localhost:5000/user/young_ 。生成的应用程序会使用动态参数名响应一个定制的问候。尝试不同的名称，看看视图函数总是生成响应基于给定的名称。图像2-2展示的一个示例。
+
+![](http://young-py.github.io/imgs/flask2-02.png)
+
+_图像2-2 hello.py 动态路由_
 
 
 
