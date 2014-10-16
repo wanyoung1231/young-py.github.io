@@ -83,7 +83,7 @@
 
 <h3 id="section-1"><strong>2、路由和视图函数</strong></h3>
 
-<p>客户端例如web浏览器发送_请求_给web服务，进而将它们发送给Flask应用程序实例。应用程序实例需要知道对于各个URL请求需要运行哪些代码，所以它给Python函数建立了一个URLs映射。这些在URL和函数之间建立联系的操作被称之为 <em>路由</em> 。</p>
+<p>客户端例如web浏览器发送 <em>请求</em> 给web服务，进而将它们发送给Flask应用程序实例。应用程序实例需要知道对于各个URL请求需要运行哪些代码，所以它给Python函数建立了一个URLs映射。这些在URL和函数之间建立联系的操作被称之为 <em>路由</em> 。</p>
 
 <p>在Flask应程序中定义路由的最便捷的方式是通过显示定义在应用程序实例之上的<code>app.route</code>装饰器，注册被装饰的函数来作为一个路由。下面的例子会演示怎样使用装饰器来申明一个路由：</p>
 
@@ -152,7 +152,7 @@
 
 <p>运行应用程序之前，请确保你在之前创建的虚拟环境已经是激活状态且已安装Flask。现在打开你的web浏览器并在地址栏输入 <em>http://127.0.0.1:5000/</em> 。图像2-1显示连接到应用程序后的web浏览器。</p>
 
-<p><img src="http://0.0.0.0:4000/imgs/flask2-01.png" alt="" /></p>
+<p><img src="http://young-py.github.io/imgs/flask2-01.png" alt="" /></p>
 
 <p><em>图像2-1 hello.py Flask应用程序</em></p>
 
@@ -187,7 +187,7 @@
 
 <p>测试动态路由，确保服务正在运行随后访问 <em>http://localhost:5000/user/young</em> 。生成的应用程序会使用动态参数名响应一个定制的问候。尝试不同的名称，看看视图函数总是生成响应基于给定的名称。图像2-2展示的一个示例。</p>
 
-<p><img src="http://0.0.0.0:4000/imgs/flask2-02.png" alt="" /></p>
+<p><img src="http://young-py.github.io/imgs/flask2-02.png" alt="" /></p>
 
 <p><em>图像2-2 hello.py 动态路由</em></p>
 
