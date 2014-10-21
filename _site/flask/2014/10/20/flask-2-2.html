@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Flask教程 —— 基本应用程序结构（下）</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="关于Python及生活随记">
+    <link rel="canonical" href="/flask/2014/10/20/flask-2-2.html">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+
+</head>
+
+
+    <body>
+
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <a class="site-title" href="">小乌龟 の blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+          <a class="page-link" href="/about/">About</a>
+        
+          <a class="page-link" href="/feed.xml"></a>
+        
+          <a class="page-link" href="/index.html"></a>
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Flask教程 —— 基本应用程序结构（下）</h1>
+    <br />
+    <p class="meta">Oct 20, 2014 by young</p>
+  </header>
+
+  <article class="post-content">
+  <h3 id="section"><strong>5、请求-响应循环</strong></h3>
+
+<p>既然你已经玩过一个基本的Flask应用程序，你也许想要知道更多神奇的Flask是如何工作的。下面章节描述了一些这个框架的设计观点。</p>
+
+<h4 id="section-1"><strong>5.1、应用程序和请求上下文</strong></h4>
+
+<p>当Flask从客户端收到一个请求，需要提供几个视图函数对象处理它。最好的例子就是 <em>请求对象</em> ，它封装了客户端发送的HTTP请求。</p>
+
+<p>Flask可以给视图函数进入请求对象最显然的方式就是作为一个参数发送它，但是这需要在应用程序中得每一个视图函数都有一个额外的参数。事情会变得更加复杂如果你考虑请求的对象不是唯一需要的对象。</p>
+
+<p>为了避免弄乱视图函数那些可能需要或不可能需要的参数，Flask使用 <em>上下文</em> 去临时确定可访问的全局对象。多亏有上下文，视图函数可以写成像下面这样：</p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">user_agent</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;User-Agent&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s">&#39;&lt;p&gt;Your browser is </span><span class="si">%s</span><span class="s">&lt;/p&gt;&#39;</span> <span class="o">%</span> <span class="n">user_agent</span></code></pre></div>
+
+<p>注意这个视图函数请求是怎样被用作为一个全局变量。现实中，请求不能作为一个全局变量，如果你考虑在多线程的服务中，同一时间内线程工作在来自不同客户端的不同请求，所以没一个线程需要看到请求中的不同对象。上下文可以使得Flask确定变量全局性访问而不干扰其他线程。</p>
+
+<blockquote>
+  <p>注：线程是可以独立管理的最小指令序列。一个进程中有多个活动的线程是非常常见的，有时分享内存或文件句柄资源。多线程web服务器会启动一个线程池并从池中选择一个线程来处理每个传入的请求。</p>
+</blockquote>
+
+<p>Flask有两类上下文： <em>应用程序上下文</em> 和 <em>请求上下文</em> 。表2-1展示了这些上下文提供的变量。</p>
+
+<p><em>表2-1. Flask全局上下文</em></p>
+
+<p>Flask激活（或压栈）应用程序和请求上下文在分发请求之前，然后删除他们当请求被操作后。当应用程序上下文被压入栈，在线程中<code>current_app</code>和<code>g</code>变量变得可用；同样的，当请求上下文被压入栈，<code>request</code>和<code>session</code>变量也同样变得可用。如果这些变量中的任何一个不是由激活的应用程序或请求上下文访问，会产生错误。在后面的章节会详细讨论四个上下文变量，所以不要担心你不理解它们的用处。</p>
+
+<p>下面的Python shell会话演示了应用程序上下文是如何工作的：</p>
+
+<pre><code>&gt;&gt;&gt; from hello import app
+&gt;&gt;&gt; from flask import current_app
+&gt;&gt;&gt; current_app.name
+Traceback (most recent call last):
+...
+RuntimeError: working outside of the application context
+&gt;&gt;&gt; app_ctx = app.app_context()
+&gt;&gt;&gt; app_ctx.push()
+&gt;&gt;&gt; current_app.name
+'hello'
+&gt;&gt;&gt; app_ctx.pop()
+</code></pre>
+
+<p>在这个示例中，当没有应用程序上下文激活，但是却作为有效的上下文被压入栈中，<code>current_app.name</code>报错。注意在应用程序实例中一个应用程序上下文如何通过调用<code>app.app_context()</code>来获得。</p>
+
+<h4 id="section-2"><strong>5.2、请求派发</strong></h4>
+
+<p>当一个应用程序从客户端收到一个请求，它需要找到调用哪个视图函数去服务它。对于这个任务，Flask在应用程序的URL <em>映射</em> 中查找请求给的URL，该映射包含URLs和操作它们的视图函数的映射。Flask通过<code>app.route</code>装饰器或等价的非装饰器版本<code>app.add_url_rule()</code>建立这个映射。</p>
+
+<p>看一下Flask应用程序中URL映射是怎样的，你可以在Python shell中检查<code>hello.py</code>创建的映射。测试中，请确保你的虚拟环境是激活状态：</p>
+
+<pre><code>(venv) % python
+&gt;&gt;&gt; from hello import app
+&gt;&gt;&gt; app.url_map
+Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
+  &lt;Rule '/static/&lt;filename&gt;' (HEAD, OPTIONS, GET) -&gt; static&gt;,
+  &lt;Rule '/user/&lt;name&gt;' (HEAD, OPTIONS, GET) -&gt; user&gt;])
+</code></pre>
+
+<p><code>/</code>和<code>/user/&lt;name&gt;</code>路由应用程序中的<code>app.route</code>所定义。<code>/static/&lt;filename&gt;</code>路由是由Flask添加用于访问静态文件的一个特殊的路由。你将在第三章学习更多关于静态文件的内容。</p>
+
+<p>在URL映射中所示的<code>HEAD</code>、<code>OPTIONS</code>、<code>GET</code>元素是由路由操作的 <em>请求方法</em> 。Flask连接方法到每个路由，这样不同的请求方法发送到相同的URL可以被不同的视图函数操作。<code>HEAD</code>和<code>OPTIONS</code>方法由Flask自动管理，所以实际上可以说，在这个应用程序中URL映射中的三个路由都连接到<code>GET</code>方法了。在第四章你将了解为路由指定不同的请求方法。</p>
+
+<h4 id="hooks"><strong>5.3、请求Hooks</strong></h4>
+
+<p>有些时候执行代码在每个请求处理之前或之后是非常有用的。例如，在开始每一个请求前可能有必要创建数据库连接，或对用户请求进行验证。为了避免复制处理这些操作的代码到每一个视图函数中，Flask提供注册相同函数在调用之前或请求派发到视图函数前。</p>
+
+<p>请求hooks由装饰器实现。下面是四个Flask支持的hooks：</p>
+
+<ul>
+  <li><code>before_first_request</code>：在第一个请求被处理前注册一个函数运行。</li>
+  <li><code>before_request</code>：在每一个请求前注册一个函数运行。</li>
+  <li><code>after_request</code>：如果没有未操作的异常发生，在每一个请求后注册一个函数运行。</li>
+  <li><code>teardown_request</code>：即使未操作的异常发生，在每一个请求之后注册一个函数运行。</li>
+</ul>
+
+<p>在请求hook函数和视图函数之间共享数据的通用模式就是使用<code>g</code>全局上下文。例如，<code>before_request</code>处理程序可以从数据库加载已登录的用户并保存在<code>g.user</code>中。之后，当视图函数被调用，可以从那访问用户。</p>
+
+<p>请求hooks的示例会在未来的章节中展示给大家，所以不用担心，</p>
+
+<h4 id="section-3"><strong>5.4、响应</strong></h4>
+
+<p>当Flask调用一个视图函数，期望它的返回值去响应该请求。大多数的响应是简单的字符串作为HTML页面发回给客户端。</p>
+
+<p>但是HTTP协议需要比字符串更多的信息作为请求的响应。一个HTTP响应中非常重要的部分是 <em>状态码</em> ，Flask默认设置为200，它指示请求已经成功处理。</p>
+
+<p>当视图函数需要用不同的状态码响应，可以在响应文本后添加数字码作为第二个返回值。例如，下面的视图函数返回400状态码，错误请求：</p>
+
+<div class="highlight"><pre><code class="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&#39;&lt;h1&gt;Bad Request&lt;/h1&gt;&#39;</span><span class="p">,</span> <span class="mi">400</span></code></pre></div>
+
+<p>视图函数返回的响应还可以携带第三个参数，添加一个头部字典给HTTP响应。通常很少用到，但是你可以在第十四章看到示例。</p>
+
+<p>除了返回一个、两个或三个值的元组，Flask视图函数可以选择返回<strong>响应</strong>对象。<code>make_response()</code>函数携带一个、两个或三个和视图函数返回的一样的参数，并返回一个响应对象。有时候执行这个转换在视图函数里面是非常有用的，然后使用响应对象中的方法进一步配置响应。下面的示例创建响应对象并设置cookie：</p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">make_response</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="s">&#39;&lt;h1&gt;This document carries a cookie!&lt;/h1&gt;&#39;</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s">&#39;answer&#39;</span><span class="p">,</span> <span class="s">&#39;42&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span></code></pre></div>
+
+<p>有一类特殊的响应称作 <em>重定向</em> 。这类响应不包含页面文档；只是给浏览器一个新的URL去加载新的页面。重定向通常和web表单一起使用，你将在第四章学习。</p>
+
+<p>重定向通常表示302响应状态码并且重定向的URL由头部的<code>Location</code>给出。重定向响应可以使用三个值的返回来生成，也可以通过响应对象，但是鉴于它频繁的使用，Flask提供<code>redirect()</code>辅助函数来创建这样的响应：</p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">redirect</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s">&#39;http://www.example.com&#39;</span><span class="p">)</span></code></pre></div>
+
+<p>另一个中断功能的特殊响应用来错误处理。下面的示例返回状态码404，当URL给出的id动态参数不是一个合法的用户：</p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/user/&lt;id&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">load_user</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="n">abort</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s">&#39;&lt;h1&gt;Hello, </span><span class="si">%s</span><span class="s">&lt;/h1&gt;&#39;</span> <span class="o">%</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span></code></pre></div>
+
+<p>注意终止不是返回控制给调用它的函数，而是返回控制给web服务通过抛出异常。</p>
+
+<h3 id="flask"><strong>6、Flask扩展</strong></h3>
+
+<p>Flask是可扩展的。它故意腾出地给重要的功能，例如数据库和用户授权，给你自由去选择最适合你的应用程序的包，或写一个自己想要的。</p>
+
+<p>社区创建了非常多的 <em>扩展</em> 用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节添加一个扩展到 <em>hello.py</em> 增强应用程序通过命令行参数。</p>
+
+<h4 id="flask-script"><strong>Flask-Script的命令行选项</strong></h4>
+
+<p>Flask的开发web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数到<code>app.run()</code>。这不是非常的方便；配置选项的理想方法是通过命令行参数。</p>
+
+<p>Flask-Script是给你的Flask应用程序添加命令行解释的扩展。它打包了一组通用的选项，还支持自定义命令。</p>
+
+<p>使用pip安装扩展：</p>
+
+<pre><code>(venv) $ pip install flask-script
+</code></pre>
+
+<p>示例2-3展示了在 <em>hello.py</em> 应用程序中添加命令行解释的变化。</p>
+
+<p><em>示例2-3. hello.py：使用Flask-Script</em> </p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask.ext.script</span> <span class="kn">import</span> <span class="n">Manager</span>
+
+<span class="n">manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="c"># ...</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">manager</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></code></pre></div>
+
+<p>专为Flask开发的扩展暴露在<code>flask.ext</code>命名空间下。Flask-Script输出一个名为<code>Manager</code>的类，从<code>flask.ext.script</code>中导出。</p>
+
+<p>初始化这个扩展的方法和许多扩展一样：主类实例的初始化是通过将应用程序实例作为参数传递给构造函数。创建的对象用于适配每一个扩展。在这个示例中，服务器启动是通过<code>manager.run()</code>路由命令行的解释。</p>
+
+<blockquote>
+  <p>建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行<code>git checkout 2c</code>来切换到这个版本的应用程序。</p>
+</blockquote>
+
+<p>由于这些变化，应用程序获得基本的一些命令行选项。运行<code>hello.py</code>显示可用的信息：</p>
+
+<pre><code>$ python hello.py
+usage: hello.py [-h] {shell, runserver} ...
+
+positional arguments:
+  {shell, runserver}
+    shell           Runs a Python shell inside Flask application context.
+    runserver       Runs the Flask development server i.e. app.run()
+
+optional arguments:
+  -h, --help        show this help message and exit
+</code></pre>
+
+<p><code>shell</code>命令用于启动Python shell会话在应用程序上下文。你可以使用这个会话去运行维护任务或测试，或调试错误。</p>
+
+<p><code>runserver</code>命令，就像它的名称一样，启动web服务。运行<code>python hello.py runserver</code>启动web服务在调试模式下，还有更多的选项：</p>
+
+<pre><code>(venv) $ python hello.py runserver --help
+usage: hello.py runserver [-h] [-t HOST] [-p PORT] [--threaded]
+                          [--processes PROCESSES] [--passthrough-errors] [-d]
+                          [-r]
+
+Runs the Flask development server i.e. app.run()
+
+optional arguments:
+  -h, --help             show this help message and exit
+  -t HOST, --host HOST
+  -p PORT, --port PORT
+  --threaded
+  --processes PROCESSES
+  --passthrough-errors
+  -d, --no-debug
+  -r, --no-reload 
+</code></pre>
+
+<p><code>--host</code>参数是一个非常有用的选项，因为它告诉web服务器监听哪个网络接口的客户端的连接。默认，Flask的开发web服务器监听<code>localhost</code>的连接，所以只有来自内部计算机运行的服务器可以接收。下面的命令使得web服务器监听公网接口，其他网络上的计算机可以连接：</p>
+
+<pre><code>(venv) $ python hello.py runserver --host 0.0.0.0
+ * Running on http://0.0.0.0:5000/
+ * Restarting with reload
+</code></pre>
+
+<p>web服务器现在应该可以从网络中的人和我一个计算机访问 <em>http://a.b.c.d:5000</em> ，“a.b.c.d”是计算机运行服务的外部IP地址。</p>
+
+<p>这一章介绍了请求响应的概念，但是更多要说的是响应。Flask使用 <em>模板</em> 给生成响应提供非常好的支持，这是如此重要的话题在下一章致力于讲它。</p>
+
+
+  </article>
+
+</div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>iPython</li>
+        <li><a href="mailto:xiaowugui244345021@163.com">xiaowugui244345021@163.com</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://twitter.com/">
+            <span class="icon twitter">
+              <svg version="1.1" class="twitter-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill="#C2C2C2" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27
+                c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767
+                c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206
+                C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271
+                c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469
+                c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">关于Python及生活随记</p>
+    </div>
+
+  </div>
+
+</footer>
+
+
+    </body>
+</html>

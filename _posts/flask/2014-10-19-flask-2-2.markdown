@@ -59,10 +59,192 @@ Flask激活（或压栈）应用程序和请求上下文在分发请求之前，
 
 当一个应用程序从客户端收到一个请求，它需要找到调用哪个视图函数去服务它。对于这个任务，Flask在应用程序的URL _映射_ 中查找请求给的URL，该映射包含URLs和操作它们的视图函数的映射。Flask通过`app.route`装饰器或等价的非装饰器版本`app.add_url_rule()`建立这个映射。
 
-看一下Flask应用程序中URL映射是怎样的，
+看一下Flask应用程序中URL映射是怎样的，你可以在Python shell中检查`hello.py`创建的映射。测试中，请确保你的虚拟环境是激活状态：
+
+    (venv) % python
+    >>> from hello import app
+    >>> app.url_map
+    Map([<Rule '/' (HEAD, OPTIONS, GET) -> index>,
+      <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>,
+      <Rule '/user/<name>' (HEAD, OPTIONS, GET) -> user>])
+
+`/`和`/user/<name>`路由应用程序中的`app.route`所定义。`/static/<filename>`路由是由Flask添加用于访问静态文件的一个特殊的路由。你将在第三章学习更多关于静态文件的内容。
+
+在URL映射中所示的`HEAD`、`OPTIONS`、`GET`元素是由路由操作的 _请求方法_ 。Flask连接方法到每个路由，这样不同的请求方法发送到相同的URL可以被不同的视图函数操作。`HEAD`和`OPTIONS`方法由Flask自动管理，所以实际上可以说，在这个应用程序中URL映射中的三个路由都连接到`GET`方法了。在第四章你将了解为路由指定不同的请求方法。
 
 #### **5.3、请求Hooks**
 
+有些时候执行代码在每个请求处理之前或之后是非常有用的。例如，在开始每一个请求前可能有必要创建数据库连接，或对用户请求进行验证。为了避免复制处理这些操作的代码到每一个视图函数中，Flask提供注册相同函数在调用之前或请求派发到视图函数前。
+
+请求hooks由装饰器实现。下面是四个Flask支持的hooks：
+
+* `before_first_request`：在第一个请求被处理前注册一个函数运行。
+* `before_request`：在每一个请求前注册一个函数运行。
+* `after_request`：如果没有未操作的异常发生，在每一个请求后注册一个函数运行。
+* `teardown_request`：即使未操作的异常发生，在每一个请求之后注册一个函数运行。
+
+在请求hook函数和视图函数之间共享数据的通用模式就是使用`g`全局上下文。例如，`before_request`处理程序可以从数据库加载已登录的用户并保存在`g.user`中。之后，当视图函数被调用，可以从那访问用户。
+
+请求hooks的示例会在未来的章节中展示给大家，所以不用担心，
+
 #### **5.4、响应**
 
+当Flask调用一个视图函数，期望它的返回值去响应该请求。大多数的响应是简单的字符串作为HTML页面发回给客户端。
+
+但是HTTP协议需要比字符串更多的信息作为请求的响应。一个HTTP响应中非常重要的部分是 _状态码_ ，Flask默认设置为200，它指示请求已经成功处理。
+
+当视图函数需要用不同的状态码响应，可以在响应文本后添加数字码作为第二个返回值。例如，下面的视图函数返回400状态码，错误请求：
+
+{% highlight python %}
+
+@app.route('/')
+def index():
+    return '<h1>Bad Request</h1>', 400
+
+{% endhighlight %}
+
+视图函数返回的响应还可以携带第三个参数，添加一个头部字典给HTTP响应。通常很少用到，但是你可以在第十四章看到示例。
+
+除了返回一个、两个或三个值的元组，Flask视图函数可以选择返回**响应**对象。`make_response()`函数携带一个、两个或三个和视图函数返回的一样的参数，并返回一个响应对象。有时候执行这个转换在视图函数里面是非常有用的，然后使用响应对象中的方法进一步配置响应。下面的示例创建响应对象并设置cookie：
+
+{% highlight python %}
+
+from flask import make_response
+
+@app.route('/')
+def index():
+    response = make_response('<h1>This document carries a cookie!</h1>')
+    response.set_cookie('answer', '42')
+    return response
+
+{% endhighlight %}
+
+有一类特殊的响应称作 _重定向_ 。这类响应不包含页面文档；只是给浏览器一个新的URL去加载新的页面。重定向通常和web表单一起使用，你将在第四章学习。
+
+重定向通常表示302响应状态码并且重定向的URL由头部的`Location`给出。重定向响应可以使用三个值的返回来生成，也可以通过响应对象，但是鉴于它频繁的使用，Flask提供`redirect()`辅助函数来创建这样的响应：
+
+{% highlight python %}
+
+from flask import redirect
+
+@app.route('/')
+def index():
+    return redirect('http://www.example.com')
+
+{% endhighlight %}
+
+另一个中断功能的特殊响应用来错误处理。下面的示例返回状态码404，当URL给出的id动态参数不是一个合法的用户：
+
+{% highlight python %}
+
+from flask import abort
+
+@app.route('/user/<id>')
+def get_user(id):
+    user = load_user(id)
+    if not user:
+        abort(404)
+    return '<h1>Hello, %s</h1>' % user.name
+
+{% endhighlight %}
+
+注意终止不是返回控制给调用它的函数，而是返回控制给web服务通过抛出异常。
+
 ### **6、Flask扩展**
+
+Flask是可扩展的。它故意腾出地给重要的功能，例如数据库和用户授权，给你自由去选择最适合你的应用程序的包，或写一个自己想要的。
+
+社区创建了非常多的 _扩展_ 用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节添加一个扩展到 _hello.py_ 增强应用程序通过命令行参数。
+
+#### **Flask-Script的命令行选项**
+
+Flask的开发web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数到`app.run()`。这不是非常的方便；配置选项的理想方法是通过命令行参数。
+
+Flask-Script是给你的Flask应用程序添加命令行解释的扩展。它打包了一组通用的选项，还支持自定义命令。
+
+使用pip安装扩展：
+
+    (venv) $ pip install flask-script
+
+示例2-3展示了在 _hello.py_ 应用程序中添加命令行解释的变化。
+
+_示例2-3. hello.py：使用Flask-Script_ 
+
+{% highlight python %}
+
+from flask.ext.script import Manager
+
+manager = Manager(app)
+
+# ...
+
+if __name__ == '__main__':
+    manager.run()
+
+{% endhighlight %}
+
+专为Flask开发的扩展暴露在`flask.ext`命名空间下。Flask-Script输出一个名为`Manager`的类，从`flask.ext.script`中导出。
+
+初始化这个扩展的方法和许多扩展一样：主类实例的初始化是通过将应用程序实例作为参数传递给构造函数。创建的对象用于适配每一个扩展。在这个示例中，服务器启动是通过`manager.run()`路由命令行的解释。
+
+>建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行`git checkout 2c`来切换到这个版本的应用程序。
+
+由于这些变化，应用程序获得基本的一些命令行选项。运行`hello.py`显示可用的信息：
+
+    $ python hello.py
+    usage: hello.py [-h] {shell, runserver} ...
+
+    positional arguments:
+      {shell, runserver}
+        shell           Runs a Python shell inside Flask application context.
+        runserver       Runs the Flask development server i.e. app.run()
+
+    optional arguments:
+      -h, --help        show this help message and exit
+
+`shell`命令用于启动Python shell会话在应用程序上下文。你可以使用这个会话去运行维护任务或测试，或调试错误。
+
+`runserver`命令，就像它的名称一样，启动web服务。运行`python hello.py runserver`启动web服务在调试模式下，还有更多的选项：
+
+    (venv) $ python hello.py runserver --help
+    usage: hello.py runserver [-h] [-t HOST] [-p PORT] [--threaded]
+                              [--processes PROCESSES] [--passthrough-errors] [-d]
+                              [-r]
+
+    Runs the Flask development server i.e. app.run()
+
+    optional arguments:
+      -h, --help             show this help message and exit
+      -t HOST, --host HOST
+      -p PORT, --port PORT
+      --threaded
+      --processes PROCESSES
+      --passthrough-errors
+      -d, --no-debug
+      -r, --no-reload 
+
+`--host`参数是一个非常有用的选项，因为它告诉web服务器监听哪个网络接口的客户端的连接。默认，Flask的开发web服务器监听`localhost`的连接，所以只有来自内部计算机运行的服务器可以接收。下面的命令使得web服务器监听公网接口，其他网络上的计算机可以连接：
+
+    (venv) $ python hello.py runserver --host 0.0.0.0
+     * Running on http://0.0.0.0:5000/
+     * Restarting with reload
+
+web服务器现在应该可以从网络中的人和我一个计算机访问 _http://a.b.c.d:5000_ ，“a.b.c.d”是计算机运行服务的外部IP地址。
+
+这一章介绍了请求响应的概念，但是更多要说的是响应。Flask使用 _模板_ 给生成响应提供非常好的支持，这是如此重要的话题在下一章致力于讲它。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

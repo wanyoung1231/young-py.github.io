@@ -113,7 +113,7 @@
 
 <p>在路由中动态组件默认为字符串，但是可以定义为其他类型。例如，路由<code>/user/&lt;int:id&gt;</code>只匹配有一个整数在id动态段的URLs。Flask路由支持int、float和path。path同样是字符串类型，但并不认为斜杠是分隔符，而认为它们是动态组件的一部分。</p>
 
-<h3 id="section-2"><strong>3、服务启动</strong></h3>
+<h3 id="section-2"><strong>3、服务器启动</strong></h3>
 
 <p>应用程序实例有一个<code>run</code>方法用于启动Flask集成的web服务：</p>
 
@@ -130,7 +130,7 @@
   <p>注：Flask提供的web服务并不用于生产环境。你将在十七章学习生产环境的web服务。</p>
 </blockquote>
 
-<h3 id="section-3"><strong>一个完整的应用程序</strong></h3>
+<h3 id="section-3"><strong>4、一个完整的应用程序</strong></h3>
 
 <p>在上一节，你学习了Flask web应用程序的不同部分，现在是时候写一个了。整个 <em>hello.py</em> 应用程序脚本只不过将前面描述的三个部分结合在一个文件中。应用程序示例2-1所示。</p>
 
@@ -185,7 +185,7 @@
   <p>建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行<code>git checkout 2b</code>来切换到这个版本的应用程序。</p>
 </blockquote>
 
-<p>测试动态路由，确保服务正在运行随后访问 <em>http://localhost:5000/user/young</em> 。生成的应用程序会使用动态参数名响应一个定制的问候。尝试不同的名称，看看视图函数总是生成响应基于给定的名称。图像2-2展示的一个示例。</p>
+<p>测试动态路由，确保服务正在运行随后访问 <em>http://localhost:5000/user/Dave</em> 。生成的应用程序会使用动态参数名响应一个定制的问候。尝试不同的名称，看看视图函数总是生成响应基于给定的名称。图像2-2展示的一个示例。</p>
 
 <p><img src="http://young-py.github.io/imgs/flask2-02.png" alt="" /></p>
 
