@@ -64,15 +64,15 @@
   <article class="post-content">
   <h3 id="section"><strong>5、请求-响应循环</strong></h3>
 
-<p>现在你已经玩过一个基本的Flask应用程序，你也许想要知道更多关于Flask如何施展魔力。下面章节描述了一些框架设计方面的内容。</p>
+<p>现在你已经玩过一个基本的Flask应用程序，你也许想要知道更多关于Flask如何施展魔力。下面章节描述了一些框架设计方面的特点。</p>
 
 <h5 id="contextcontext"><strong>5.1、应用程序Context和请求Context</strong></h5>
 
-<p>当Flask从客户端收到一个请求，需要提供几个对象给视图函数处理。<strong>request对象</strong>是一个很好的例子，它封装了客户端发送的HTTP请求。</p>
+<p>当Flask从客户端收到一个请求，它需要提供几个可用对象给视图函数处理。<strong>request对象</strong>是个不错的例子，它封装了客户端发送的HTTP请求。</p>
 
-<p>Flask让视图函数访问request对象的最好方式，就是作为一个参数发送它，但是这使得应用程序中的每一个视图函数都多一个额外的参数。如果你考虑一下request对象不是唯一一个视图函数需要访问完成一个请求的对象，事情将会变得更加复杂。</p>
+<p>Flask视图函数访问request对象的最好方式，就是作为一个参数发送它，但这需要每个单一视图函数在应用程序中有一个额外的参数。考虑一下，如果request对象不是唯一一个视图函数需要访问完成请求的对象，事情将会变得更加复杂。</p>
 
-<p>为了避免弄乱视图函数那些可能需要或不需要的参数，Flask使用<strong>context</strong>暂时确定可访问的全局对象。多亏了context，视图函数可以写成下面这样：</p>
+<p>为了避免弄乱视图函数那些可能需要或不需要的参数，Flask使用<strong>context</strong>来临时确定可访问的全局对象。也多亏了context，视图函数可以写成下面这样：</p>
 
 <div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
 
@@ -81,19 +81,19 @@
     <span class="n">user_agent</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;User-Agent&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="s">&#39;&lt;p&gt;Your browser is </span><span class="si">%s</span><span class="s">&lt;/p&gt;&#39;</span> <span class="o">%</span> <span class="n">user_agent</span></code></pre></div>
 
-<p>注意这个视图函数请求是怎样被用作为一个全局变量。现实中，请求不能作为一个全局变量，如果你考虑在多线程的服务中，同一时间内线程工作在来自不同客户端的不同请求，所以没一个线程需要看到请求中的不同对象。上下文可以使得Flask确定变量全局性访问而不干扰其他线程。</p>
+<p>注意，在这个视图函数中，request是如何被作为一个全局变量来使用的。现实中，request是不能作为全局变量的，如果是多线程服务器，同一时间线程作用于不同客户端的不同请求，所以每一个线程需要看到request中的不同对象。contexts使得Flask确定可访问的全局变量而不干扰其他线程。</p>
 
 <blockquote>
   <p>注：线程是可以独立管理的最小指令序列。一个进程中有多个活动的线程是非常常见的，有时分享内存或文件句柄资源。多线程web服务器会启动一个线程池并从池中选择一个线程来处理每个传入的请求。</p>
 </blockquote>
 
-<p>Flask有两类上下文： <em>应用程序上下文</em> 和 <em>请求上下文</em> 。表2-1展示了这些上下文提供的变量。</p>
+<p>Flask有两类context： <em>应用级context</em> 和 <em>请求级context</em> 。表2-1展示了这些context提供的变量。</p>
 
-<p><em>表2-1. Flask全局上下文</em></p>
+<p><em>表2-1. Flask全局context</em></p>
 
-<p>Flask激活（或压栈）应用程序和请求上下文在分发请求之前，然后删除他们当请求被操作后。当应用程序上下文被压入栈，在线程中<code>current_app</code>和<code>g</code>变量变得可用；同样的，当请求上下文被压入栈，<code>request</code>和<code>session</code>变量也同样变得可用。如果这些变量中的任何一个不是由激活的应用程序或请求上下文访问，会产生错误。在后面的章节会详细讨论四个上下文变量，所以不要担心你不理解它们的用处。</p>
+<p>Flask激活（或压栈）应用级context和请求级context在调度请求之前，然后删除他们当请求被处理后。当应用程序context被压入栈，线程中<code>current_app</code>和<code>g</code>变量变得可用；同样的，当请求级context被压入栈，<code>request</code>和<code>session</code>变量也同样变得可用。如果这些变量中的任何一个不是由激活的应用级或请求级context访问，会产生错误。在后面的章节会详细讨论四个context变量，所以不要担心你不理解它们的用处。</p>
 
-<p>下面的Python shell会话演示了应用程序上下文是如何工作的：</p>
+<p>下面的Python shell会话演示了应用级context是如何工作的：</p>
 
 <pre><code>&gt;&gt;&gt; from hello import app
 &gt;&gt;&gt; from flask import current_app
@@ -108,11 +108,11 @@ RuntimeError: working outside of the application context
 &gt;&gt;&gt; app_ctx.pop()
 </code></pre>
 
-<p>在这个示例中，当没有应用程序上下文激活，但是却作为有效的上下文被压入栈中，<code>current_app.name</code>报错。注意在应用程序实例中一个应用程序上下文如何通过调用<code>app.app_context()</code>来获得。</p>
+<p>在这个示例中，当应用级context没有激活，但是却作为有效的context被压入栈中，<code>current_app.name</code>报错。注意在应用程序实例中一个应用级context是如何通过调用<code>app.app_context()</code>来获得的。</p>
 
-<h5 id="section-1"><strong>5.2、请求派发</strong></h5>
+<h5 id="section-1"><strong>5.2、请求调度</strong></h5>
 
-<p>当一个应用程序从客户端收到一个请求，它需要找到调用哪个视图函数去服务它。对于这个任务，Flask在应用程序的URL <em>映射</em> 中查找请求给的URL，该映射包含URLs和操作它们的视图函数的映射。Flask通过<code>app.route</code>装饰器或等价的非装饰器版本<code>app.add_url_rule()</code>建立这个映射。</p>
+<p>当一个应用程序收到客户端的请求，它需要找到响应的视图函数为之服务。对于这个任务，Flask会在应用程序的<strong>URL映射</strong>中查找请求的URL，该映射包含URLs和操作它们的视图函数。Flask通过<code>app.route</code>装饰器或非装饰器版本<code>app.add_url_rule()</code>来建立这个映射。</p>
 
 <p>看一下Flask应用程序中URL映射是怎样的，你可以在Python shell中检查<code>hello.py</code>创建的映射。测试中，请确保你的虚拟环境是激活状态：</p>
 
@@ -124,34 +124,34 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
   &lt;Rule '/user/&lt;name&gt;' (HEAD, OPTIONS, GET) -&gt; user&gt;])
 </code></pre>
 
-<p><code>/</code>和<code>/user/&lt;name&gt;</code>路由应用程序中的<code>app.route</code>所定义。<code>/static/&lt;filename&gt;</code>路由是由Flask添加用于访问静态文件的一个特殊的路由。你将在第三章学习更多关于静态文件的内容。</p>
+<p><code>/</code>和<code>/user/&lt;name&gt;</code>路由是由应用程序中的<code>app.route</code>所定义。<code>/static/&lt;filename&gt;</code>路由是由Flask添加，用于访问静态文件的一个特殊路由。你将在第三章学习更多关于静态文件的内容。</p>
 
-<p>在URL映射中所示的<code>HEAD</code>、<code>OPTIONS</code>、<code>GET</code>元素是由路由操作的 <em>请求方法</em> 。Flask连接方法到每个路由，这样不同的请求方法发送到相同的URL可以被不同的视图函数操作。<code>HEAD</code>和<code>OPTIONS</code>方法由Flask自动管理，所以实际上可以说，在这个应用程序中URL映射中的三个路由都连接到<code>GET</code>方法了。在第四章你将了解为路由指定不同的请求方法。</p>
+<p>URL映射中所示的<code>HEAD</code>、<code>OPTIONS</code>、<code>GET</code>元素为<strong>request方法</strong>，由路由处理。Flask连接方法到每个路由，这样不同的请求方法发送到相同的URL可以被不同的视图函数处理。<code>HEAD</code>和<code>OPTIONS</code>方法由Flask自动管理，所以实际上可以说，在这个应用程序中URL映射的三个路由都连接到<code>GET</code>方法了。在第四章你将学习为路由指定不同的请求方法。</p>
 
 <h5 id="hooks"><strong>5.3、请求Hooks</strong></h5>
 
-<p>有些时候执行代码在每个请求处理之前或之后是非常有用的。例如，在开始每一个请求前可能有必要创建数据库连接，或对用户请求进行验证。为了避免复制处理这些操作的代码到每一个视图函数中，Flask提供注册相同函数在调用之前或请求派发到视图函数前。</p>
+<p>有些时候在每个请求处理之前或之后执行代码是非常有用的。例如，在开始每一个请求前可能有必要创建数据库连接，或对用户请求进行验证。为了避免复制处理这些操作的代码到每一个视图函数中，Flask给你选择注册相同函数来调用，在请求被分配给视图函数之前或之后。</p>
 
 <p>请求hooks由装饰器实现。下面是四个Flask支持的hooks：</p>
 
 <ul>
   <li><code>before_first_request</code>：在第一个请求被处理前注册一个函数运行。</li>
   <li><code>before_request</code>：在每一个请求前注册一个函数运行。</li>
-  <li><code>after_request</code>：如果没有未操作的异常发生，在每一个请求后注册一个函数运行。</li>
-  <li><code>teardown_request</code>：即使未操作的异常发生，在每一个请求之后注册一个函数运行。</li>
+  <li><code>after_request</code>：如果没有未处理的异常发生，在每一个请求后注册一个函数运行。</li>
+  <li><code>teardown_request</code>：即使未处理的异常发生，在每一个请求后注册一个函数运行。</li>
 </ul>
 
-<p>在请求hook函数和视图函数之间共享数据的通用模式就是使用<code>g</code>全局上下文。例如，<code>before_request</code>处理程序可以从数据库加载已登录的用户并保存在<code>g.user</code>中。之后，当视图函数被调用，可以从那访问用户。</p>
+<p>在请求hook函数和视图函数之间共享数据的惯用方法就是使用<code>g</code>全局context。例如，<code>before_request</code>处理程序可以从数据库加载已登录的用户并保存在<code>g.user</code>中。之后，当视图函数被调用，可以从那访问用户。</p>
 
 <p>请求hooks的示例会在未来的章节中展示给大家，所以不用担心，</p>
 
 <h5 id="section-2"><strong>5.4、响应</strong></h5>
 
-<p>当Flask调用一个视图函数，期望它的返回值去响应该请求。大多数的响应是简单的字符串作为HTML页面发回给客户端。</p>
+<p>当Flask调用一个视图函数，并期望它的返回值去响应该请求。大多数的响应是将简单字符串构成的HTML页面发回给客户端。</p>
 
-<p>但是HTTP协议需要比字符串更多的信息作为请求的响应。一个HTTP响应中非常重要的部分是 <em>状态码</em> ，Flask默认设置为200，它指示请求已经成功处理。</p>
+<p>但是HTTP协议需要比字符串更多的信息作为请求的响应。一个HTTP响应中非常重要的部分是<strong>状态码</strong>，Flask默认设置200来指示请求已经成功处理。</p>
 
-<p>当视图函数需要用不同的状态码响应，可以在响应文本后添加数字码作为第二个返回值。例如，下面的视图函数返回400状态码，错误请求：</p>
+<p>当视图函数需要用不同的状态码响应，可以在响应文本后添加数字码作为第二个返回值。例如，下面的视图函数返回400错误状态码的请求：</p>
 
 <div class="highlight"><pre><code class="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
@@ -159,7 +159,7 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
 
 <p>视图函数返回的响应还可以携带第三个参数，添加一个头部字典给HTTP响应。通常很少用到，但是你可以在第十四章看到示例。</p>
 
-<p>除了返回一个、两个或三个值的元组，Flask视图函数可以选择返回<strong>响应</strong>对象。<code>make_response()</code>函数携带一个、两个或三个和视图函数返回的一样的参数，并返回一个响应对象。有时候执行这个转换在视图函数里面是非常有用的，然后使用响应对象中的方法进一步配置响应。下面的示例创建响应对象并设置cookie：</p>
+<p>除了返回一个、两个或三个值的元组，Flask视图函数可以选择返回<strong>response对象</strong>。<code>make_response()</code>函数可携带一个、两个或三个参数，和视图函数返回的值一样，并返回一个response对象。有时候在视图函数中执行这个转换是非常有用的，然后使用response对象中的方法进一步配置响应。下面的示例创建response对象并设置cookie：</p>
 
 <div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">make_response</span>
 
@@ -169,9 +169,9 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
     <span class="n">response</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s">&#39;answer&#39;</span><span class="p">,</span> <span class="s">&#39;42&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">response</span></code></pre></div>
 
-<p>有一类特殊的响应称作 <em>重定向</em> 。这类响应不包含页面文档；只是给浏览器一个新的URL去加载新的页面。重定向通常和web表单一起使用，你将在第四章学习。</p>
+<p>有一类特殊的响应称作<strong>重定向</strong>。这类响应不包含页面文档；只是给浏览器一个新的URL去加载新的页面。重定向通常和web表单一起使用，你将在第四章学习。</p>
 
-<p>重定向通常表示302响应状态码并且重定向的URL由头部的<code>Location</code>给出。重定向响应可以使用三个值的返回来生成，也可以通过响应对象，但是鉴于它频繁的使用，Flask提供<code>redirect()</code>辅助函数来创建这样的响应：</p>
+<p>重定向通常由302响应状态码注明并且重定向的URL由头部的<code>Location</code>给出。重定向响应可以使用三个值的返回生成，也可通过响应对象生成，但是鉴于它频繁的使用，Flask提供<code>redirect()</code>函数来创建这样的响应：</p>
 
 <div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">redirect</span>
 
@@ -179,7 +179,7 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
 <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s">&#39;http://www.example.com&#39;</span><span class="p">)</span></code></pre></div>
 
-<p>另一个中断功能的特殊响应用来错误处理。下面的示例返回状态码404，当URL给出的id动态参数不是一个合法的用户：</p>
+<p>另一个具有中断功能的特殊响应用来错误处理。下面的示例，当URL给出的id动态参数不是一个合法的用户时返回状态码404：</p>
 
 <div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span>
 
@@ -190,17 +190,17 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
         <span class="n">abort</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span>
     <span class="k">return</span> <span class="s">&#39;&lt;h1&gt;Hello, </span><span class="si">%s</span><span class="s">&lt;/h1&gt;&#39;</span> <span class="o">%</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span></code></pre></div>
 
-<p>注意终止不是返回控制给调用它的函数，而是返回控制给web服务通过抛出异常。</p>
+<p>注意终止不是指将控制权返回给调用它的函数，而是指通过抛出异常将控制权返回给web服务。</p>
 
 <h3 id="flask"><strong>6、Flask扩展</strong></h3>
 
 <p>Flask是可扩展的。它故意腾出地给重要的功能，例如数据库和用户授权，给你自由去选择最适合你的应用程序的包，或写一个自己想要的。</p>
 
-<p>社区创建了非常多的 <em>扩展</em> 用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节添加一个扩展到 <em>hello.py</em> 增强应用程序通过命令行参数。</p>
+<p>社区创建了非常多的<strong>扩展</strong>用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节给hello.py添加扩展，通过命令行参数增强应用程序。</p>
 
-<h5 id="flask-script"><strong>6.1、Flask-Script的命令行选项</strong></h5>
+<h5 id="flask-script"><strong>6.1、Flask-Script命令行选项</strong></h5>
 
-<p>Flask的开发web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数到<code>app.run()</code>。这不是非常的方便；配置选项的理想方法是通过命令行参数。</p>
+<p>Flask的开发，其web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数给<code>app.run()</code>并调用。这不是非常的方便，理想方法是通过命令行参数传递配置选项。</p>
 
 <p>Flask-Script是给你的Flask应用程序添加命令行解释的扩展。它打包了一组通用的选项，还支持自定义命令。</p>
 
@@ -222,9 +222,9 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">manager</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></code></pre></div>
 
-<p>专为Flask开发的扩展暴露在<code>flask.ext</code>命名空间下。Flask-Script输出一个名为<code>Manager</code>的类，从<code>flask.ext.script</code>中导出。</p>
+<p>专为Flask开发的扩展暴露在<code>flask.ext</code>命名空间下。Flask-Script从<code>flask.ext.script</code>中导出一个名为<code>Manager</code>的类。</p>
 
-<p>初始化这个扩展的方法和许多扩展一样：主类实例的初始化是通过将应用程序实例作为参数传递给构造函数。创建的对象用于适配每一个扩展。在这个示例中，服务器启动是通过<code>manager.run()</code>路由命令行的解释。</p>
+<p>初始化这个扩展的方法和其他许多扩展一样：主类实例的初始化是通过将应用程序实例作为参数传递给构造函数。创建的对象适当的用于每一个扩展。在这个示例中，服务器启动是通过<code>manager.run()</code>路由命令行的解释。</p>
 
 <blockquote>
   <p>建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行<code>git checkout 2c</code>来切换到这个版本的应用程序。</p>
