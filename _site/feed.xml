@@ -10,15 +10,15 @@
         <title>Flask教程 —— 基本应用程序结构（下）</title>
         <description>&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;5、请求-响应循环&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;既然你已经玩过一个基本的Flask应用程序，你也许想要知道更多神奇的Flask是如何工作的。下面章节描述了一些这个框架的设计观点。&lt;/p&gt;
+&lt;p&gt;现在你已经玩过一个基本的Flask应用程序，你也许想要知道更多关于Flask如何施展魔力。下面章节描述了一些框架设计方面的内容。&lt;/p&gt;
 
-&lt;h4 id=&quot;section-1&quot;&gt;&lt;strong&gt;5.1、应用程序和请求上下文&lt;/strong&gt;&lt;/h4&gt;
+&lt;h5 id=&quot;contextcontext&quot;&gt;&lt;strong&gt;5.1、应用程序Context和请求Context&lt;/strong&gt;&lt;/h5&gt;
 
-&lt;p&gt;当Flask从客户端收到一个请求，需要提供几个视图函数对象处理它。最好的例子就是 &lt;em&gt;请求对象&lt;/em&gt; ，它封装了客户端发送的HTTP请求。&lt;/p&gt;
+&lt;p&gt;当Flask从客户端收到一个请求，需要提供几个对象给视图函数处理。&lt;strong&gt;request对象&lt;/strong&gt;是一个很好的例子，它封装了客户端发送的HTTP请求。&lt;/p&gt;
 
-&lt;p&gt;Flask可以给视图函数进入请求对象最显然的方式就是作为一个参数发送它，但是这需要在应用程序中得每一个视图函数都有一个额外的参数。事情会变得更加复杂如果你考虑请求的对象不是唯一需要的对象。&lt;/p&gt;
+&lt;p&gt;Flask让视图函数访问request对象的最好方式，就是作为一个参数发送它，但是这使得应用程序中的每一个视图函数都多一个额外的参数。如果你考虑一下request对象不是唯一一个视图函数需要访问完成一个请求的对象，事情将会变得更加复杂。&lt;/p&gt;
 
-&lt;p&gt;为了避免弄乱视图函数那些可能需要或不可能需要的参数，Flask使用 &lt;em&gt;上下文&lt;/em&gt; 去临时确定可访问的全局对象。多亏有上下文，视图函数可以写成像下面这样：&lt;/p&gt;
+&lt;p&gt;为了避免弄乱视图函数那些可能需要或不需要的参数，Flask使用&lt;strong&gt;context&lt;/strong&gt;暂时确定可访问的全局对象。多亏了context，视图函数可以写成下面这样：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;
 
@@ -56,7 +56,7 @@ RuntimeError: working outside of the application context
 
 &lt;p&gt;在这个示例中，当没有应用程序上下文激活，但是却作为有效的上下文被压入栈中，&lt;code&gt;current_app.name&lt;/code&gt;报错。注意在应用程序实例中一个应用程序上下文如何通过调用&lt;code&gt;app.app_context()&lt;/code&gt;来获得。&lt;/p&gt;
 
-&lt;h4 id=&quot;section-2&quot;&gt;&lt;strong&gt;5.2、请求派发&lt;/strong&gt;&lt;/h4&gt;
+&lt;h5 id=&quot;section-1&quot;&gt;&lt;strong&gt;5.2、请求派发&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;当一个应用程序从客户端收到一个请求，它需要找到调用哪个视图函数去服务它。对于这个任务，Flask在应用程序的URL &lt;em&gt;映射&lt;/em&gt; 中查找请求给的URL，该映射包含URLs和操作它们的视图函数的映射。Flask通过&lt;code&gt;app.route&lt;/code&gt;装饰器或等价的非装饰器版本&lt;code&gt;app.add_url_rule()&lt;/code&gt;建立这个映射。&lt;/p&gt;
 
@@ -74,7 +74,7 @@ Map([&amp;lt;Rule &#39;/&#39; (HEAD, OPTIONS, GET) -&amp;gt; index&amp;gt;,
 
 &lt;p&gt;在URL映射中所示的&lt;code&gt;HEAD&lt;/code&gt;、&lt;code&gt;OPTIONS&lt;/code&gt;、&lt;code&gt;GET&lt;/code&gt;元素是由路由操作的 &lt;em&gt;请求方法&lt;/em&gt; 。Flask连接方法到每个路由，这样不同的请求方法发送到相同的URL可以被不同的视图函数操作。&lt;code&gt;HEAD&lt;/code&gt;和&lt;code&gt;OPTIONS&lt;/code&gt;方法由Flask自动管理，所以实际上可以说，在这个应用程序中URL映射中的三个路由都连接到&lt;code&gt;GET&lt;/code&gt;方法了。在第四章你将了解为路由指定不同的请求方法。&lt;/p&gt;
 
-&lt;h4 id=&quot;hooks&quot;&gt;&lt;strong&gt;5.3、请求Hooks&lt;/strong&gt;&lt;/h4&gt;
+&lt;h5 id=&quot;hooks&quot;&gt;&lt;strong&gt;5.3、请求Hooks&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;有些时候执行代码在每个请求处理之前或之后是非常有用的。例如，在开始每一个请求前可能有必要创建数据库连接，或对用户请求进行验证。为了避免复制处理这些操作的代码到每一个视图函数中，Flask提供注册相同函数在调用之前或请求派发到视图函数前。&lt;/p&gt;
 
@@ -91,7 +91,7 @@ Map([&amp;lt;Rule &#39;/&#39; (HEAD, OPTIONS, GET) -&amp;gt; index&amp;gt;,
 
 &lt;p&gt;请求hooks的示例会在未来的章节中展示给大家，所以不用担心，&lt;/p&gt;
 
-&lt;h4 id=&quot;section-3&quot;&gt;&lt;strong&gt;5.4、响应&lt;/strong&gt;&lt;/h4&gt;
+&lt;h5 id=&quot;section-2&quot;&gt;&lt;strong&gt;5.4、响应&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;当Flask调用一个视图函数，期望它的返回值去响应该请求。大多数的响应是简单的字符串作为HTML页面发回给客户端。&lt;/p&gt;
 
@@ -144,7 +144,7 @@ Map([&amp;lt;Rule &#39;/&#39; (HEAD, OPTIONS, GET) -&amp;gt; index&amp;gt;,
 
 &lt;p&gt;社区创建了非常多的 &lt;em&gt;扩展&lt;/em&gt; 用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节添加一个扩展到 &lt;em&gt;hello.py&lt;/em&gt; 增强应用程序通过命令行参数。&lt;/p&gt;
 
-&lt;h4 id=&quot;flask-script&quot;&gt;&lt;strong&gt;Flask-Script的命令行选项&lt;/strong&gt;&lt;/h4&gt;
+&lt;h5 id=&quot;flask-script&quot;&gt;&lt;strong&gt;6.1、Flask-Script的命令行选项&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;Flask的开发web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数到&lt;code&gt;app.run()&lt;/code&gt;。这不是非常的方便；配置选项的理想方法是通过命令行参数。&lt;/p&gt;
 
@@ -292,7 +292,7 @@ optional arguments:
 
 &lt;p&gt;在路由中动态组件默认为字符串，但是可以定义为其他类型。例如，路由&lt;code&gt;/user/&amp;lt;int:id&amp;gt;&lt;/code&gt;只匹配有一个整数在id动态段的URLs。Flask路由支持int、float和path。path同样是字符串类型，但并不认为斜杠是分隔符，而认为它们是动态组件的一部分。&lt;/p&gt;
 
-&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;3、服务器启动&lt;/strong&gt;&lt;/h3&gt;
+&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;3、服务启动&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;应用程序实例有一个&lt;code&gt;run&lt;/code&gt;方法用于启动Flask集成的web服务：&lt;/p&gt;
 
