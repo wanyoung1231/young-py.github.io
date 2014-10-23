@@ -37,6 +37,8 @@
 
 &lt;p&gt;&lt;em&gt;表2-1. Flask全局context&lt;/em&gt;&lt;/p&gt;
 
+&lt;p&gt;&lt;img src=&quot;http://0.0.0.0:4000/imgs/flask2-03.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
 &lt;p&gt;Flask激活（或压栈）应用级context和请求级context在调度请求之前，然后删除他们当请求被处理后。当应用程序context被压入栈，线程中&lt;code&gt;current_app&lt;/code&gt;和&lt;code&gt;g&lt;/code&gt;变量变得可用；同样的，当请求级context被压入栈，&lt;code&gt;request&lt;/code&gt;和&lt;code&gt;session&lt;/code&gt;变量也同样变得可用。如果这些变量中的任何一个不是由激活的应用级或请求级context访问，会产生错误。在后面的章节会详细讨论四个context变量，所以不要担心你不理解它们的用处。&lt;/p&gt;
 
 &lt;p&gt;下面的Python shell会话演示了应用级context是如何工作的：&lt;/p&gt;
@@ -142,11 +144,11 @@ Map([&amp;lt;Rule &#39;/&#39; (HEAD, OPTIONS, GET) -&amp;gt; index&amp;gt;,
 
 &lt;p&gt;Flask是可扩展的。它故意腾出地给重要的功能，例如数据库和用户授权，给你自由去选择最适合你的应用程序的包，或写一个自己想要的。&lt;/p&gt;
 
-&lt;p&gt;社区创建了非常多的&lt;strong&gt;扩展&lt;/strong&gt;用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节给hello.py添加扩展，通过命令行参数增强应用程序。&lt;/p&gt;
+&lt;p&gt;社区开发了非常多的&lt;strong&gt;扩展&lt;/strong&gt;用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节给hello.py添加一个扩展，增加应用程序的命令行参数。&lt;/p&gt;
 
 &lt;h5 id=&quot;flask-script&quot;&gt;&lt;strong&gt;6.1、Flask-Script命令行选项&lt;/strong&gt;&lt;/h5&gt;
 
-&lt;p&gt;Flask的开发，其web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数给&lt;code&gt;app.run()&lt;/code&gt;并调用。这不是非常的方便，理想方法是通过命令行参数传递配置选项。&lt;/p&gt;
+&lt;p&gt;Flask开发，其web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数给&lt;code&gt;app.run()&lt;/code&gt;并调用。这不是非常的方便，理想方法是通过命令行参数传递配置选项。&lt;/p&gt;
 
 &lt;p&gt;Flask-Script是给你的Flask应用程序添加命令行解释的扩展。它打包了一组通用的选项，还支持自定义命令。&lt;/p&gt;
 
@@ -170,39 +172,39 @@ Map([&amp;lt;Rule &#39;/&#39; (HEAD, OPTIONS, GET) -&amp;gt; index&amp;gt;,
 
 &lt;p&gt;专为Flask开发的扩展暴露在&lt;code&gt;flask.ext&lt;/code&gt;命名空间下。Flask-Script从&lt;code&gt;flask.ext.script&lt;/code&gt;中导出一个名为&lt;code&gt;Manager&lt;/code&gt;的类。&lt;/p&gt;
 
-&lt;p&gt;初始化这个扩展的方法和其他许多扩展一样：主类实例的初始化是通过将应用程序实例作为参数传递给构造函数。创建的对象适当的用于每一个扩展。在这个示例中，服务器启动是通过&lt;code&gt;manager.run()&lt;/code&gt;路由命令行的解释。&lt;/p&gt;
+&lt;p&gt;初始化这个扩展的方法和其他许多扩展一样：主类实例的初始化是通过将应用程序实例作为参数传递给构造函数实现的。创建的对象适当的用于每一个扩展。在这个示例中，服务器启动通过&lt;code&gt;manager.run()&lt;/code&gt;来路由，且命令行在这被解析。&lt;/p&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行&lt;code&gt;git checkout 2c&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
+  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 2c&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;由于这些变化，应用程序获得基本的一些命令行选项。运行&lt;code&gt;hello.py&lt;/code&gt;显示可用的信息：&lt;/p&gt;
+&lt;p&gt;因为这些变化，应用程序获得一组基本的命令行选项。运行&lt;code&gt;hello.py&lt;/code&gt;显示可用信息：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;$ python hello.py
 usage: hello.py [-h] {shell, runserver} ...
 
 positional arguments:
   {shell, runserver}
-    shell           Runs a Python shell inside Flask application context.
-    runserver       Runs the Flask development server i.e. app.run()
+    shell           在Flask应用程序上下文的内部运行一个Python Shell。
+    runserver       运行Flask开发服务器，例如：app.run()
 
 optional arguments:
-  -h, --help        show this help message and exit
+  -h, --help        显示这个帮助信息并退出
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;code&gt;shell&lt;/code&gt;命令用于启动Python shell会话在应用程序上下文。你可以使用这个会话去运行维护任务或测试，或调试错误。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;shell&lt;/code&gt;命令用于在应用程序上下文中启动一个Python shell会话。你可以使用这个会话去运行维护任务，或测试，或调试错误。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;runserver&lt;/code&gt;命令，就像它的名称一样，启动web服务。运行&lt;code&gt;python hello.py runserver&lt;/code&gt;启动web服务在调试模式下，还有更多的选项：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;runserver&lt;/code&gt;命令，就像它的名称一样，启动web服务。运行&lt;code&gt;python hello.py runserver&lt;/code&gt;在调试模式下启动web服务，还有更多的选项：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;(venv) $ python hello.py runserver --help
 usage: hello.py runserver [-h] [-t HOST] [-p PORT] [--threaded]
                           [--processes PROCESSES] [--passthrough-errors] [-d]
                           [-r]
 
-Runs the Flask development server i.e. app.run()
+运行Flask开发服务器，例如：app.run()
 
 optional arguments:
-  -h, --help             show this help message and exit
+  -h, --help             显示这个帮助信息并退出
   -t HOST, --host HOST
   -p PORT, --port PORT
   --threaded
@@ -212,16 +214,16 @@ optional arguments:
   -r, --no-reload 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;code&gt;--host&lt;/code&gt;参数是一个非常有用的选项，因为它告诉web服务器监听哪个网络接口的客户端的连接。默认，Flask的开发web服务器监听&lt;code&gt;localhost&lt;/code&gt;的连接，所以只有来自内部计算机运行的服务器可以接收。下面的命令使得web服务器监听公网接口，其他网络上的计算机可以连接：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;--host&lt;/code&gt;参数是一个非常有用的选项，因为它能告诉web服务器监听哪个网络接口的客户端连接。默认，Flask开发的web服务器监听&lt;code&gt;localhost&lt;/code&gt;的连接，所以只有来自内部计算机运行的服务器可以接收。下面的命令使得web服务器监听公网接口，其他网络上的计算机可以连接：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;(venv) $ python hello.py runserver --host 0.0.0.0
  * Running on http://0.0.0.0:5000/
  * Restarting with reload
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;web服务器现在应该可以从网络中的人和我一个计算机访问 &lt;em&gt;http://a.b.c.d:5000&lt;/em&gt; ，“a.b.c.d”是计算机运行服务的外部IP地址。&lt;/p&gt;
+&lt;p&gt;现在web服务器应该可以从网络中的任何一台计算机访问 &lt;em&gt;http://a.b.c.d:5000&lt;/em&gt; ，“a.b.c.d”是运行服务的计算机的外部IP地址。&lt;/p&gt;
 
-&lt;p&gt;这一章介绍了请求响应的概念，但是更多要说的是响应。Flask使用 &lt;em&gt;模板&lt;/em&gt; 给生成响应提供非常好的支持，这是如此重要的话题在下一章致力于讲它。&lt;/p&gt;
+&lt;p&gt;这一章介绍了请求响应的概念，但说的更多的是响应。Flask使用&lt;strong&gt;模板&lt;/strong&gt;为生成响应提供非常好的支持，这是非常重要的话题，下一章会重点讲它。&lt;/p&gt;
 
 </description>
         <pubDate>Mon, 20 Oct 2014 01:31:30 +0800</pubDate>
@@ -326,7 +328,7 @@ optional arguments:
     &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;debug&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行&lt;code&gt;git checkout 2a&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
+  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 2a&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;运行应用程序之前，请确保你在之前创建的虚拟环境已经是激活状态且已安装Flask。现在打开你的web浏览器并在地址栏输入 &lt;em&gt;http://127.0.0.1:5000/&lt;/em&gt; 。图像2-1显示连接到应用程序后的web浏览器。&lt;/p&gt;
@@ -361,7 +363,7 @@ optional arguments:
     &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;debug&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行&lt;code&gt;git checkout 2b&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
+  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 2b&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;测试动态路由，确保服务正在运行随后访问 &lt;em&gt;http://localhost:5000/user/Dave&lt;/em&gt; 。生成的应用程序会使用动态参数名响应一个定制的问候。尝试不同的名称，看看视图函数总是生成响应基于给定的名称。图像2-2展示的一个示例。&lt;/p&gt;

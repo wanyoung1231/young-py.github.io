@@ -37,6 +37,8 @@ Flask有两类context： _应用级context_ 和 _请求级context_ 。表2-1展�
 
 _表2-1. Flask全局context_
 
+![](http://young-py.github.io/imgs/flask2-03.png)
+
 Flask激活（或压栈）应用级context和请求级context在调度请求之前，然后删除他们当请求被处理后。当应用程序context被压入栈，线程中`current_app`和`g`变量变得可用；同样的，当请求级context被压入栈，`request`和`session`变量也同样变得可用。如果这些变量中的任何一个不是由激活的应用级或请求级context访问，会产生错误。在后面的章节会详细讨论四个context变量，所以不要担心你不理解它们的用处。
 
 下面的Python shell会话演示了应用级context是如何工作的：
@@ -154,11 +156,11 @@ def get_user(id):
 
 Flask是可扩展的。它故意腾出地给重要的功能，例如数据库和用户授权，给你自由去选择最适合你的应用程序的包，或写一个自己想要的。
 
-社区创建了非常多的**扩展**用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节给hello.py添加扩展，通过命令行参数增强应用程序。
+社区开发了非常多的**扩展**用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节给hello.py添加一个扩展，增加应用程序的命令行参数。
 
 ##### **6.1、Flask-Script命令行选项**
 
-Flask的开发，其web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数给`app.run()`并调用。这不是非常的方便，理想方法是通过命令行参数传递配置选项。
+Flask开发，其web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数给`app.run()`并调用。这不是非常的方便，理想方法是通过命令行参数传递配置选项。
 
 Flask-Script是给你的Flask应用程序添加命令行解释的扩展。它打包了一组通用的选项，还支持自定义命令。
 
@@ -185,36 +187,36 @@ if __name__ == '__main__':
 
 专为Flask开发的扩展暴露在`flask.ext`命名空间下。Flask-Script从`flask.ext.script`中导出一个名为`Manager`的类。
 
-初始化这个扩展的方法和其他许多扩展一样：主类实例的初始化是通过将应用程序实例作为参数传递给构造函数。创建的对象适当的用于每一个扩展。在这个示例中，服务器启动是通过`manager.run()`路由命令行的解释。
+初始化这个扩展的方法和其他许多扩展一样：主类实例的初始化是通过将应用程序实例作为参数传递给构造函数实现的。创建的对象适当的用于每一个扩展。在这个示例中，服务器启动通过`manager.run()`来路由，且命令行在这被解析。
 
->建议：如果你有克隆在GitHub上的应用程序的，你现在可以运行`git checkout 2c`来切换到这个版本的应用程序。
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 2c`来切换到这个版本的应用程序。
 
-由于这些变化，应用程序获得基本的一些命令行选项。运行`hello.py`显示可用的信息：
+因为这些变化，应用程序获得一组基本的命令行选项。运行`hello.py`显示可用信息：
 
     $ python hello.py
     usage: hello.py [-h] {shell, runserver} ...
 
     positional arguments:
       {shell, runserver}
-        shell           Runs a Python shell inside Flask application context.
-        runserver       Runs the Flask development server i.e. app.run()
+        shell           在Flask应用程序上下文的内部运行一个Python Shell。
+        runserver       运行Flask开发服务器，例如：app.run()
 
     optional arguments:
-      -h, --help        show this help message and exit
+      -h, --help        显示这个帮助信息并退出
 
-`shell`命令用于启动Python shell会话在应用程序上下文。你可以使用这个会话去运行维护任务或测试，或调试错误。
+`shell`命令用于在应用程序上下文中启动一个Python shell会话。你可以使用这个会话去运行维护任务，或测试，或调试错误。
 
-`runserver`命令，就像它的名称一样，启动web服务。运行`python hello.py runserver`启动web服务在调试模式下，还有更多的选项：
+`runserver`命令，就像它的名称一样，启动web服务。运行`python hello.py runserver`在调试模式下启动web服务，还有更多的选项：
 
     (venv) $ python hello.py runserver --help
     usage: hello.py runserver [-h] [-t HOST] [-p PORT] [--threaded]
                               [--processes PROCESSES] [--passthrough-errors] [-d]
                               [-r]
 
-    Runs the Flask development server i.e. app.run()
+    运行Flask开发服务器，例如：app.run()
 
     optional arguments:
-      -h, --help             show this help message and exit
+      -h, --help             显示这个帮助信息并退出
       -t HOST, --host HOST
       -p PORT, --port PORT
       --threaded
@@ -223,15 +225,15 @@ if __name__ == '__main__':
       -d, --no-debug
       -r, --no-reload 
 
-`--host`参数是一个非常有用的选项，因为它告诉web服务器监听哪个网络接口的客户端的连接。默认，Flask的开发web服务器监听`localhost`的连接，所以只有来自内部计算机运行的服务器可以接收。下面的命令使得web服务器监听公网接口，其他网络上的计算机可以连接：
+`--host`参数是一个非常有用的选项，因为它能告诉web服务器监听哪个网络接口的客户端连接。默认，Flask开发的web服务器监听`localhost`的连接，所以只有来自内部计算机运行的服务器可以接收。下面的命令使得web服务器监听公网接口，其他网络上的计算机可以连接：
 
     (venv) $ python hello.py runserver --host 0.0.0.0
      * Running on http://0.0.0.0:5000/
      * Restarting with reload
 
-web服务器现在应该可以从网络中的人和我一个计算机访问 _http://a.b.c.d:5000_ ，“a.b.c.d”是计算机运行服务的外部IP地址。
+现在web服务器应该可以从网络中的任何一台计算机访问 _http://a.b.c.d:5000_ ，“a.b.c.d”是运行服务的计算机的外部IP地址。
 
-这一章介绍了请求响应的概念，但是更多要说的是响应。Flask使用 _模板_ 给生成响应提供非常好的支持，这是如此重要的话题在下一章致力于讲它。
+这一章介绍了请求响应的概念，但说的更多的是响应。Flask使用**模板**为生成响应提供非常好的支持，这是非常重要的话题，下一章会重点讲它。
 
 
 
