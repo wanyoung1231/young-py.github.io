@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Flask教程 —— 模板（上）</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="关于Python及生活随记">
+    <link rel="canonical" href="/flask/2014/10/24/flask-3-1.html">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+
+</head>
+
+
+    <body>
+
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <a class="site-title" href="">小乌龟 の blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+          <a class="page-link" href="/about/">About</a>
+        
+          <a class="page-link" href="/feed.xml"></a>
+        
+          <a class="page-link" href="/index.html"></a>
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Flask教程 —— 模板（上）</h1>
+    <br />
+    <p class="meta">Oct 24, 2014 by young</p>
+  </header>
+
+  <article class="post-content">
+  <p>写应用程序关键是要易于维护且代码结构清晰整洁。目前为止，你看到过的例子都过于简单而没有演示这个，但是Flask将两个完全独立的用途伪装成一个，从而引发问题。</p>
+
+<p>明摆着的任务就是生成响应，就像你在第二章看到的示例一样。对于最简单的请求这个已经足够，但是一般而言一个请求触发改变应用程序的状态，而视图函数就是这个改变产生的地方。</p>
+
+<p>例如，用户在网站上注册一个新的账户。用户输入邮箱地址和密码到表单并点击提交按钮。一个包含数据的请求从用户那到达服务器上，Flask派发请求给视图函数去处理这个注册请求。这个视图函数需要告诉数据库添加新的用户并生成一个响应发回给浏览器。这两类任务通常被称作<strong>业务逻辑</strong>和<strong>表现逻辑</strong>。</p>
+
+<p>混合业务逻辑和表现逻辑会导致代码非常的难以理解和维护。想象一下，将从数据库获取的数据和必要的HTML字符串文字进行连接，生成一个较大的HTML table代码是多么蛋疼的一件事情。而如果将表现逻辑移到模板中去将极大提高应用程序的可维护性。</p>
+
+<p>模板就是包含响应文本的文件，带有占位符变量的动态部分，只在请求上下文中被知道。用真实的值替换变量并返回最终响应字符串，这个过程称为<strong>渲染</strong>。对于渲染模板任务，Flask使用强大的模板引擎<strong>Jinja2</strong>。</p>
+
+<h3 id="jinja2">1、Jinja2模板引擎</h3>
+
+<p>它最简单的形式，Jinja2模板是一个包含响应文本的文件。示例3-1展示了Jinja2模板匹配示例2-1中<code>index()</code>视图函数响应。</p>
+
+<p><em>示例3-1. templates/index.html：Jinja2模板</em></p>
+
+<pre><code>&lt;h1&gt;Hello World!&lt;/h1&gt;
+</code></pre>
+
+<p>示例2-2中视图函数<code>user()</code>返回的响应有一个动态部分，由一个变量代表。示例3-2展示模板实现该响应。</p>
+
+<p><em>示例3-2. templates/user.html：Jinja2模板</em></p>
+
+<pre><code>&lt;h1&gt;Hello, !&lt;/h1&gt;
+</code></pre>
+
+<h5 id="section">1.1、渲染模板</h5>
+
+<p>Flask默认在应用程序里面的<strong>templates</strong>子目录中寻找模板。下个版本的<code>hello.py</code>，你需要将之前定义的<code>index.html</code>和<code>user.html</code>模板存放到新的<strong>templates</strong>文件夹下。</p>
+
+<p>应用程序中的视图函数需要修改去渲染这些模板。示例3-3中会展示这些变化。</p>
+
+<p><em>示例3-3. hello.py：渲染模板</em></p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">render_template</span>
+
+<span class="c"># ...</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/index&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/user/&lt;name&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">user</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;user.html&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></code></pre></div>
+
+<p><strong>render_template</strong>函数由集成Jinja2模板引擎的Flask提供。这个函数将模板的文件名作为它的第一个参数。任何附加的参数都是键/值对，分别对应被模板引用的变量和真实值。在这个示例中，第二个模板收到name变量。</p>
+
+<p>类似于<code>name=name</code>的关键字参数在前面的示例中是非常常见的，但如果你不使用就很容易混淆且非常难理解。左边的“name”代表参数名称，一般在模板中用于占位符。右边的“name”在当前范围内是一个变量，为同名的参数提供真实的值。</p>
+
+<blockquote>
+  <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 3a</code>来切换到这个版本的应用程序。</p>
+</blockquote>
+
+<h5 id="section-1">1.2、变量</h5>
+
+<p>示例3-2的模板中的``结构引用一个变量，特殊的占位符告诉模板引擎，那个地方的值应该从模板被渲染时提供的数据中获取。</p>
+
+<p>Jinja2识别任何类型的变量，包括复杂类型列表、字典和对象。下面是一些模板中使用变量的示例：</p>
+
+<pre><code>&lt;p&gt;A value from a dictionary: .&lt;/p&gt;
+&lt;p&gt;A value from a list: .&lt;/p&gt;
+&lt;p&gt;A value from a list, with a variable index: .&lt;/p&gt; 
+&lt;p&gt;A value from an object's method: .&lt;/p&gt;
+</code></pre>
+
+<p>变量可以通过<strong>filters</strong>来修改，以<code>|</code>为分隔符添加在变量名后。例如，下面的模板展示变量大写：</p>
+
+<pre><code>Hello, 
+</code></pre>
+
+<p>表格3-1列出一些常用的Jinja2过滤器。</p>
+
+<p><em>表格3-1. Jinja2变量过滤器</em></p>
+
+<p><img src="http://young-py.github.io/imgs/flask3-01.png" alt="" /></p>
+
+<p><code>safe</code>过滤器是比较有趣的。出于安全考虑，默认情况下，Jinja2会<strong>转义</strong>所有变量。例如，如果设置变量的值为<code>'&lt;h1&gt;Hello&lt;/h1&gt;'</code>，Jinja2将渲染字符串为<code>'&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;'</code>，将使得h1元素显示出来且不能被浏览器解释。很多时候需要显示存储在变量中的HTML代码，对于这些情况就可以使用<code>safe</code>过滤器。</p>
+
+<blockquote>
+  <p>警告：永远不要在不信任的值中使用safe过滤器，例如用户在web表单中输入的文本。</p>
+</blockquote>
+
+<p>完整的过滤器列表可以从Jinja2官方文档中获取。</p>
+
+<h5 id="section-2">1.3、控制结构</h5>
+
+<p>Jinja2提供一些控制结构用于改变模板流。这一节用简单例子来介绍一些最有用的。</p>
+
+<p>下面的示例展示条件语句是怎样在模板中使用的：</p>
+
+<pre><code>{ % if user %}
+    Hello, !
+{ % else %}
+    Hello, Stranger!
+{ % endif %}
+</code></pre>
+
+<p>渲染一列元素是另一个在模板中常用到的。这个示例展示如何使用<code>for</code>循环做到这些：</p>
+
+<pre><code>&lt;ul&gt;
+    { % for comment in comments %} 
+        &lt;li&gt;&lt;/li&gt;
+    { % endfor %}
+&lt;/ul&gt;
+</code></pre>
+
+<p>Jinja2同样支持<strong>宏</strong>，和Python代码中的函数很像。例如：</p>
+
+<pre><code>{ % macro render_comment(comment) %} 
+    &lt;li&gt;&lt;/li&gt;
+{ % endmacro %}
+
+&lt;ul&gt;
+    
+&lt;/ul&gt;
+</code></pre>
+
+<p>为了提高宏的复用性，可以将它们存储为单独的文件，然后在所有需要的地方<strong>导入</strong>即可：</p>
+
+<pre><code>{ % import 'macros.html' as macros %}
+
+&lt;ul&gt;
+    { % for comment in comments %}
+        
+    { % endfor %}
+&lt;/ul&gt;
+</code></pre>
+
+<p>需要在一些地方重复使用的模板代码可以存在一个单独的文件中，所有模板都可以<strong>包含</strong>它来避免重复：</p>
+
+<pre><code>{ % include 'common.html' %}
+</code></pre>
+
+<p>另一个强大的复用方式是通过模板继承，这类似于Python代码中类的继承。首先创建一个名为<code>base.html</code>的基础模板：</p>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;
+    { % block head %}
+    &lt;title&gt;{ % block title %}{ % endblock %} - My Application&lt;/title&gt; 
+    { % endblock %}
+&lt;/head&gt;
+&lt;body&gt;
+    { % block body %}
+    { % endblock %}
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>这里<code>block</code>标签定义的派生模板是可变的。在这个示例中，有<code>head</code>、<code>title</code>、<code>body</code>块；注意<code>title</code>包含在<code>head</code>中。下面的示例是一个基础模块的派生模块：</p>
+
+<pre><code>{ % extends "base.html" %}
+{ % block title %}Index{ % endblock %}
+{ % block head %}
+    { { super() }}
+    &lt;style&gt;
+    &lt;/style&gt;
+{ % endblock %}
+{ % block body %} 
+&lt;h1&gt;Hello, World!&lt;/h1&gt;
+{ % endblock %}
+</code></pre>
+
+<p><strong>extends</strong>指令定义这个模板由<code>base.html</code>派生。紧随这个指令之后的是三个在基础模板中定义的块，它们将在合适的位置插入。注意在基础模板中新定义的<code>head</code>块是不为空的，所以使用<code>super()</code> 保留原来的内容。</p>
+
+<p>本节呈现的所有控制结构的实际运用将在后面展示，你会有机会看到它们是怎样工作的。</p>
+
+
+  </article>
+
+</div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>iPython</li>
+        <li><a href="mailto:xiaowugui244345021@163.com">xiaowugui244345021@163.com</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://twitter.com/">
+            <span class="icon twitter">
+              <svg version="1.1" class="twitter-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill="#C2C2C2" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27
+                c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767
+                c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206
+                C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271
+                c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469
+                c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">关于Python及生活随记</p>
+    </div>
+
+  </div>
+
+</footer>
+
+
+    </body>
+</html>

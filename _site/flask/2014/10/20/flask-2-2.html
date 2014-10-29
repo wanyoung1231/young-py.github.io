@@ -91,7 +91,7 @@
 
 <p><em>表2-1. Flask全局context</em></p>
 
-<p><img src="http://0.0.0.0:4000/imgs/flask2-03.png" alt="" /></p>
+<p><img src="http://young-py.github.io/imgs/flask2-03.png" alt="" /></p>
 
 <p>Flask激活（或压栈）应用级context和请求级context在调度请求之前，然后删除他们当请求被处理后。当应用程序context被压入栈，线程中<code>current_app</code>和<code>g</code>变量变得可用；同样的，当请求级context被压入栈，<code>request</code>和<code>session</code>变量也同样变得可用。如果这些变量中的任何一个不是由激活的应用级或请求级context访问，会产生错误。在后面的章节会详细讨论四个context变量，所以不要担心你不理解它们的用处。</p>
 
