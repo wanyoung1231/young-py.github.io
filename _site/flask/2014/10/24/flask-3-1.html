@@ -90,9 +90,9 @@
 
 <h5 id="section">1.1、渲染模板</h5>
 
-<p>Flask默认会在应用程序的<strong>templates</strong>子目录中寻找模板。下个版本的<code>hello.py</code>，你需要将之前定义的<code>index.html</code>和<code>user.html</code>模板存放到新的<strong>templates</strong>文件夹下。</p>
+<p>Flask默认会在应用程序的<strong>templates</strong>子目录中寻找模板。下个版本的<code>hello.py</code>，你需要将之前定义的<code>index.html</code>和<code>user.html</code>模板存放到新的templates文件夹下。</p>
 
-<p>应用程序中的视图函数需要修改去渲染这些模板。示例3-3中会展示这些变化。</p>
+<p>应用程序中的视图函数需要修改来渲染这些模板。示例3-3中会展示这些变化。</p>
 
 <p><em>示例3-3. hello.py：渲染模板</em></p>
 
@@ -108,7 +108,7 @@
 <span class="k">def</span> <span class="nf">user</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;user.html&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></code></pre></div>
 
-<p><strong>render_template</strong>函数由集成Jinja2模板引擎的Flask提供。这个函数将模板的文件名作为它的第一个参数。任何附加的参数都是键/值对，分别对应被模板引用的变量和真实值。在这个示例中，第二个模板收到name变量。</p>
+<p><strong>render_template</strong>函数由集成Jinja2模板引擎的Flask提供。这个函数将模板的文件名作为它的第一个参数。任何附加的参数都是一个键/值对，分别对应被模板引用的变量和真实值。在这个示例中，第二个模板收到name变量。</p>
 
 <p>类似于<code>name=name</code>的关键字参数在前面的示例中是非常常见的，但如果你不使用就很容易混淆且非常难理解。左边的“name”代表参数名称，一般在模板中用于占位符。右边的“name”在当前范围内是一个变量，为同名的参数提供真实的值。</p>
 
@@ -120,7 +120,7 @@
 
 <p>示例3-2的模板中的``结构引用一个变量，特殊的占位符告诉模板引擎，那个地方的值应该从模板被渲染时提供的数据中获取。</p>
 
-<p>Jinja2识别任何类型的变量，包括复杂类型列表、字典和对象。下面是一些模板中使用变量的示例：</p>
+<p>Jinja2识别任何类型的变量，包括复杂的列表、字典和对象。下面是一些模板中使用变量的示例：</p>
 
 <pre><code>&lt;p&gt;A value from a dictionary: .&lt;/p&gt;
 &lt;p&gt;A value from a list: .&lt;/p&gt;
@@ -139,7 +139,7 @@
 
 <p><img src="http://young-py.github.io/imgs/flask3-01.png" alt="" /></p>
 
-<p><code>safe</code>过滤器是比较有趣的。出于安全考虑，默认情况下，Jinja2会<strong>转义</strong>所有变量。例如，如果设置变量的值为<code>'&lt;h1&gt;Hello&lt;/h1&gt;'</code>，Jinja2将渲染字符串为<code>'&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;'</code>，将使得h1元素显示出来且不能被浏览器解释。很多时候需要显示存储在变量中的HTML代码，对于这些情况就可以使用<code>safe</code>过滤器。</p>
+<p><code>safe</code>是比较有趣的一个过滤器。出于安全考虑，默认情况下，Jinja2会<strong>转义</strong>所有变量。例如，如果设置变量的值为<code>'&lt;h1&gt;Hello&lt;/h1&gt;'</code>，Jinja2将渲染字符串为<code>'&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;'</code>，这将使得h1元素显示出来且不能被浏览器解释。很多时候有必要显示存储在变量中的HTML代码，对于这些情况就可以使用<code>safe</code>过滤器。</p>
 
 <blockquote>
   <p>警告：永远不要在不信任的值中使用safe过滤器，例如用户在web表单中输入的文本。</p>
@@ -160,7 +160,7 @@
 { % endif %}
 </code></pre>
 
-<p>渲染一列元素是另一个在模板中常用到的。这个示例展示如何使用<code>for</code>循环做到这些：</p>
+<p>渲染一列元素在模板中是经常用到的。这个示例展示如何使用<code>for</code>循环做到这些：</p>
 
 <pre><code>&lt;ul&gt;
     { % for comment in comments %} 
@@ -169,7 +169,7 @@
 &lt;/ul&gt;
 </code></pre>
 
-<p>Jinja2同样支持<strong>宏</strong>，和Python代码中的函数很像。例如：</p>
+<p>Jinja2同样支持<strong>宏</strong>，这和Python代码中的函数很像。例如：</p>
 
 <pre><code>{ % macro render_comment(comment) %} 
     &lt;li&gt;&lt;/li&gt;
@@ -180,7 +180,7 @@
 &lt;/ul&gt;
 </code></pre>
 
-<p>为了提高宏的复用性，可以将它们存储为单独的文件，然后在所有需要的地方<strong>导入</strong>即可：</p>
+<p>为了提高宏的复用性，可以将它们保存为单独的文件，然后在所有需要的地方<strong>导入</strong>即可：</p>
 
 <pre><code>{ % import 'macros.html' as macros %}
 
@@ -191,7 +191,7 @@
 &lt;/ul&gt;
 </code></pre>
 
-<p>需要在一些地方重复使用的模板代码可以存在一个单独的文件中，所有模板都可以<strong>包含</strong>它来避免重复：</p>
+<p>需要在一些地方重复使用的模板代码可以保存为一个单独的文件，所有模板都可以<strong>include</strong>它来避免重复：</p>
 
 <pre><code>{ % include 'common.html' %}
 </code></pre>

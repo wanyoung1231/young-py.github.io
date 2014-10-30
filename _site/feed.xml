@@ -36,9 +36,9 @@
 
 &lt;h5 id=&quot;section&quot;&gt;1.1、渲染模板&lt;/h5&gt;
 
-&lt;p&gt;Flask默认会在应用程序的&lt;strong&gt;templates&lt;/strong&gt;子目录中寻找模板。下个版本的&lt;code&gt;hello.py&lt;/code&gt;，你需要将之前定义的&lt;code&gt;index.html&lt;/code&gt;和&lt;code&gt;user.html&lt;/code&gt;模板存放到新的&lt;strong&gt;templates&lt;/strong&gt;文件夹下。&lt;/p&gt;
+&lt;p&gt;Flask默认会在应用程序的&lt;strong&gt;templates&lt;/strong&gt;子目录中寻找模板。下个版本的&lt;code&gt;hello.py&lt;/code&gt;，你需要将之前定义的&lt;code&gt;index.html&lt;/code&gt;和&lt;code&gt;user.html&lt;/code&gt;模板存放到新的templates文件夹下。&lt;/p&gt;
 
-&lt;p&gt;应用程序中的视图函数需要修改去渲染这些模板。示例3-3中会展示这些变化。&lt;/p&gt;
+&lt;p&gt;应用程序中的视图函数需要修改来渲染这些模板。示例3-3中会展示这些变化。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例3-3. hello.py：渲染模板&lt;/em&gt;&lt;/p&gt;
 
@@ -54,7 +54,7 @@
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;user.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;&lt;strong&gt;render_template&lt;/strong&gt;函数由集成Jinja2模板引擎的Flask提供。这个函数将模板的文件名作为它的第一个参数。任何附加的参数都是键/值对，分别对应被模板引用的变量和真实值。在这个示例中，第二个模板收到name变量。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;render_template&lt;/strong&gt;函数由集成Jinja2模板引擎的Flask提供。这个函数将模板的文件名作为它的第一个参数。任何附加的参数都是一个键/值对，分别对应被模板引用的变量和真实值。在这个示例中，第二个模板收到name变量。&lt;/p&gt;
 
 &lt;p&gt;类似于&lt;code&gt;name=name&lt;/code&gt;的关键字参数在前面的示例中是非常常见的，但如果你不使用就很容易混淆且非常难理解。左边的“name”代表参数名称，一般在模板中用于占位符。右边的“name”在当前范围内是一个变量，为同名的参数提供真实的值。&lt;/p&gt;
 
@@ -66,7 +66,7 @@
 
 &lt;p&gt;示例3-2的模板中的``结构引用一个变量，特殊的占位符告诉模板引擎，那个地方的值应该从模板被渲染时提供的数据中获取。&lt;/p&gt;
 
-&lt;p&gt;Jinja2识别任何类型的变量，包括复杂类型列表、字典和对象。下面是一些模板中使用变量的示例：&lt;/p&gt;
+&lt;p&gt;Jinja2识别任何类型的变量，包括复杂的列表、字典和对象。下面是一些模板中使用变量的示例：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;lt;p&amp;gt;A value from a dictionary: .&amp;lt;/p&amp;gt;
 &amp;lt;p&amp;gt;A value from a list: .&amp;lt;/p&amp;gt;
@@ -85,7 +85,7 @@
 
 &lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/flask3-01.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;safe&lt;/code&gt;过滤器是比较有趣的。出于安全考虑，默认情况下，Jinja2会&lt;strong&gt;转义&lt;/strong&gt;所有变量。例如，如果设置变量的值为&lt;code&gt;&#39;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;&#39;&lt;/code&gt;，Jinja2将渲染字符串为&lt;code&gt;&#39;&amp;amp;lt;h1&amp;amp;gt;Hello&amp;amp;lt;/h1&amp;amp;gt;&#39;&lt;/code&gt;，将使得h1元素显示出来且不能被浏览器解释。很多时候需要显示存储在变量中的HTML代码，对于这些情况就可以使用&lt;code&gt;safe&lt;/code&gt;过滤器。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;safe&lt;/code&gt;是比较有趣的一个过滤器。出于安全考虑，默认情况下，Jinja2会&lt;strong&gt;转义&lt;/strong&gt;所有变量。例如，如果设置变量的值为&lt;code&gt;&#39;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;&#39;&lt;/code&gt;，Jinja2将渲染字符串为&lt;code&gt;&#39;&amp;amp;lt;h1&amp;amp;gt;Hello&amp;amp;lt;/h1&amp;amp;gt;&#39;&lt;/code&gt;，这将使得h1元素显示出来且不能被浏览器解释。很多时候有必要显示存储在变量中的HTML代码，对于这些情况就可以使用&lt;code&gt;safe&lt;/code&gt;过滤器。&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;警告：永远不要在不信任的值中使用safe过滤器，例如用户在web表单中输入的文本。&lt;/p&gt;
@@ -106,7 +106,7 @@
 { % endif %}
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;渲染一列元素是另一个在模板中常用到的。这个示例展示如何使用&lt;code&gt;for&lt;/code&gt;循环做到这些：&lt;/p&gt;
+&lt;p&gt;渲染一列元素在模板中是经常用到的。这个示例展示如何使用&lt;code&gt;for&lt;/code&gt;循环做到这些：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;lt;ul&amp;gt;
     { % for comment in comments %} 
@@ -115,7 +115,7 @@
 &amp;lt;/ul&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Jinja2同样支持&lt;strong&gt;宏&lt;/strong&gt;，和Python代码中的函数很像。例如：&lt;/p&gt;
+&lt;p&gt;Jinja2同样支持&lt;strong&gt;宏&lt;/strong&gt;，这和Python代码中的函数很像。例如：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;{ % macro render_comment(comment) %} 
     &amp;lt;li&amp;gt;&amp;lt;/li&amp;gt;
@@ -126,7 +126,7 @@
 &amp;lt;/ul&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;为了提高宏的复用性，可以将它们存储为单独的文件，然后在所有需要的地方&lt;strong&gt;导入&lt;/strong&gt;即可：&lt;/p&gt;
+&lt;p&gt;为了提高宏的复用性，可以将它们保存为单独的文件，然后在所有需要的地方&lt;strong&gt;导入&lt;/strong&gt;即可：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;{ % import &#39;macros.html&#39; as macros %}
 
@@ -137,7 +137,7 @@
 &amp;lt;/ul&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;需要在一些地方重复使用的模板代码可以存在一个单独的文件中，所有模板都可以&lt;strong&gt;包含&lt;/strong&gt;它来避免重复：&lt;/p&gt;
+&lt;p&gt;需要在一些地方重复使用的模板代码可以保存为一个单独的文件，所有模板都可以&lt;strong&gt;include&lt;/strong&gt;它来避免重复：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;{ % include &#39;common.html&#39; %}
 &lt;/code&gt;&lt;/pre&gt;
