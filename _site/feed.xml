@@ -8,26 +8,26 @@
     
       <item>
         <title>Flask教程 —— 模板（上）</title>
-        <description>&lt;p&gt;写应用程序关键是要易于维护且代码结构清晰整洁。目前为止，你看到过的例子都过于简单而没有演示这个，但是Flask将两个完全独立的用途伪装成一个，从而引发问题。&lt;/p&gt;
+        <description>&lt;p&gt;写代码最关键的是要易于维护且结构清晰整洁。目前为止，你看到的例子都过于简单从而没有做这方面的要求，然而Flask视图函数将两个完全独立的任务伪装成一个，将势必引发问题。&lt;/p&gt;
 
-&lt;p&gt;明摆着的任务就是生成响应，就像你在第二章看到的示例一样。对于最简单的请求这个已经足够，但是一般而言一个请求触发改变应用程序的状态，而视图函数就是这个改变产生的地方。&lt;/p&gt;
+&lt;p&gt;明摆着的任务就是&lt;strong&gt;生成响应&lt;/strong&gt;，就像你在第二章看到的示例那样。对于最简单的请求确实已经足够，但是一般而言一个请求触发会改变应用程序的状态，而视图函数就是产生这个改变的地方。&lt;/p&gt;
 
-&lt;p&gt;例如，用户在网站上注册一个新的账户。用户输入邮箱地址和密码到表单并点击提交按钮。一个包含数据的请求从用户那到达服务器上，Flask派发请求给视图函数去处理这个注册请求。这个视图函数需要告诉数据库添加新的用户并生成一个响应发回给浏览器。这两类任务通常被称作&lt;strong&gt;业务逻辑&lt;/strong&gt;和&lt;strong&gt;表现逻辑&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;例如，用户在网站上注册一个新的账户。用户输入邮箱地址和密码到表单并点击提交按钮。一个包含数据的请求从用户到服务器，Flask将其派发给视图函数去处理这个注册请求。这个视图函数需要告诉数据库添加新的用户并生成一个响应发回给浏览器。这两类任务通常被称作&lt;strong&gt;业务逻辑&lt;/strong&gt;和&lt;strong&gt;表现逻辑&lt;/strong&gt;。&lt;/p&gt;
 
-&lt;p&gt;混合业务逻辑和表现逻辑会导致代码非常的难以理解和维护。想象一下，将从数据库获取的数据和必要的HTML字符串文字进行连接，生成一个较大的HTML table代码是多么蛋疼的一件事情。而如果将表现逻辑移到模板中去将极大提高应用程序的可维护性。&lt;/p&gt;
+&lt;p&gt;混合业务逻辑和表现逻辑会导致代码非常的难以理解和维护。想象一下，将从数据库获取的数据和必要的HTML字符串文字进行连接，生成一堆的HTML代码是多么蛋疼的一件事情。而如果将表现逻辑移到模板中去，则势必极大提高应用程序的可维护性。&lt;/p&gt;
 
-&lt;p&gt;模板就是包含响应文本的文件，带有占位符变量的动态部分，只在请求上下文中被知道。用真实的值替换变量并返回最终响应字符串，这个过程称为&lt;strong&gt;渲染&lt;/strong&gt;。对于渲染模板任务，Flask使用强大的模板引擎&lt;strong&gt;Jinja2&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;模板就是包含响应文本的文件，带有占位符变量的动态部分，只在请求上下文中才能知道。用真实的值替换变量并返回最终响应字符串，这个过程称为&lt;strong&gt;渲染&lt;/strong&gt;。对于渲染模板任务，Flask使用强大的模板引擎&lt;strong&gt;Jinja2&lt;/strong&gt;。&lt;/p&gt;
 
 &lt;h3 id=&quot;jinja2&quot;&gt;1、Jinja2模板引擎&lt;/h3&gt;
 
-&lt;p&gt;它最简单的形式，Jinja2模板是一个包含响应文本的文件。示例3-1展示了Jinja2模板匹配示例2-1中&lt;code&gt;index()&lt;/code&gt;视图函数响应。&lt;/p&gt;
+&lt;p&gt;Jinja2模板最简单的形式就是一个包含响应文本的文件。示例3-1展示了Jinja2模板匹配示例2-1中&lt;code&gt;index()&lt;/code&gt;视图函数响应。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例3-1. templates/index.html：Jinja2模板&lt;/em&gt;&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;lt;h1&amp;gt;Hello World!&amp;lt;/h1&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;示例2-2中视图函数&lt;code&gt;user()&lt;/code&gt;返回的响应有一个动态部分，由一个变量代表。示例3-2展示模板实现该响应。&lt;/p&gt;
+&lt;p&gt;示例2-2中视图函数&lt;code&gt;user()&lt;/code&gt;返回的响应有一个动态部分，该部分由一个变量代表。示例3-2展示模板实现该响应。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例3-2. templates/user.html：Jinja2模板&lt;/em&gt;&lt;/p&gt;
 
@@ -36,7 +36,7 @@
 
 &lt;h5 id=&quot;section&quot;&gt;1.1、渲染模板&lt;/h5&gt;
 
-&lt;p&gt;Flask默认在应用程序里面的&lt;strong&gt;templates&lt;/strong&gt;子目录中寻找模板。下个版本的&lt;code&gt;hello.py&lt;/code&gt;，你需要将之前定义的&lt;code&gt;index.html&lt;/code&gt;和&lt;code&gt;user.html&lt;/code&gt;模板存放到新的&lt;strong&gt;templates&lt;/strong&gt;文件夹下。&lt;/p&gt;
+&lt;p&gt;Flask默认会在应用程序的&lt;strong&gt;templates&lt;/strong&gt;子目录中寻找模板。下个版本的&lt;code&gt;hello.py&lt;/code&gt;，你需要将之前定义的&lt;code&gt;index.html&lt;/code&gt;和&lt;code&gt;user.html&lt;/code&gt;模板存放到新的&lt;strong&gt;templates&lt;/strong&gt;文件夹下。&lt;/p&gt;
 
 &lt;p&gt;应用程序中的视图函数需要修改去渲染这些模板。示例3-3中会展示这些变化。&lt;/p&gt;
 
