@@ -1,0 +1,35 @@
+---
+layout: post
+title:  "Flask教程 —— 模板（中）"
+date:   2014-10-31 09:27:05
+categories: flask
+author: young
+---
+
+### 2、集成Twitter Bootstrap的Flask-Bootstrap
+
+**Bootstrap**是Twitter的一个开源框架，提供用户交互组件来创建一个清新且有吸引力的web页面，可以兼容所有现代web浏览器。
+
+Bootstrap是一个客户端框架，服务端不直接参与。服务端需要做的就是提供HTML响应，引用Bootstrap的层叠样式表（CSS）和JavaScript文件并通过HTML、CSS、和JavaScript代码来实例化需要的组件。做着一切的理想地方就是在模板里面。
+
+集成Bootstrap到应用程序最好的方式是在模板中做一些必要的改变。一个简单点的途径就是使用Flask-Bootstrap**扩展**去简化集成工作。Flask-Bootstrap可以通过pip来安装：
+
+    (venv) $ pip install flask-bootstrap
+
+Flask扩展通常在应用程序实例被创建的时候初始化。示例3-4展示Flask-Bootstrap的初始化
+
+_示例3-4. hello.py：Flask-Bootstrap初始化_
+
+{% highlight python %}
+
+from flask.ext.bootstrap import Bootstrap
+# ...
+bootstrap = Bootstrap(app)
+
+{% endhighlight %}
+
+和第二章的Flask-Script一样，Flask-Bootstrap从`flask.ext`命名空间导入并通过传递应用程序实例到构造函数来初始化。
+
+一旦Flask-Bootstrap被初始化，一个包含所有Bootstrap文件的基础模板可以供应用程序使用。这个模板利用Jinja2的模板继承;应用程序扩展
+
+### 3、自定义错误页面
