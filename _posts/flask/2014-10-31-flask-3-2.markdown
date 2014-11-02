@@ -42,7 +42,8 @@ _示例3-5. templates/user.html： 使用Flask-Bootstrap的模板
 <div class="navbar navbar-inverse" role="navigation"> 
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> 
+      <button type="button" class="navbar-toggle" data-toggle="collapse" 
+        data-target=".navbar-collapse"> 
         <span class="sr-only">Toggle navigation</span> 
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -130,7 +131,8 @@ _示例3-7. templates/base.html：带有导航栏的基础应用程序模板
 <div class="navbar navbar-inverse" role="navigation"> 
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> 
+      <button type="button" class="navbar-toggle" data-toggle="collapse" 
+        data-target=".navbar-collapse"> 
         <span class="sr-only">Toggle navigation</span> 
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
