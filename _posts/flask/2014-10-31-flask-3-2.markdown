@@ -30,6 +30,181 @@ bootstrap = Bootstrap(app)
 
 和第二章的Flask-Script一样，Flask-Bootstrap从`flask.ext`命名空间导入并通过传递应用程序实例到构造函数来初始化。
 
-一旦Flask-Bootstrap被初始化，一个包含所有Bootstrap文件的基础模板可以供应用程序使用。这个模板利用Jinja2的模板继承;应用程序扩展
+一旦Flask-Bootstrap被初始化，一个包含所有Bootstrap文件的基础模板可以供应用程序使用。这个模板利用Jinja2的模板继承;应用程序扩展一个有通用页面结构、包含Bootstrap导入元素的基础模板。示例3-5展示新版本的`user.html`作为派生模板。
+
+_示例3-5. templates/user.html： 使用Flask-Bootstrap的模板
+
+{% highlight html %}
+
+{ % extends "bootstrap/base.html" %}
+{ % block title %}Flasky{% endblock %}
+{ % block navbar %}
+<div class="navbar navbar-inverse" role="navigation"> 
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> 
+        <span class="sr-only">Toggle navigation</span> 
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Flasky</a> 
+    </div>
+    <div class="navbar-collapse collapse"> 
+      <ul class="nav navbar-nav">
+        <li><a href="/">Home</a></li> 
+      </ul>
+    </div>
+  </div>
+</div>
+{ % endblock %}
+
+{ % block content %}
+<div class="container">
+  <div class="page-header">
+    <h1>Hello, {{ name }}!</h1> 
+  </div>
+</div>
+{ % endblock %}
+
+{% endhighlight %}
+
+Jinja2扩展指令实现了模板的继承通过从Flask-Bootstrap引用`bootstrap/base.html`。Flask-Bootstrap的基础模板提供一个包含Bootstrap CSS和JavaScript文件的web页面骨架。
+
+基础模板定义了一些**block**可以被派生模板重写。`block`和`endblock`指令定义了模板中block的内容。
+
+上面的`user.html`模板定义了三个block，分别命名为`title`、`navbar`和`content`。这些block都是基础模板定义给派生模板的出口。`title`块是简洁明了的；它的内容将出现在`<title>`标签内，在被渲染的HTML文档的头部 。`navbar`和`content`块是为页面保留的导航栏和主内容。
+
+在这个模板，`navbar`块使用Bootstrap组件定义了一个简单的导航栏。`content`块有个名为`container`的`<div>`，该div中有个名为`page-header`的`<div>`。图3-1展示这些操作后应用程序长成啥样了。
+
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 3b`来切换到这个版本的应用程序。[Bootstrap官方文档](http://www.bootcss.com/) 是一个非常强大的学习资料，完全可以复制粘贴使用那些示例。
+
+![](http://young-py.github.io/imgs/flask3-02.png)
+
+表格3-2中的许多块用于Flask-Bootstrap自身，所以直接重写它们会引发问题。例如，`styles`和`scripts`块是Bootstrap定义文件的地方。如果应用程序需要新增自己的内容到已经有一些内容的块中，则Jinja的`super()`功能必须用上。例如，下面是`scripts`块如何需要被写入派生模板来增加新的JavaScript文件给文档的：
+
+{% highlight html %}
+
+{ % block scripts %}
+{ { super() }}
+<script type="text/javascript" src="my-script.js"></script> 
+{ % endblock %}
+
+{% endhighlight %}
 
 ### 3、自定义错误页面
+
+当你输入错误路径在你的浏览器地址栏，你会得到404错误代码页面。错误页面现在太普通且没有吸引力，它没有一致的使用Bootstrap页面。
+
+Flask允许应用程序自定义基于模板的错误页面，像普通的路径。两个最常见的错误代码，404在客户端请求的页面或路径不存在的时候触发；500在存在未处理的异常时触发。示例3-6展示如何为这两个错误提供自定义处理。
+
+_示例3-6. hello.py：自定义错误页面_
+
+{% highlight python %}
+
+@app.errorhandler(404) 
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
+{% endhighlight %}
+
+错误处理返回一个响应，像视图函数一样。同样返回相应错误的数字状态码。
+
+在错误处理中引用的模板需要自己去写。这些模板需要和正规的页面一样的布局，所以在这个示例中需要导航栏和页面头部显示错误信息。
+
+编写这些模板简洁明了的方式是复制`templates/user.html`到`templates/404.html`和`templates/500.html`，然后改变这两个新文件的页面头部元素来给出适当的错误信息，但这会产生很多副本。
+
+Jinja2的模板继承可以帮助我们解决这个问题。以同样的方式Flask-Bootstrap提供了一个带有基本布局页面的基础模板，应用程序可以定义自己的、有完整页面布局的基础模板，包括导航栏和定义在派生模板中的页面内容。示例3-7展示了`templates/base.html`，它是一个新的模板继承自`bootstrap/base.html`且定义了导航栏，但对于其他模板是一个基础模板，例如`templates/user.html`、`templates/404.html`和`templates/500.html`。
+
+_示例3-7. templates/base.html：带有导航栏的基础应用程序模板
+
+{% highlight html %}
+
+{ % extends "bootstrap/base.html" %}
+{ % block title %}Flasky{ % endblock %}
+{ % block navbar %}
+<div class="navbar navbar-inverse" role="navigation"> 
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> 
+        <span class="sr-only">Toggle navigation</span> 
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Flasky</a>
+    </div>
+    <div class="navbar-collapse collapse"> 
+      <ul class="nav navbar-nav">
+        <li><a href="/">Home</a></li> 
+      </ul>
+    </div>
+  </div>
+</div>
+{ % endblock %}
+
+{ % block content %}
+<div class="container">
+  { % block page_content %}{ % endblock %}
+</div>
+{ % endblock %}
+
+{% endhighlight %}
+
+这个模板中的`content`块中只是一个名为`container`的`<div>`元素，它包含了可以在派生模板中定义的名为`page_content`的空块。
+
+应用程序的模板将从这个模板继承来替代直接从Flask-Bootstrap继承。示例3-8展示从`templates/base.html`继承来构造一个自定义404错误页面是多么简单。
+
+_示例3-8. `templates/404.html`：使用模板继承自定义404错误页面_
+
+{% highlight html %}
+
+{ % extends "base.html" %}
+{ % block title %}Flasky - Page Not Found{ % endblock %}
+{ % block page_content %}
+<div class="page-header"> 
+  <h1>Not Found</h1>
+</div>
+{ % endblock %}
+
+{% endhighlight %}
+
+图片3-2展示在浏览器中错误页面是怎样的。
+
+![](http://young-py.github.io/imgs/flask3-04.png)
+
+_图片3-2. 自定义404错误页面_
+
+现在`templates/user.html`模板可以通过继承基础模板来简化它，就像示例3-9展示的这样。
+
+_示例3-9. templates/user.html：使用模板继承简化页面模板_
+
+{% highlight html %}
+
+{ % extends "base.html" %}
+{ % block title %}Flasky{ % endblock %}
+{ % block page_content %}
+<div class="page-header"> 
+  <h1>Hello, {{ name }}!</h1>
+</div>
+{ % endblock %}
+
+{% endhighlight %}
+
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 3c`来切换到这个版本的应用程序。
+
+
+
+
+
+
+
+
+
+
+
+
