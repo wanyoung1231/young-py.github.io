@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Flask教程 —— 模板（中）</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="关于Python及生活随记">
+    <link rel="canonical" href="/flask/2014/10/31/flask-3-2.html">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+
+</head>
+
+
+    <body>
+
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <a class="site-title" href="">小乌龟 の blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+          <a class="page-link" href="/about/">About</a>
+        
+          <a class="page-link" href="/feed.xml"></a>
+        
+          <a class="page-link" href="/index.html"></a>
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Flask教程 —— 模板（中）</h1>
+    <br />
+    <p class="meta">Oct 31, 2014 by young</p>
+  </header>
+
+  <article class="post-content">
+  <h3 id="twitter-bootstrapflask-bootstrap">2、集成Twitter Bootstrap的Flask-Bootstrap</h3>
+
+<p><strong>Bootstrap</strong>是Twitter的一个开源框架，提供用户交互组件来创建一个清新且有吸引力的web页面，可以兼容所有现代web浏览器。</p>
+
+<p>Bootstrap是一个客户端框架，服务端不直接参与。服务端需要做的就是提供HTML响应，引用Bootstrap的层叠样式表（CSS）和JavaScript文件并通过HTML、CSS、和JavaScript代码来实例化需要的组件。做着一切的理想地方就是在模板里面。</p>
+
+<p>集成Bootstrap到应用程序最好的方式是在模板中做一些必要的改变。一个简单点的途径就是使用Flask-Bootstrap<strong>扩展</strong>去简化集成工作。Flask-Bootstrap可以通过pip来安装：</p>
+
+<pre><code>(venv) $ pip install flask-bootstrap
+</code></pre>
+
+<p>Flask扩展通常在应用程序实例被创建的时候初始化。示例3-4展示Flask-Bootstrap的初始化</p>
+
+<p><em>示例3-4. hello.py：Flask-Bootstrap初始化</em></p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask.ext.bootstrap</span> <span class="kn">import</span> <span class="n">Bootstrap</span>
+<span class="c"># ...</span>
+<span class="n">bootstrap</span> <span class="o">=</span> <span class="n">Bootstrap</span><span class="p">(</span><span class="n">app</span><span class="p">)</span></code></pre></div>
+
+<p>和第二章的Flask-Script一样，Flask-Bootstrap从<code>flask.ext</code>命名空间导入并通过传递应用程序实例到构造函数来初始化。</p>
+
+<p>一旦Flask-Bootstrap被初始化，一个包含所有Bootstrap文件的基础模板可以供应用程序使用。这个模板利用Jinja2的模板继承;应用程序扩展一个有通用页面结构、包含Bootstrap导入元素的基础模板。示例3-5展示新版本的<code>user.html</code>作为派生模板。</p>
+
+<p>_示例3-5. templates/user.html： 使用Flask-Bootstrap的模板</p>
+
+<div class="highlight"><pre><code class="html">{ % extends &quot;bootstrap/base.html&quot; %}
+{ % block title %}Flasky{ % endblock %}
+{ % block navbar %}
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar navbar-inverse&quot;</span> <span class="na">role=</span><span class="s">&quot;navigation&quot;</span><span class="nt">&gt;</span> 
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-header&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;button&quot;</span> <span class="na">class=</span><span class="s">&quot;navbar-toggle&quot;</span> <span class="na">data-toggle=</span><span class="s">&quot;collapse&quot;</span> <span class="na">data-target=</span><span class="s">&quot;.navbar-collapse&quot;</span><span class="nt">&gt;</span> 
+        <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;sr-only&quot;</span><span class="nt">&gt;</span>Toggle navigation<span class="nt">&lt;/span&gt;</span> 
+        <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+        <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+        <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+      <span class="nt">&lt;/button&gt;</span>
+      <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;navbar-brand&quot;</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span>Flasky<span class="nt">&lt;/a&gt;</span> 
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-collapse collapse&quot;</span><span class="nt">&gt;</span> 
+      <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">&quot;nav navbar-nav&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;&lt;/li&gt;</span> 
+      <span class="nt">&lt;/ul&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+{ % endblock %}
+
+{ % block content %}
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;page-header&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;h1&gt;</span>Hello, !<span class="nt">&lt;/h1&gt;</span> 
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+{ % endblock %}</code></pre></div>
+
+<p>Jinja2扩展指令实现了模板的继承通过从Flask-Bootstrap引用<code>bootstrap/base.html</code>。Flask-Bootstrap的基础模板提供一个包含Bootstrap CSS和JavaScript文件的web页面骨架。</p>
+
+<p>基础模板定义了一些<strong>block</strong>可以被派生模板重写。<code>block</code>和<code>endblock</code>指令定义了模板中block的内容。</p>
+
+<p>上面的<code>user.html</code>模板定义了三个block，分别命名为<code>title</code>、<code>navbar</code>和<code>content</code>。这些block都是基础模板定义给派生模板的出口。<code>title</code>块是简洁明了的；它的内容将出现在<code>&lt;title&gt;</code>标签内，在被渲染的HTML文档的头部 。<code>navbar</code>和<code>content</code>块是为页面保留的导航栏和主内容。</p>
+
+<p>在这个模板，<code>navbar</code>块使用Bootstrap组件定义了一个简单的导航栏。<code>content</code>块有个名为<code>container</code>的<code>&lt;div&gt;</code>，该div中有个名为<code>page-header</code>的<code>&lt;div&gt;</code>。图3-1展示这些操作后应用程序长成啥样了。</p>
+
+<blockquote>
+  <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 3b</code>来切换到这个版本的应用程序。<a href="http://www.bootcss.com/">Bootstrap官方文档</a> 是一个非常强大的学习资料，完全可以复制粘贴使用那些示例。</p>
+</blockquote>
+
+<p><img src="http://young-py.github.io/imgs/flask3-02.png" alt="" /></p>
+
+<p>表格3-2中的许多块用于Flask-Bootstrap自身，所以直接重写它们会引发问题。例如，<code>styles</code>和<code>scripts</code>块是Bootstrap定义文件的地方。如果应用程序需要新增自己的内容到已经有一些内容的块中，则Jinja的<code>super()</code>功能必须用上。例如，下面是<code>scripts</code>块如何需要被写入派生模板来增加新的JavaScript文件给文档的：</p>
+
+<div class="highlight"><pre><code class="html">{ % block scripts %}
+{ { super() }}
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;my-script.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span> 
+{ % endblock %}</code></pre></div>
+
+<h3 id="section">3、自定义错误页面</h3>
+
+<p>当你输入错误路径在你的浏览器地址栏，你会得到404错误代码页面。错误页面现在太普通且没有吸引力，它没有一致的使用Bootstrap页面。</p>
+
+<p>Flask允许应用程序自定义基于模板的错误页面，像普通的路径。两个最常见的错误代码，404在客户端请求的页面或路径不存在的时候触发；500在存在未处理的异常时触发。示例3-6展示如何为这两个错误提供自定义处理。</p>
+
+<p><em>示例3-6. hello.py：自定义错误页面</em></p>
+
+<div class="highlight"><pre><code class="python"><span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span> 
+<span class="k">def</span> <span class="nf">page_not_found</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;404.html&#39;</span><span class="p">),</span> <span class="mi">404</span>
+
+<span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">internal_server_error</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;500.html&#39;</span><span class="p">),</span> <span class="mi">500</span></code></pre></div>
+
+<p>错误处理返回一个响应，像视图函数一样。同样返回相应错误的数字状态码。</p>
+
+<p>在错误处理中引用的模板需要自己去写。这些模板需要和正规的页面一样的布局，所以在这个示例中需要导航栏和页面头部显示错误信息。</p>
+
+<p>编写这些模板简洁明了的方式是复制<code>templates/user.html</code>到<code>templates/404.html</code>和<code>templates/500.html</code>，然后改变这两个新文件的页面头部元素来给出适当的错误信息，但这会产生很多副本。</p>
+
+<p>Jinja2的模板继承可以帮助我们解决这个问题。以同样的方式Flask-Bootstrap提供了一个带有基本布局页面的基础模板，应用程序可以定义自己的、有完整页面布局的基础模板，包括导航栏和定义在派生模板中的页面内容。示例3-7展示了<code>templates/base.html</code>，它是一个新的模板继承自<code>bootstrap/base.html</code>且定义了导航栏，但对于其他模板是一个基础模板，例如<code>templates/user.html</code>、<code>templates/404.html</code>和<code>templates/500.html</code>。</p>
+
+<p>_示例3-7. templates/base.html：带有导航栏的基础应用程序模板</p>
+
+<div class="highlight"><pre><code class="html">{ % extends &quot;bootstrap/base.html&quot; %}
+{ % block title %}Flasky{ % endblock %}
+{ % block navbar %}
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar navbar-inverse&quot;</span> <span class="na">role=</span><span class="s">&quot;navigation&quot;</span><span class="nt">&gt;</span> 
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-header&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;button&quot;</span> <span class="na">class=</span><span class="s">&quot;navbar-toggle&quot;</span> <span class="na">data-toggle=</span><span class="s">&quot;collapse&quot;</span> <span class="na">data-target=</span><span class="s">&quot;.navbar-collapse&quot;</span><span class="nt">&gt;</span> 
+        <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;sr-only&quot;</span><span class="nt">&gt;</span>Toggle navigation<span class="nt">&lt;/span&gt;</span> 
+        <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+        <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+        <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
+      <span class="nt">&lt;/button&gt;</span>
+      <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;navbar-brand&quot;</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span>Flasky<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-collapse collapse&quot;</span><span class="nt">&gt;</span> 
+      <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">&quot;nav navbar-nav&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;&lt;/li&gt;</span> 
+      <span class="nt">&lt;/ul&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+{ % endblock %}
+
+{ % block content %}
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
+  { % block page_content %}{ % endblock %}
+<span class="nt">&lt;/div&gt;</span>
+{ % endblock %}</code></pre></div>
+
+<p>这个模板中的<code>content</code>块中只是一个名为<code>container</code>的<code>&lt;div&gt;</code>元素，它包含了可以在派生模板中定义的名为<code>page_content</code>的空块。</p>
+
+<p>应用程序的模板将从这个模板继承来替代直接从Flask-Bootstrap继承。示例3-8展示从<code>templates/base.html</code>继承来构造一个自定义404错误页面是多么简单。</p>
+
+<p><em>示例3-8. <code>templates/404.html</code>：使用模板继承自定义404错误页面</em></p>
+
+<div class="highlight"><pre><code class="html">{ % extends &quot;base.html&quot; %}
+{ % block title %}Flasky - Page Not Found{ % endblock %}
+{ % block page_content %}
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;page-header&quot;</span><span class="nt">&gt;</span> 
+  <span class="nt">&lt;h1&gt;</span>Not Found<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+{ % endblock %}</code></pre></div>
+
+<p>图片3-2展示在浏览器中错误页面是怎样的。</p>
+
+<p><img src="http://young-py.github.io/imgs/flask3-04.png" alt="" /></p>
+
+<p><em>图片3-2. 自定义404错误页面</em></p>
+
+<p>现在<code>templates/user.html</code>模板可以通过继承基础模板来简化它，就像示例3-9展示的这样。</p>
+
+<p><em>示例3-9. templates/user.html：使用模板继承简化页面模板</em></p>
+
+<div class="highlight"><pre><code class="html">{ % extends &quot;base.html&quot; %}
+{ % block title %}Flasky{ % endblock %}
+{ % block page_content %}
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;page-header&quot;</span><span class="nt">&gt;</span> 
+  <span class="nt">&lt;h1&gt;</span>Hello, !<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+{ % endblock %}</code></pre></div>
+
+<blockquote>
+  <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 3c</code>来切换到这个版本的应用程序。</p>
+</blockquote>
+
+
+  </article>
+
+</div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>iPython</li>
+        <li><a href="mailto:xiaowugui244345021@163.com">xiaowugui244345021@163.com</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://twitter.com/">
+            <span class="icon twitter">
+              <svg version="1.1" class="twitter-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill="#C2C2C2" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27
+                c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767
+                c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206
+                C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271
+                c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469
+                c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">关于Python及生活随记</p>
+    </div>
+
+  </div>
+
+</footer>
+
+
+    </body>
+</html>

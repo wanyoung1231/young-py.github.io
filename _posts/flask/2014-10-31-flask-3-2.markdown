@@ -37,7 +37,7 @@ _示例3-5. templates/user.html： 使用Flask-Bootstrap的模板
 {% highlight html %}
 
 { % extends "bootstrap/base.html" %}
-{ % block title %}Flasky{% endblock %}
+{ % block title %}Flasky{ % endblock %}
 { % block navbar %}
 <div class="navbar navbar-inverse" role="navigation"> 
   <div class="container">
