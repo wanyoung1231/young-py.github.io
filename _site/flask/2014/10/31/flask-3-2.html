@@ -64,16 +64,16 @@
   <article class="post-content">
   <h3 id="twitter-bootstrapflask-bootstrap">2、集成Twitter Bootstrap的Flask-Bootstrap</h3>
 
-<p><strong>Bootstrap</strong>是Twitter的一个开源框架，提供用户交互组件来创建一个清新且有吸引力的web页面，可以兼容所有现代web浏览器。</p>
+<p><strong>Bootstrap</strong>是Twitter的一个开源框架，提供用户交互组件来创建一个清新且有吸引力的web页面，并兼容所有现代web浏览器。</p>
 
-<p>Bootstrap是一个客户端框架，服务端不直接参与。服务端需要做的就是提供HTML响应，引用Bootstrap的层叠样式表（CSS）和JavaScript文件并通过HTML、CSS、和JavaScript代码来实例化需要的组件。做着一切的理想地方就是在模板里面。</p>
+<p>Bootstrap是一个客户端框架，服务端不直接参与。服务端需要做的就是提供HTML响应，引用层叠样式表（CSS）和JavaScript文件并通过HTML、CSS、和JavaScript代码来实例化需要的组件。模板是做这些的理想地方。</p>
 
-<p>集成Bootstrap到应用程序最好的方式是在模板中做一些必要的改变。一个简单点的途径就是使用Flask-Bootstrap<strong>扩展</strong>去简化集成工作。Flask-Bootstrap可以通过pip来安装：</p>
+<p>集成Bootstrap到应用程序最好的方式是在模板中做一些必要的改变。一个简单点的途径就是使用Flask-Bootstrap扩展去简化集成工作。可以通过pip来安装Flask-Bootstrap：</p>
 
 <pre><code>(venv) $ pip install flask-bootstrap
 </code></pre>
 
-<p>Flask扩展通常在应用程序实例被创建的时候初始化。示例3-4展示Flask-Bootstrap的初始化</p>
+<p>Flask扩展通常在应用程序实例被创建的时候初始化。示例3-4展示Flask-Bootstrap的初始化。</p>
 
 <p><em>示例3-4. hello.py：Flask-Bootstrap初始化</em></p>
 
@@ -83,7 +83,7 @@
 
 <p>和第二章的Flask-Script一样，Flask-Bootstrap从<code>flask.ext</code>命名空间导入并通过传递应用程序实例到构造函数来初始化。</p>
 
-<p>一旦Flask-Bootstrap被初始化，一个包含所有Bootstrap文件的基础模板可以供应用程序使用。这个模板利用Jinja2的模板继承;应用程序扩展一个有通用页面结构、包含Bootstrap导入元素的基础模板。示例3-5展示新版本的<code>user.html</code>作为派生模板。</p>
+<p>一旦Flask-Bootstrap被初始化，一个包含所有Bootstrap文件的基础模板就可供应用程序使用了。这个模板利用Jinja2的<strong>模板继承</strong>，应用程序则可以扩展一个拥有通用页面结构，且包含Bootstrap导入的元素的基础模板。示例3-5展示作为派生模板的新版<code>user.html</code>。</p>
 
 <p>_示例3-5. templates/user.html： 使用Flask-Bootstrap的模板</p>
 
@@ -93,7 +93,8 @@
 <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar navbar-inverse&quot;</span> <span class="na">role=</span><span class="s">&quot;navigation&quot;</span><span class="nt">&gt;</span> 
   <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-header&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;button&quot;</span> <span class="na">class=</span><span class="s">&quot;navbar-toggle&quot;</span> <span class="na">data-toggle=</span><span class="s">&quot;collapse&quot;</span> <span class="na">data-target=</span><span class="s">&quot;.navbar-collapse&quot;</span><span class="nt">&gt;</span> 
+      <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;button&quot;</span> <span class="na">class=</span><span class="s">&quot;navbar-toggle&quot;</span> 
+        <span class="na">data-toggle=</span><span class="s">&quot;collapse&quot;</span> <span class="na">data-target=</span><span class="s">&quot;.navbar-collapse&quot;</span><span class="nt">&gt;</span> 
         <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;sr-only&quot;</span><span class="nt">&gt;</span>Toggle navigation<span class="nt">&lt;/span&gt;</span> 
         <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
         <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
@@ -118,13 +119,13 @@
 <span class="nt">&lt;/div&gt;</span>
 { % endblock %}</code></pre></div>
 
-<p>Jinja2扩展指令实现了模板的继承通过从Flask-Bootstrap引用<code>bootstrap/base.html</code>。Flask-Bootstrap的基础模板提供一个包含Bootstrap CSS和JavaScript文件的web页面骨架。</p>
+<p>Jinja2的<strong>extends</strong>指令通过从Flask-Bootstrap引用<code>bootstrap/base.html</code>来实现模板的继承。Flask-Bootstrap的基础模板提供一个包含Bootstrap CSS和JavaScript文件的web页面骨架。</p>
 
-<p>基础模板定义了一些<strong>block</strong>可以被派生模板重写。<code>block</code>和<code>endblock</code>指令定义了模板中block的内容。</p>
+<p>基础模板定义了一些可以被派生模板重写的<strong>block</strong>。<code>block</code>和<code>endblock</code>指令定义了被添加到基础模板中block的内容。</p>
 
-<p>上面的<code>user.html</code>模板定义了三个block，分别命名为<code>title</code>、<code>navbar</code>和<code>content</code>。这些block都是基础模板定义给派生模板的出口。<code>title</code>块是简洁明了的；它的内容将出现在<code>&lt;title&gt;</code>标签内，在被渲染的HTML文档的头部 。<code>navbar</code>和<code>content</code>块是为页面保留的导航栏和主内容。</p>
+<p>上面的<code>user.html</code>模板定义了三个block，分别命名为<code>title</code>、<code>navbar</code>和<code>content</code>。基础模板里的这些block输出派生模板定义的内容。<code>title</code>块比较简单；它的内容将出现在<code>&lt;title&gt;</code>标签内，然后被渲染在HTML文档的头部 。<code>navbar</code>和<code>content</code>块则是为页面保留的导航栏和主内容。</p>
 
-<p>在这个模板，<code>navbar</code>块使用Bootstrap组件定义了一个简单的导航栏。<code>content</code>块有个名为<code>container</code>的<code>&lt;div&gt;</code>，该div中有个名为<code>page-header</code>的<code>&lt;div&gt;</code>。图3-1展示这些操作后应用程序长成啥样了。</p>
+<p>在这个模板中，<code>navbar</code>块使用Bootstrap组件定义了一个简单的导航栏。<code>content</code>块有个名为<code>container</code>的<code>&lt;div&gt;</code>，里面嵌套了名为<code>page-header</code>的<code>&lt;div&gt;</code>。图3-1展示这些操作后应用程序长成啥样了。</p>
 
 <blockquote>
   <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 3b</code>来切换到这个版本的应用程序。<a href="http://www.bootcss.com/">Bootstrap官方文档</a> 是一个非常强大的学习资料，完全可以复制粘贴使用那些示例。</p>
@@ -132,7 +133,15 @@
 
 <p><img src="http://young-py.github.io/imgs/flask3-02.png" alt="" /></p>
 
-<p>表格3-2中的许多块用于Flask-Bootstrap自身，所以直接重写它们会引发问题。例如，<code>styles</code>和<code>scripts</code>块是Bootstrap定义文件的地方。如果应用程序需要新增自己的内容到已经有一些内容的块中，则Jinja的<code>super()</code>功能必须用上。例如，下面是<code>scripts</code>块如何需要被写入派生模板来增加新的JavaScript文件给文档的：</p>
+<p><em>图片3-1. Twitter Bootstrap模板</em></p>
+
+<p>Flask-Bootstrap的<code>base.html</code>模板定义了一些其他可供派生模板使用的<code>block</code>。表格3-2展示了完整的可用<code>block</code>列表。</p>
+
+<p><em>表格3-2. Flask-Bootstrap基础模板中的block</em></p>
+
+<p><img style="width:285px; height:344px;" src="http://young-py.github.io/imgs/flask3-03.png" /></p>
+
+<p>表格3-2中的许多块用于Flask-Bootstrap自身，所以直接重写它们会引发问题。例如，<code>styles</code>和<code>scripts</code>块是Bootstrap定义文件的地方。如果应用程序需要新增自己的内容到已经有一些内容的块中，则必须使用Jinja2的<code>super()</code>。例如，如何在派生模板中写<code>scripts</code>块，来给文档增加新的JavaScript文件：</p>
 
 <div class="highlight"><pre><code class="html">{ % block scripts %}
 { { super() }}
@@ -141,9 +150,9 @@
 
 <h3 id="section">3、自定义错误页面</h3>
 
-<p>当你输入错误路径在你的浏览器地址栏，你会得到404错误代码页面。错误页面现在太普通且没有吸引力，它没有一致的使用Bootstrap页面。</p>
+<p>当你输入错误路径在你的浏览器地址栏，你会得到404错误代码页面。目前的错误页面很普通也没有吸引力，且没有一致的使用Bootstrap页面。</p>
 
-<p>Flask允许应用程序自定义基于模板的错误页面，像普通的路径。两个最常见的错误代码，404在客户端请求的页面或路径不存在的时候触发；500在存在未处理的异常时触发。示例3-6展示如何为这两个错误提供自定义处理。</p>
+<p>Flask允许应用程序自定义基于模板的错误页面，就像常规的路由。两个最常见的错误代码，404是在客户端请求的页面或路径不存在的时候触发；500是当存在未处理的异常时触发。示例3-6展示如何为这两个错误提供自定义处理。</p>
 
 <p><em>示例3-6. hello.py：自定义错误页面</em></p>
 
@@ -155,13 +164,13 @@
 <span class="k">def</span> <span class="nf">internal_server_error</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;500.html&#39;</span><span class="p">),</span> <span class="mi">500</span></code></pre></div>
 
-<p>错误处理返回一个响应，像视图函数一样。同样返回相应错误的数字状态码。</p>
+<p>错误处理返回响应，和视图函数一样。同时返回相应错误的数字状态码。</p>
 
-<p>在错误处理中引用的模板需要自己去写。这些模板需要和正规的页面一样的布局，所以在这个示例中需要导航栏和页面头部显示错误信息。</p>
+<p>在错误处理中引用的模板需要自己去写。这些模板需要和常规的页面一样的布局，所以在这个示例中需要导航栏和页面头部显示错误信息。</p>
 
-<p>编写这些模板简洁明了的方式是复制<code>templates/user.html</code>到<code>templates/404.html</code>和<code>templates/500.html</code>，然后改变这两个新文件的页面头部元素来给出适当的错误信息，但这会产生很多副本。</p>
+<p>编写这些模板的简单方式是复制<code>templates/user.html</code>到<code>templates/404.html</code>和<code>templates/500.html</code>，然后改变这两个新文件的页面头部元素来给出相应的错误信息，但这会产生很多副本。</p>
 
-<p>Jinja2的模板继承可以帮助我们解决这个问题。以同样的方式Flask-Bootstrap提供了一个带有基本布局页面的基础模板，应用程序可以定义自己的、有完整页面布局的基础模板，包括导航栏和定义在派生模板中的页面内容。示例3-7展示了<code>templates/base.html</code>，它是一个新的模板继承自<code>bootstrap/base.html</code>且定义了导航栏，但对于其他模板是一个基础模板，例如<code>templates/user.html</code>、<code>templates/404.html</code>和<code>templates/500.html</code>。</p>
+<p>Jinja2的模板继承可以帮助我们解决这个问题。Flask-Bootstrap提供了一个带有基本布局页面的基础模板，应用程序可以定义自己的、带有完整页面布局的基础模板，包括导航栏和定义在派生模板中的页面内容。示例3-7展示了<code>templates/base.html</code>，它是一个继承自<code>bootstrap/base.html</code>的新模板且定义了导航栏，但对于其他模板则是一个基础模板，例如<code>templates/user.html</code>、<code>templates/404.html</code>和<code>templates/500.html</code>。</p>
 
 <p>_示例3-7. templates/base.html：带有导航栏的基础应用程序模板</p>
 
@@ -171,7 +180,8 @@
 <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar navbar-inverse&quot;</span> <span class="na">role=</span><span class="s">&quot;navigation&quot;</span><span class="nt">&gt;</span> 
   <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar-header&quot;</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;button&quot;</span> <span class="na">class=</span><span class="s">&quot;navbar-toggle&quot;</span> <span class="na">data-toggle=</span><span class="s">&quot;collapse&quot;</span> <span class="na">data-target=</span><span class="s">&quot;.navbar-collapse&quot;</span><span class="nt">&gt;</span> 
+      <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;button&quot;</span> <span class="na">class=</span><span class="s">&quot;navbar-toggle&quot;</span> 
+        <span class="na">data-toggle=</span><span class="s">&quot;collapse&quot;</span> <span class="na">data-target=</span><span class="s">&quot;.navbar-collapse&quot;</span><span class="nt">&gt;</span> 
         <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;sr-only&quot;</span><span class="nt">&gt;</span>Toggle navigation<span class="nt">&lt;/span&gt;</span> 
         <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
         <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">&quot;icon-bar&quot;</span><span class="nt">&gt;&lt;/span&gt;</span>
@@ -194,9 +204,9 @@
 <span class="nt">&lt;/div&gt;</span>
 { % endblock %}</code></pre></div>
 
-<p>这个模板中的<code>content</code>块中只是一个名为<code>container</code>的<code>&lt;div&gt;</code>元素，它包含了可以在派生模板中定义的名为<code>page_content</code>的空块。</p>
+<p>这个模板中的<code>content</code>块中只是一个名为<code>container</code>的<code>&lt;div&gt;</code>元素，它包含了在派生模板中定义的名为<code>page_content</code>的空block。</p>
 
-<p>应用程序的模板将从这个模板继承来替代直接从Flask-Bootstrap继承。示例3-8展示从<code>templates/base.html</code>继承来构造一个自定义404错误页面是多么简单。</p>
+<p>应用程序的模板将从该模板继承而不是直接从Flask-Bootstrap继承。示例3-8展示了从<code>templates/base.html</code>继承来构造一个自定义404错误页面是如此的简单。</p>
 
 <p><em>示例3-8. <code>templates/404.html</code>：使用模板继承自定义404错误页面</em></p>
 
