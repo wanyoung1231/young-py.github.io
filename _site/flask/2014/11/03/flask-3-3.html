@@ -4,10 +4,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>小乌龟 の blog</title>
+    <title>Flask教程 —— 模板（下）</title>
     <meta name="viewport" content="width=device-width">
     <meta name="description" content="关于Python及生活随记">
-    <link rel="canonical" href="/">
+    <link rel="canonical" href="/flask/2014/11/03/flask-3-3.html">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/main.css">
@@ -53,75 +53,68 @@
 
     <div class="page-content">
       <div class="wrap">
-      <div class="home">
+      <div class="post">
 
-  <h1>Posts</h1>
+  <header class="post-header">
+    <h1>Flask教程 —— 模板（下）</h1>
+    <br />
+    <p class="meta">Nov 3, 2014 by young</p>
+  </header>
 
-  <ul class="posts">
-    
-      <li>
-        <a class="post-link" href="/flask/2014/11/03/flask-3-3.html" target="_blank">Flask教程 —— 模板（下）</a>
-      </li>
-      <span class="post-date">Nov 3, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/flask/2014/10/31/flask-3-2.html" target="_blank">Flask教程 —— 模板（中）</a>
-      </li>
-      <span class="post-date">Oct 31, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/flask/2014/10/24/flask-3-1.html" target="_blank">Flask教程 —— 模板（上）</a>
-      </li>
-      <span class="post-date">Oct 24, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/flask/2014/10/20/flask-2-2.html" target="_blank">Flask教程 —— 基本应用程序结构（下）</a>
-      </li>
-      <span class="post-date">Oct 20, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/gevent/2014/10/16/gevent3.html" target="_blank">gevent 学习笔记 —— greenlet源码剖析2</a>
-      </li>
-      <span class="post-date">Oct 16, 2014 • gevent</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/flask/2014/08/19/flask-2-1.html" target="_blank">Flask教程 —— 基本应用程序结构（上）</a>
-      </li>
-      <span class="post-date">Aug 19, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/flask/2014/08/16/flask-1-1.html" target="_blank">Flask教程 —— 安装</a>
-      </li>
-      <span class="post-date">Aug 16, 2014 • flask</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/gevent/2014/06/29/gevent2.html" target="_blank">gevent 学习笔记 —— greenlet源码剖析1</a>
-      </li>
-      <span class="post-date">Jun 29, 2014 • gevent</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/gevent/2014/06/29/gevent1.html" target="_blank">gevent 学习笔记 —— greenlet</a>
-      </li>
-      <span class="post-date">Jun 29, 2014 • gevent</span>
-      <hr />
-    
-      <li>
-        <a class="post-link" href="/gevent/2014/05/08/gevent0.html" target="_blank">gevent 学习笔记 —— 协程</a>
-      </li>
-      <span class="post-date">May 8, 2014 • gevent</span>
-      <hr />
-    
-  </ul>
+  <article class="post-content">
+  <h3 id="section">4、链接</h3>
+
+<p>任何应用程序都有多个路由总是需要包含链接来连接到不同的页面，例如导航栏。</p>
+
+<p>在模板中，对于简单的路由直接写URLs做链接是非常的琐碎麻烦的，但是对于带有变量部分的动态路由建立正确的URLs会变得更加复杂。此外，在代码中显示的写URLs会在路由上创建不必要的依赖。如果路由重组，模板中的链接将被打断而变得无法访问。</p>
+
+<p>为了避免这些问题，Flask提供<code>url_for()</code>帮助函数，它将从存放在应用程序的URL映射中生成URLs。</p>
+
+<p>其最简单的方法，这个函数传入视图函数名（或通过<code>app.add_url_route()</code>定义的路由<code>endpoint</code>名）作为它的参数，然后返回它的URL。例如，在当前版本的<code>hello.py</code>调用<code>url_for('index')</code>将返回<code>/</code>。调用<code>url_for('index', _external=True)</code>将返回一个绝对URL，在该示例中为<code>http://localhost:5000/</code>。</p>
+
+<blockquote>
+  <p>注：相对URLs可以满足生成链接来连接应用程序不同的路由。绝对URLs只有在链接被用于web浏览器的外部才是必须的，例如通过邮件发送链接。</p>
+</blockquote>
+
+<p>动态URLs可以使用<code>url_for()</code>来生成通过传递动态部分作为关键字参数。例如，<code>url_for('user', name='join', external=True)</code>会返回http://localhost:5000/user/john。</p>
+
+<p>发送给<code>url_for()</code>的关键字参数不限制被用于动态路由。函数会增加任何扩展参数给放回字符串。例如<code>url_for('index', page=2)</code>会返回<code>/?page=2</code>。</p>
+
+<h3 id="section-1">5、静态文件</h3>
+
+<p>Web应用程序不仅仅是由Python代码和模板组成。大部分的应用程序会使用静态文件，例如从HTML代码中引用的图片、JavaScript源文件和CSS。</p>
+
+<p>你可能需要回忆一下，在第二章中检查<code>hello.py</code>应用程序的URL映射时，一个<strong>static</strong>入口出现在里面。这也是为什么引用定义成<code>/static/&lt;filename&gt;</code>的静态文件会被当作特殊路由来对待。例如，一个<code>url_for('static', filename='css/style.css', _external=True)</code>调用会返回http://localhost:5000/static/css/styles.css。</p>
+
+<p>在它的默认配置中，Flask在位于应用程序的根目录下名为<code>static</code>的子目录中寻找静态文件。可以在这个目录下的子目录组织管理文件。当服务器收到来自上一个示例的URL，它会产生一个响应包含位于<code>static/css/styles.css</code>的文件内容。</p>
+
+<p>示例3-10展示应用程序可以包含一个位于<code>static/css/styles.css</code>的<code>favicon.icon</code>。</p>
+
+<p><em>示例3-10. templates/base.html：favicon定义</em></p>
+
+<div class="highlight"><pre><code class="html">{ % block head %}
+{ { super() }}
+<span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;shortcut icon&quot;</span> <span class="na">href=</span><span class="s">&quot;{ { url_for(&#39;static&#39;, filename = &#39;favicon.ico&#39;) }}&quot;</span>
+<span class="na">type=</span><span class="s">&quot;image/x-icon&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;icon&quot;</span> <span class="na">href=</span><span class="s">&quot;{ { url_for(&#39;static&#39;, filename = &#39;favicon.ico&#39;) }}&quot;</span>
+<span class="na">type=</span><span class="s">&quot;image/x-icon&quot;</span><span class="nt">&gt;</span> { % endblock %}</code></pre></div>
+
+<p>图标定义被插入在<code>head</code>块里的最下面。注意<code>super()</code>是如何保留定义在基础模板中的块的原始内容的。</p>
+
+<blockquote>
+  <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 3d</code>来切换到这个版本的应用程序。</p>
+</blockquote>
+
+<h3 id="flask-moment">6、Flask-Moment中的本地化日期和时间</h3>
+
+<p>当用户工作在世界各个不同的地方，在web应用程序中处理日期和时间就变成了一个比较重要的问题。</p>
+
+<p>协程篇进行修改，包括对子例程的调整、升级版调整，添加应用场景</p>
+
+
+  </article>
+
 </div>
-
       </div>
     </div>
 
