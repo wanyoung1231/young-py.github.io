@@ -16,8 +16,53 @@ author: young
 
 其最简单的方法，这个函数传入视图函数名（或通过`app.add_url_route()`定义的路由`endpoint`名）作为它的参数，然后返回它的URL。例如，在当前版本的`hello.py`调用`url_for('index')`将返回`/`。调用`url_for('index', _external=True)`将返回一个绝对URL，在该示例中为`http://localhost:5000/`。
 
->注：
+>注：相对URLs可以满足生成链接来连接应用程序不同的路由。绝对URLs只有在链接被用于web浏览器的外部才是必须的，例如通过邮件发送链接。
+
+动态URLs可以使用`url_for()`来生成通过传递动态部分作为关键字参数。例如，`url_for('user', name='join', external=True)`会返回http://localhost:5000/user/john。
+
+发送给`url_for()`的关键字参数不限制被用于动态路由。函数会增加任何扩展参数给放回字符串。例如`url_for('index', page=2)`会返回`/?page=2`。
 
 ### 5、静态文件
 
+Web应用程序不仅仅是由Python代码和模板组成。大部分的应用程序会使用静态文件，例如从HTML代码中引用的图片、JavaScript源文件和CSS。
+
+你可能需要回忆一下，在第二章中检查`hello.py`应用程序的URL映射时，一个**static**入口出现在里面。这也是为什么引用定义成`/static/<filename>`的静态文件会被当作特殊路由来对待。例如，一个`url_for('static', filename='css/style.css', _external=True)`调用会返回http://localhost:5000/static/css/styles.css。
+
+在它的默认配置中，Flask在位于应用程序的根目录下名为`static`的子目录中寻找静态文件。可以在这个目录下的子目录组织管理文件。当服务器收到来自上一个示例的URL，它会产生一个响应包含位于`static/css/styles.css`的文件内容。
+
+示例3-10展示应用程序可以包含一个位于`static/css/styles.css`的`favicon.icon`。
+
+_示例3-10. templates/base.html：favicon定义_
+
+{% highlight html %}
+
+{ % block head %}
+{ { super() }}
+<link rel="shortcut icon" href="{ { url_for('static', filename = 'favicon.ico') }}"
+type="image/x-icon">
+<link rel="icon" href="{ { url_for('static', filename = 'favicon.ico') }}"
+type="image/x-icon"> { % endblock %}
+
+{% endhighlight %}
+
+图标定义被插入在`head`块里的最下面。注意`super()`是如何保留定义在基础模板中的块的原始内容的。
+
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 3d`来切换到这个版本的应用程序。
+
 ### 6、Flask-Moment中的本地化日期和时间
+
+当用户工作在世界各个不同的地方，在web应用程序中处理日期和时间就变成了一个比较重要的问题。
+
+
+
+协程篇进行修改，包括对子例程的调整、升级版调整，添加应用场景
+
+
+
+
+
+
+
+
+
+
