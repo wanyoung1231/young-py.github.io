@@ -7,34 +7,43 @@
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Flask教程 —— Web表单（上）</title>
+        <description>
+</description>
+        <pubDate>Thu, 06 Nov 2014 07:00:10 +0800</pubDate>
+        <link>/flask/2014/11/06/flask-4-1.html</link>
+        <guid isPermaLink="true">/flask/2014/11/06/flask-4-1.html</guid>
+      </item>
+    
+      <item>
         <title>Flask教程 —— 模板（下）</title>
         <description>&lt;h3 id=&quot;section&quot;&gt;4、链接&lt;/h3&gt;
 
-&lt;p&gt;任何应用程序都有多个路由总是需要包含链接来连接到不同的页面，例如导航栏。&lt;/p&gt;
+&lt;p&gt;任何应用程序都有多个路由，必然需要包含链接来连接不同的页面，例如导航栏。&lt;/p&gt;
 
-&lt;p&gt;在模板中，对于简单的路由直接写URLs做链接是非常的琐碎麻烦的，但是对于带有变量部分的动态路由建立正确的URLs会变得更加复杂。此外，在代码中显示的写URLs会在路由上创建不必要的依赖。如果路由重组，模板中的链接将被打断而变得无法访问。&lt;/p&gt;
+&lt;p&gt;在模板中，对于简单的路由直接写URLs做链接是非常琐碎麻烦的，而给带有变量部分的动态路由建立正确的URLs会变得更加复杂。此外，在代码中显式的写URLs会在路由上造成不必要的依赖。如果路由重组，模板中的链接将被打断而变得无法访问。&lt;/p&gt;
 
-&lt;p&gt;为了避免这些问题，Flask提供&lt;code&gt;url_for()&lt;/code&gt;帮助函数，它将从存放在应用程序的URL映射中生成URLs。&lt;/p&gt;
+&lt;p&gt;为了避免这些问题，Flask提供&lt;code&gt;url_for()&lt;/code&gt;函数，它会根据存放在应用程序中的URL映射信息来生成URLs。&lt;/p&gt;
 
-&lt;p&gt;其最简单的方法，这个函数传入视图函数名（或通过&lt;code&gt;app.add_url_route()&lt;/code&gt;定义的路由&lt;code&gt;endpoint&lt;/code&gt;名）作为它的参数，然后返回它的URL。例如，在当前版本的&lt;code&gt;hello.py&lt;/code&gt;调用&lt;code&gt;url_for(&#39;index&#39;)&lt;/code&gt;将返回&lt;code&gt;/&lt;/code&gt;。调用&lt;code&gt;url_for(&#39;index&#39;, _external=True)&lt;/code&gt;将返回一个绝对URL，在该示例中为&lt;code&gt;http://localhost:5000/&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;其最简单的用法，这个函数传入视图函数名（或通过&lt;code&gt;app.add_url_route()&lt;/code&gt;定义的路由&lt;code&gt;endpoint&lt;/code&gt;名）作为它的参数，然后返回它的URL。例如，在当前版本的&lt;code&gt;hello.py&lt;/code&gt;调用&lt;code&gt;url_for(&#39;index&#39;)&lt;/code&gt;将返回&lt;code&gt;/&lt;/code&gt;。调用&lt;code&gt;url_for(&#39;index&#39;, _external=True)&lt;/code&gt;将返回一个绝对URL，在该示例中为&lt;code&gt;http://localhost:5000/&lt;/code&gt;。&lt;/p&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;注：相对URLs可以满足生成链接来连接应用程序不同的路由。绝对URLs只有在链接被用于web浏览器的外部才是必须的，例如通过邮件发送链接。&lt;/p&gt;
+  &lt;p&gt;注：相对URLs足以满足生成链接来连接应用程序不同的路由。绝对URLs只有在链接被用于web浏览器的外部才是必须的，例如通过邮件发送链接。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;动态URLs可以使用&lt;code&gt;url_for()&lt;/code&gt;来生成通过传递动态部分作为关键字参数。例如，&lt;code&gt;url_for(&#39;user&#39;, name=&#39;join&#39;, external=True)&lt;/code&gt;会返回http://localhost:5000/user/john。&lt;/p&gt;
+&lt;p&gt;可以使用&lt;code&gt;url_for()&lt;/code&gt;并传递动态部分作为关键字参数来生成动态URLs。例如，&lt;code&gt;url_for(&#39;user&#39;, name=&#39;join&#39;, external=True)&lt;/code&gt;会返回http://localhost:5000/user/john。&lt;/p&gt;
 
-&lt;p&gt;发送给&lt;code&gt;url_for()&lt;/code&gt;的关键字参数不限制被用于动态路由。函数会增加任何扩展参数给放回字符串。例如&lt;code&gt;url_for(&#39;index&#39;, page=2)&lt;/code&gt;会返回&lt;code&gt;/?page=2&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;url_for()&lt;/code&gt;可以不限参数的使用动态路由。函数会增加扩展参数给查询字符串。例如&lt;code&gt;url_for(&#39;index&#39;, page=2)&lt;/code&gt;会返回&lt;code&gt;/?page=2&lt;/code&gt;。&lt;/p&gt;
 
 &lt;h3 id=&quot;section-1&quot;&gt;5、静态文件&lt;/h3&gt;
 
 &lt;p&gt;Web应用程序不仅仅是由Python代码和模板组成。大部分的应用程序会使用静态文件，例如从HTML代码中引用的图片、JavaScript源文件和CSS。&lt;/p&gt;
 
-&lt;p&gt;你可能需要回忆一下，在第二章中检查&lt;code&gt;hello.py&lt;/code&gt;应用程序的URL映射时，一个&lt;strong&gt;static&lt;/strong&gt;入口出现在里面。这也是为什么引用定义成&lt;code&gt;/static/&amp;lt;filename&amp;gt;&lt;/code&gt;的静态文件会被当作特殊路由来对待。例如，一个&lt;code&gt;url_for(&#39;static&#39;, filename=&#39;css/style.css&#39;, _external=True)&lt;/code&gt;调用会返回http://localhost:5000/static/css/styles.css。&lt;/p&gt;
+&lt;p&gt;你可能需要回忆一下，在第二章中检查&lt;code&gt;hello.py&lt;/code&gt;应用程序的URL映射时，有一个&lt;strong&gt;static&lt;/strong&gt;入口在里面。这也是为什么引用定义成&lt;code&gt;/static/&amp;lt;filename&amp;gt;&lt;/code&gt;的静态文件会被当作特殊路由来对待。例如，一个&lt;code&gt;url_for(&#39;static&#39;, filename=&#39;css/style.css&#39;, _external=True)&lt;/code&gt;调用会返回http://localhost:5000/static/css/styles.css。&lt;/p&gt;
 
-&lt;p&gt;在它的默认配置中，Flask在位于应用程序的根目录下名为&lt;code&gt;static&lt;/code&gt;的子目录中寻找静态文件。可以在这个目录下的子目录组织管理文件。当服务器收到来自上一个示例的URL，它会产生一个响应包含位于&lt;code&gt;static/css/styles.css&lt;/code&gt;的文件内容。&lt;/p&gt;
+&lt;p&gt;在它的默认配置中，Flask会在位于应用程序根目录下名为&lt;code&gt;static&lt;/code&gt;的子目录中寻找静态文件。可以在这个目录下的子目录组织管理文件。当服务器收到来自之前示例的URL，它会产生一个响应包含&lt;code&gt;static/css/styles.css&lt;/code&gt;的文件内容。&lt;/p&gt;
 
-&lt;p&gt;示例3-10展示应用程序可以包含一个位于&lt;code&gt;static/css/styles.css&lt;/code&gt;的&lt;code&gt;favicon.icon&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;示例3-10展示应用程序如何在基础模板中包含&lt;code&gt;favicon.icon&lt;/code&gt;图标并让浏览器将其显示在地址栏。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例3-10. templates/base.html：favicon定义&lt;/em&gt;&lt;/p&gt;
 
@@ -43,9 +52,10 @@
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;shortcut icon&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;{ { url_for(&amp;#39;static&amp;#39;, filename = &amp;#39;favicon.ico&amp;#39;) }}&amp;quot;&lt;/span&gt;
 &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;image/x-icon&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;icon&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;{ { url_for(&amp;#39;static&amp;#39;, filename = &amp;#39;favicon.ico&amp;#39;) }}&amp;quot;&lt;/span&gt;
-&lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;image/x-icon&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt; { % endblock %}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;image/x-icon&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt; 
+{ % endblock %}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;图标定义被插入在&lt;code&gt;head&lt;/code&gt;块里的最下面。注意&lt;code&gt;super()&lt;/code&gt;是如何保留定义在基础模板中的块的原始内容的。&lt;/p&gt;
+&lt;p&gt;图标定义被插入在&lt;code&gt;head&lt;/code&gt;块里的最下面。注意&lt;code&gt;super()&lt;/code&gt;是如何保留定义在基础模板中块的原始内容的。&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 3d&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
@@ -55,7 +65,68 @@
 
 &lt;p&gt;当用户工作在世界各个不同的地方，在web应用程序中处理日期和时间就变成了一个比较重要的问题。&lt;/p&gt;
 
-&lt;p&gt;协程篇进行修改，包括对子例程的调整、升级版调整，添加应用场景&lt;/p&gt;
+&lt;p&gt;服务器使用统一的时间单位，和每个用户的位置无关，所以使用世界标准时间（UTC）。对于用户，看到UTC格式的时间肯定会感到困惑，用户总是希望看到根据当地习惯显示的日期和时间。&lt;/p&gt;
+
+&lt;p&gt;一个优雅的解决方案是允许服务器只发送UTC时间给web浏览器，由浏览器转为当地时间并渲染。Web浏览器在这个问题上做的更好，因为他们可以访问用户电脑的所在的时区和地区设置。&lt;/p&gt;
+
+&lt;p&gt;有一个优秀的客户端开源库&lt;strong&gt;moment.js&lt;/strong&gt;，用JavaScript编写的，用于在浏览器上渲染日期和时间。Flask-Moment是一个集成&lt;code&gt;moment.js&lt;/code&gt;到Jinja2模板的Flask扩展。可以通过pip来安装：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv) $ pip install flask-moment
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;示例3-11展示扩展初始化。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例3-11. hello.py：初始化Flask-Moment&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.moment&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Moment&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;moment&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Moment&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Flask-Moment除了依赖&lt;code&gt;moment.js&lt;/code&gt;外，还依赖&lt;code&gt;jquery.js&lt;/code&gt;。这两个库需要直接包含在HTML文档，这种情况下你可以选择使用什么版本，或通过扩展提供的帮助函数来引用内容分发网络（CDN）的测试版本库。因为Bootstrap已经包含了&lt;code&gt;jquery.js&lt;/code&gt;，所以只需要将&lt;code&gt;moment.js&lt;/code&gt;增加到这个示例中。示例3-12展示这个库是如何被加载到基础模板&lt;code&gt;scripts&lt;/code&gt;中的。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例3-12. templates/base.html：导入moment.js库&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;{ % block scripts %}
+{ { super() }}
+{ { moment.include_moment() }}
+{ % endblock %}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;为了可以使用时间戳，Flask-Moment创建moment类给模板使用。示例3-13传递&lt;code&gt;current_time&lt;/code&gt;变量给模板去渲染。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例3-13. hello.py：增加datetime变量&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;datetime&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;utcnow&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;示例3-14展示如何在模板中渲染&lt;code&gt;current_time&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例3-14. templates/index.html：使用Flask-Moment渲染时间戳&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;The local date and time is { { moment(current_time).format(&amp;#39;LLL&amp;#39;) }}.&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;That was { { moment(current_time).fromNow(refresh=True) }}&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code&gt;format(&#39;LLL&#39;)&lt;/code&gt;根据客户端电脑的时区和地区设置来格式化显示日期和时间。参数决定了渲染的样式，从&lt;code&gt;L&lt;/code&gt;到&lt;code&gt;LLL&lt;/code&gt;对应不同的详细级别。&lt;code&gt;format()&lt;/code&gt;函数还可以接受自定义的格式说明符。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;fromNow()&lt;/code&gt;渲染样式显示在第二行，渲染一个相对时间戳并随着时间的推移自动刷新它。最初这个时间戳将显示为“几秒钟前”，但随着时间的流逝刷新选项将保持更新，所以如果你离开已打开几分钟的页面你会看到文本变为“一分钟前”，然后“两分钟前”，等等。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 3e&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Flask-Moment通过&lt;code&gt;moment.js&lt;/code&gt;实现了&lt;code&gt;format()&lt;/code&gt;，&lt;code&gt;fromNow()&lt;/code&gt;，&lt;code&gt;fromTime()&lt;/code&gt;， &lt;code&gt;calendar()&lt;/code&gt;，&lt;code&gt;valueOf()&lt;/code&gt;和&lt;code&gt;unix()&lt;/code&gt;方法。查阅文档，了解提供的所有格式化选项。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;注：Flask-Moment假定时间戳由服务端应用程序中表示成UTC格式的“naive”&lt;code&gt;datetime&lt;/code&gt;对象来处理。参阅标准库&lt;code&gt;datetime&lt;/code&gt;包文档关于&lt;code&gt;date&lt;/code&gt;和&lt;code&gt;time&lt;/code&gt;对象的&lt;code&gt;navie&lt;/code&gt;和&lt;code&gt;aware&lt;/code&gt;信息。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Flask-Moment渲染的时间戳可以本地化成多种语言。在模板中通过传递语言代码到&lt;code&gt;lang()&lt;/code&gt;函数来选择语言：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{ { moment.lang(&#39;es&#39;) }}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;学完本章中讨论的所有技术，您应该能够为您的应用程序构建现代、用户友好的网页。下一章涉及模板没有讨论的一个方面：如何通过web表单与用户进行交互。&lt;/p&gt;
 
 </description>
         <pubDate>Mon, 03 Nov 2014 21:21:35 +0800</pubDate>
@@ -1113,156 +1184,6 @@ psycopg2==2.5.1
         <pubDate>Sun, 29 Jun 2014 00:48:45 +0800</pubDate>
         <link>/gevent/2014/06/29/gevent1.html</link>
         <guid isPermaLink="true">/gevent/2014/06/29/gevent1.html</guid>
-      </item>
-    
-      <item>
-        <title>gevent 学习笔记 —— 协程</title>
-        <description>&lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/yyzt.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;在学习gevent之前，你肯定要知道你学的这个东西是什么。&lt;/p&gt;
-
-&lt;h3 id=&quot;gevent&quot;&gt;&lt;strong&gt;官方描述gevent&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;gevent is a coroutine-based Python networking library that uses greenlet to provide a high-level synchronous API on top of the libev event loop.&lt;/p&gt;
-
-&lt;p&gt;翻译：gevent是一个基于协程的Python网络库。我们先理解这句，也是这次学习的重点——&lt;strong&gt;协程&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;h3 id=&quot;wiki&quot;&gt;&lt;strong&gt;wiki描述协程&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;&lt;strong&gt;与子例程一样，协程也是一种程序组件&lt;/strong&gt;。相对子例程而言，协程更为一般和灵活，但在实践中使用没有子例程那样广泛。子例程的起始处是惟一的入口点，一旦退出即完成了子例程的执行，子例程的一个实例只会返回一次；协程可以通过yield来调用其它协程。通过yield方式转移执行权的协程之间不是调用者与被调用者的关系，而是彼此对称、平等的。协程允许多个入口点，可以在指定位置挂起和恢复执行。&lt;/p&gt;
-
-&lt;p&gt;没看懂？没关系，我也没看懂，不过算是有点线索：&lt;strong&gt;子例程&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;子例程&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;过程有两种，一种叫子例程（Subroutine），通常叫Sub；另一种叫函数（Function）。底层实现机制是一样的，区别在于，Sub只执行操作，没有返回值；Function不但执行操作，并且有返回值。用过VB的应该会比较清楚这点。（原谅我用了百度百科）说到底子例程就是过程，我们一般叫它函数。&lt;/p&gt;
-
-&lt;p&gt;说到函数，我就想吐槽了，不明白为什么要叫函数。很多时候我们写一个函数是为了封装、模块化某个功能，它是一个功能、或者说是一个过程。因为它包含的是类似于流程图那样的具体逻辑，先怎样做，然后怎样做；如果遇到A情况则怎样，如果遇到B情况又怎样。个人觉得还是叫过程比较好，叫做函数就让人很纠结了，难道因为回归到底层还是计算问题，出于数学的角度把它称为函数？这个略坑啊！为了符合大家的口味，我还是称之为函数好了（其实我也习惯叫函数了%&amp;gt;_&amp;lt;%）。&lt;/p&gt;
-
-&lt;p&gt;讲到函数，我们就往底层深入一点，看看下面的代码：&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;a start&amp;quot;&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;a end&amp;quot;&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;b start&amp;quot;&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;b end&amp;quot;&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;c start&amp;quot;&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;c end&amp;quot;&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;对于这样的结果大家肯定不会意外的。每当函数被调用，就会在栈中开辟一个栈空间，调用结束后再回收该空间。&lt;/p&gt;
-
-&lt;p&gt;假设一个这样的场景：有个讲台，每个人都可以上去发表言论，但是每次讲台只能站一个人。现在a在上面演讲，当他说到“大家好！”的时候，b有个紧急通知要告诉大家，所以a就先下来让b讲完通知，然后a再上讲台继续演讲。如果用函数的思想模拟这个问题，堆栈示意图是这样的：&lt;/p&gt;
-
-&lt;p&gt;&lt;img style=&quot;width:461px; height:172px;&quot; src=&quot;http://young-py.github.io/imgs/gevent0-01.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;大家会不会发现问题，就是b通知完a继续演讲都要重新开始。因为函数在重新调用的时候，它的局部变量是会被重置的，对于之前他说的那句“大家好”，他是不会记得的（可能a的记性不好）。那有没有什么办法可以不让他重复，而是在打断之后继续呢？很简单，在他走下讲台之前记住当前说过的话。表现在函数中就是在退出之前，保存该函数的局部变量，方便在重新进入该函数的时候，能够从之前的局部变量开始继续执行。&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;升级版&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;如果你有一段代码生产数据，另外一段代码消费数据，哪个应该是调用者，哪个应该是被调用者？&lt;/p&gt;
-
-&lt;p&gt;例如：生产者——消费者问题。假设有两个函数producer和consumer，缓冲区的大小为1，当缓冲区满了，producer调用consumer，当缓冲区空了，consumer调用producer，但是这样的函数互相调用会出什么问题？&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;producer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;生产一个&amp;quot;&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;消费一个&amp;quot;&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;producer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;producer生产一个，缓冲区满了，consumer消费一个，缓冲区空了，producer生产一个，如此循环。会看到下面这样的图：&lt;/p&gt;
-
-&lt;p&gt;&lt;img style=&quot;width:402px; height:229px;&quot; src=&quot;http://young-py.github.io/imgs/gevent0-02.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;看起来好像不错，感觉两个函数协调运行的很好，很好的解决了生产者——消费者问题。如果真有这么好也就不会有协程的存在了，仔细分析会有两个问题：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;无限次数的函数嵌套调用，而没有函数返回，会有什么样的后果？&lt;/li&gt;
-  &lt;li&gt;两个函数貌似协调有序的工作，你来我往，但每次执行的都是同一个函数实例吗？&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;首先，上面的伪代码示例是一个无限的函数嵌套调用，没有函数返回来释放栈，栈的空间不断的在增长，直到溢出，程序崩溃。然后，看起来两个函数协调有序，事实上操作的都不是同一个实例对象，不知道下面的图能否看懂。&lt;/p&gt;
-
-&lt;p&gt;&lt;img style=&quot;width:559px; height:251px;&quot; src=&quot;http://young-py.github.io/imgs/gevent0-03.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;那什么东西有这样的能力呢？我们很快就可以想到进程、线程，但是你真的想使用进程、线程如此重量级的东西在这么简单的程序上吗？野蛮的抢占式机制和笨重的上下文切换！&lt;/p&gt;
-
-&lt;p&gt;还有一种程序组件，那就是协程。它能保留上一次调用时的状态，每次重新进入该过程的时候，就相当于回到上一次离开时所处逻辑流的位置。协程的起始处是第一个入口点，&lt;strong&gt;在协程里，返回点之后是接下来的入口点&lt;/strong&gt;。协程的生命期完全由他们的使用的需要决定。每个协程在用yield命令向另一个协程交出控制时都尽可能做了更多的工作，放弃控制使得另一个协程从这个协程停止的地方开始，接下来的每次协程被调用时，都是从协程返回（或yield）的位置接着执行。&lt;/p&gt;
-
-&lt;p&gt;从上面这些你就可以知道其实协程是模拟了多线程（或多进程）的操作，多线程在切换的时候都会有一个上下文切换，在退出的时候将现场保存起来，等到下一次进入的时候从保存的现场开始，继续执行。&lt;/p&gt;
-
-&lt;p&gt;看下协程是怎样实现的：&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;random&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;time&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sleep&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;greenlet&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;greenlet&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Queue&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Queue&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;queue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Queue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@greenlet&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;producer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;chars&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;a&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;b&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;c&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;d&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;e&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;global&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;queue&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;char&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;choice&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;chars&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;queue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;char&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Produced: &amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;char&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;sleep&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;switch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@greenlet&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;global&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;queue&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;char&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;queue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Consumed: &amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;char&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;sleep&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;producer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;switch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;producer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;consumer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;hr /&gt;
-
-&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;应用场景&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;我们一直都在大谈协程是什么样一个东西，却从没有提起协程用来干嘛，这个其实大家分析一下就能够知道。从上面的生产者——消费者问题应该能看出，它分别有两个任务，假设交给两个人去执行，但每次只能允许一个人行动。当缓冲区满的时候，生产者是出于等待状态的，这个时候可以将执行任务的权利转交给消费者，当缓冲区空得时候，消费者是出于等待状态的，这个时候可以将执行任务的权利转交给生产者，是不是很容易联想到&lt;strong&gt;多任务切换&lt;/strong&gt;？然后想到&lt;strong&gt;线程&lt;/strong&gt;？最后想到&lt;strong&gt;高并发&lt;/strong&gt;？&lt;/p&gt;
-
-&lt;p&gt;但同学们又会问，既然有了线程为什么还要协程呢？因为线程是系统级别的，在做切换的时候消耗是特别大的，具体为什么这么大等我研究好了再告诉你；同时线程的切换是由CPU决定的，可能你刚好执行到一个地方的时候就要被迫终止，这个时候你需要用各种措施来保证你的数据不出错，所以线程对于数据安全的操作是比较复杂的。而协程是用户级别的切换，且切换是由自己控制，不受外力终止。&lt;/p&gt;
-
-&lt;h3 id=&quot;section-3&quot;&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;协程其实模拟了人类活动的一种过程。例如：你准备先写文档，然后修复bug。这时候接到电话说这个bug很严重，必须立即修复（可以看作CPU通知）。于是你暂停写文档，开始去填坑，终于你把坑填完了，你回来写文档，这个时候你肯定是接着之前写的文档继续，难道你要把之前写的给删了，重新写？这就是协程。那如果是子例程呢？那你就必须重新写了，因为退出之后，栈帧就会被弹出销毁，再次调用就是开辟新的栈空间了。&lt;/p&gt;
-
-&lt;p&gt;总结：协程就是用户态下的线程，是人们在有了进程、线程之后仍觉得效率不够，而追求的又一种高并发解决方案。为什么说是用户态，是因为操作系统并不知道它的存在，它是由程序员自己控制、互相协作的让出控制权而不是像进程、线程那样由操作系统调度决定是否让出控制权。&lt;/p&gt;
-
-</description>
-        <pubDate>Thu, 08 May 2014 21:34:03 +0800</pubDate>
-        <link>/gevent/2014/05/08/gevent0.html</link>
-        <guid isPermaLink="true">/gevent/2014/05/08/gevent0.html</guid>
       </item>
     
   </channel>

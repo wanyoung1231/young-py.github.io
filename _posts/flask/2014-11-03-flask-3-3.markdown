@@ -8,29 +8,29 @@ author: young
 
 ### 4、链接
 
-任何应用程序都有多个路由总是需要包含链接来连接到不同的页面，例如导航栏。
+任何应用程序都有多个路由，必然需要包含链接来连接不同的页面，例如导航栏。
 
-在模板中，对于简单的路由直接写URLs做链接是非常的琐碎麻烦的，但是对于带有变量部分的动态路由建立正确的URLs会变得更加复杂。此外，在代码中显示的写URLs会在路由上创建不必要的依赖。如果路由重组，模板中的链接将被打断而变得无法访问。
+在模板中，对于简单的路由直接写URLs做链接是非常琐碎麻烦的，而给带有变量部分的动态路由建立正确的URLs会变得更加复杂。此外，在代码中显式的写URLs会在路由上造成不必要的依赖。如果路由重组，模板中的链接将被打断而变得无法访问。
 
-为了避免这些问题，Flask提供`url_for()`帮助函数，它将从存放在应用程序的URL映射中生成URLs。
+为了避免这些问题，Flask提供`url_for()`函数，它会根据存放在应用程序中的URL映射信息来生成URLs。
 
-其最简单的方法，这个函数传入视图函数名（或通过`app.add_url_route()`定义的路由`endpoint`名）作为它的参数，然后返回它的URL。例如，在当前版本的`hello.py`调用`url_for('index')`将返回`/`。调用`url_for('index', _external=True)`将返回一个绝对URL，在该示例中为`http://localhost:5000/`。
+其最简单的用法，这个函数传入视图函数名（或通过`app.add_url_route()`定义的路由`endpoint`名）作为它的参数，然后返回它的URL。例如，在当前版本的`hello.py`调用`url_for('index')`将返回`/`。调用`url_for('index', _external=True)`将返回一个绝对URL，在该示例中为`http://localhost:5000/`。
 
->注：相对URLs可以满足生成链接来连接应用程序不同的路由。绝对URLs只有在链接被用于web浏览器的外部才是必须的，例如通过邮件发送链接。
+>注：相对URLs足以满足生成链接来连接应用程序不同的路由。绝对URLs只有在链接被用于web浏览器的外部才是必须的，例如通过邮件发送链接。
 
-动态URLs可以使用`url_for()`来生成通过传递动态部分作为关键字参数。例如，`url_for('user', name='join', external=True)`会返回http://localhost:5000/user/john。
+可以使用`url_for()`并传递动态部分作为关键字参数来生成动态URLs。例如，`url_for('user', name='join', external=True)`会返回http://localhost:5000/user/john。
 
-发送给`url_for()`的关键字参数不限制被用于动态路由。函数会增加任何扩展参数给放回字符串。例如`url_for('index', page=2)`会返回`/?page=2`。
+`url_for()`可以不限参数的使用动态路由。函数会增加扩展参数给查询字符串。例如`url_for('index', page=2)`会返回`/?page=2`。
 
 ### 5、静态文件
 
 Web应用程序不仅仅是由Python代码和模板组成。大部分的应用程序会使用静态文件，例如从HTML代码中引用的图片、JavaScript源文件和CSS。
 
-你可能需要回忆一下，在第二章中检查`hello.py`应用程序的URL映射时，一个**static**入口出现在里面。这也是为什么引用定义成`/static/<filename>`的静态文件会被当作特殊路由来对待。例如，一个`url_for('static', filename='css/style.css', _external=True)`调用会返回http://localhost:5000/static/css/styles.css。
+你可能需要回忆一下，在第二章中检查`hello.py`应用程序的URL映射时，有一个**static**入口在里面。这也是为什么引用定义成`/static/<filename>`的静态文件会被当作特殊路由来对待。例如，一个`url_for('static', filename='css/style.css', _external=True)`调用会返回http://localhost:5000/static/css/styles.css。
 
-在它的默认配置中，Flask在位于应用程序的根目录下名为`static`的子目录中寻找静态文件。可以在这个目录下的子目录组织管理文件。当服务器收到来自上一个示例的URL，它会产生一个响应包含位于`static/css/styles.css`的文件内容。
+在它的默认配置中，Flask会在位于应用程序根目录下名为`static`的子目录中寻找静态文件。可以在这个目录下的子目录组织管理文件。当服务器收到来自之前示例的URL，它会产生一个响应包含`static/css/styles.css`的文件内容。
 
-示例3-10展示应用程序可以包含一个位于`static/css/styles.css`的`favicon.icon`。
+示例3-10展示应用程序如何在基础模板中包含`favicon.icon`图标并让浏览器将其显示在地址栏。
 
 _示例3-10. templates/base.html：favicon定义_
 
@@ -41,11 +41,12 @@ _示例3-10. templates/base.html：favicon定义_
 <link rel="shortcut icon" href="{ { url_for('static', filename = 'favicon.ico') }}"
 type="image/x-icon">
 <link rel="icon" href="{ { url_for('static', filename = 'favicon.ico') }}"
-type="image/x-icon"> { % endblock %}
+type="image/x-icon"> 
+{ % endblock %}
 
 {% endhighlight %}
 
-图标定义被插入在`head`块里的最下面。注意`super()`是如何保留定义在基础模板中的块的原始内容的。
+图标定义被插入在`head`块里的最下面。注意`super()`是如何保留定义在基础模板中块的原始内容的。
 
 >建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 3d`来切换到这个版本的应用程序。
 
@@ -53,15 +54,15 @@ type="image/x-icon"> { % endblock %}
 
 当用户工作在世界各个不同的地方，在web应用程序中处理日期和时间就变成了一个比较重要的问题。
 
-服务器需要统一的时间单位不依赖于每个用户的位置，所以使用世界时间（UTC）。对于用户，看到UTC格式的时间肯定会感到困惑，用户总是希望看到根据当地的习惯显示的日期和时间格式。
+服务器使用统一的时间单位，和每个用户的位置无关，所以使用世界标准时间（UTC）。对于用户，看到UTC格式的时间肯定会感到困惑，用户总是希望看到根据当地习惯显示的日期和时间。
 
 一个优雅的解决方案是允许服务器只发送UTC时间给web浏览器，由浏览器转为当地时间并渲染。Web浏览器在这个问题上做的更好，因为他们可以访问用户电脑的所在的时区和地区设置。
 
-有一个优秀的客户端开源库`moment.js`，用JavaScript编写的，用于在浏览器上渲染日期和时间。Flask-Moment是一个集成`moment.js`到Jinja2模板的Flask应用程序扩展。可以通过pip来安装Flask-Moment：
+有一个优秀的客户端开源库**moment.js**，用JavaScript编写的，用于在浏览器上渲染日期和时间。Flask-Moment是一个集成`moment.js`到Jinja2模板的Flask扩展。可以通过pip来安装：
     
     (venv) $ pip install flask-moment
 
-扩展初始化和示例3-11展示的这样。
+示例3-11展示扩展初始化。
 
 _示例3-11. hello.py：初始化Flask-Moment_
 
@@ -72,7 +73,7 @@ moment = Moment(app)
 
 {% endhighlight %}
 
-Flask-Moment除了依赖`moment.js`外，还依赖`jquery.js`。这两个库需要直接包含在HTML文档，这种情况下你可以选择使用什么版本，或通过扩展提供的帮助函数。引用来自内容分发网络（CDN）的测试版本库。因为Bootstrap已经包含了`jquery.js`，只需要将`moment.js`增加到这个示例中。示例3-12展示这个库是如何被加载到基础模板的`scripts`中的。
+Flask-Moment除了依赖`moment.js`外，还依赖`jquery.js`。这两个库需要直接包含在HTML文档，这种情况下你可以选择使用什么版本，或通过扩展提供的帮助函数来引用内容分发网络（CDN）的测试版本库。因为Bootstrap已经包含了`jquery.js`，所以只需要将`moment.js`增加到这个示例中。示例3-12展示这个库是如何被加载到基础模板`scripts`中的。
 
 _示例3-12. templates/base.html：导入moment.js库_
 
@@ -116,13 +117,13 @@ _示例3-14. templates/index.html：使用Flask-Moment渲染时间戳_
 
 >建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 3e`来切换到这个版本的应用程序。
 
-Flask-Moment从`moment.js`实现了`format()`，`fromNow()`，`fromTime()`， `calendar()`，`valueOf()`和`unix()`方法。查阅文档，了解提供的所有格式化选项。
+Flask-Moment通过`moment.js`实现了`format()`，`fromNow()`，`fromTime()`， `calendar()`，`valueOf()`和`unix()`方法。查阅文档，了解提供的所有格式化选项。
 
 >注：Flask-Moment假定时间戳由服务端应用程序中表示成UTC格式的“naive”`datetime`对象来处理。参阅标准库`datetime`包文档关于`date`和`time`对象的`navie`和`aware`信息。
 
 Flask-Moment渲染的时间戳可以本地化成多种语言。在模板中通过传递语言代码到`lang()`函数来选择语言：
 
-    {{ moment.lang('es') }}
+    { { moment.lang('es') }}
 
 学完本章中讨论的所有技术，您应该能够为您的应用程序构建现代、用户友好的网页。下一章涉及模板没有讨论的一个方面：如何通过web表单与用户进行交互。
 
