@@ -53,9 +53,92 @@ type="image/x-icon"> { % endblock %}
 
 当用户工作在世界各个不同的地方，在web应用程序中处理日期和时间就变成了一个比较重要的问题。
 
+服务器需要统一的时间单位不依赖于每个用户的位置，所以使用世界时间（UTC）。对于用户，看到UTC格式的时间肯定会感到困惑，用户总是希望看到根据当地的习惯显示的日期和时间格式。
+
+一个优雅的解决方案是允许服务器只发送UTC时间给web浏览器，由浏览器转为当地时间并渲染。Web浏览器在这个问题上做的更好，因为他们可以访问用户电脑的所在的时区和地区设置。
+
+有一个优秀的客户端开源库`moment.js`，用JavaScript编写的，用于在浏览器上渲染日期和时间。Flask-Moment是一个集成`moment.js`到Jinja2模板的Flask应用程序扩展。可以通过pip来安装Flask-Moment：
+    
+    (venv) $ pip install flask-moment
+
+扩展初始化和示例3-11展示的这样。
+
+_示例3-11. hello.py：初始化Flask-Moment_
+
+{% highlight python %}
+
+from flask.ext.moment import Moment
+moment = Moment(app)
+
+{% endhighlight %}
+
+Flask-Moment除了依赖`moment.js`外，还依赖`jquery.js`。这两个库需要直接包含在HTML文档，这种情况下你可以选择使用什么版本，或通过扩展提供的帮助函数。引用来自内容分发网络（CDN）的测试版本库。因为Bootstrap已经包含了`jquery.js`，只需要将`moment.js`增加到这个示例中。示例3-12展示这个库是如何被加载到基础模板的`scripts`中的。
+
+_示例3-12. templates/base.html：导入moment.js库_
+
+{% highlight html %}
+
+{ % block scripts %}
+{ { super() }}
+{ { moment.include_moment() }}
+{ % endblock %}
+
+{% endhighlight %}
+
+为了可以使用时间戳，Flask-Moment创建moment类给模板使用。示例3-13传递`current_time`变量给模板去渲染。
+
+_示例3-13. hello.py：增加datetime变量_
+
+{% highlight python %}
+
+from datetime import datetime
+
+@app.route('/') 
+def index():
+    return render_template('index.html', current_time=datetime.utcnow())
+
+{% endhighlight %}
+
+示例3-14展示如何在模板中渲染`current_time`。
+
+_示例3-14. templates/index.html：使用Flask-Moment渲染时间戳_
+
+{% highlight html %}
+
+<p>The local date and time is { { moment(current_time).format('LLL') }}.</p>
+<p>That was { { moment(current_time).fromNow(refresh=True) }}</p>
+
+{% endhighlight %}
+
+`format('LLL')`根据客户端电脑的时区和地区设置来格式化显示日期和时间。参数决定了渲染的样式，从`L`到`LLL`对应不同的详细级别。`format()`函数还可以接受自定义的格式说明符。
+
+`fromNow()`渲染样式显示在第二行，渲染一个相对时间戳并随着时间的推移自动刷新它。最初这个时间戳将显示为“几秒钟前”，但随着时间的流逝刷新选项将保持更新，所以如果你离开已打开几分钟的页面你会看到文本变为“一分钟前”，然后“两分钟前”，等等。
+
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 3e`来切换到这个版本的应用程序。
+
+Flask-Moment从`moment.js`实现了`format()`，`fromNow()`，`fromTime()`， `calendar()`，`valueOf()`和`unix()`方法。查阅文档，了解提供的所有格式化选项。
+
+>注：Flask-Moment假定时间戳由服务端应用程序中表示成UTC格式的“naive”`datetime`对象来处理。参阅标准库`datetime`包文档关于`date`和`time`对象的`navie`和`aware`信息。
+
+Flask-Moment渲染的时间戳可以本地化成多种语言。在模板中通过传递语言代码到`lang()`函数来选择语言：
+
+    {{ moment.lang('es') }}
+
+学完本章中讨论的所有技术，您应该能够为您的应用程序构建现代、用户友好的网页。下一章涉及模板没有讨论的一个方面：如何通过web表单与用户进行交互。
 
 
-协程篇进行修改，包括对子例程的调整、升级版调整，添加应用场景
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
