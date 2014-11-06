@@ -56,7 +56,23 @@ class NameForm(Form):
 
 {% endhighlight %}
 
+表单中的字段被定义为类的变量，且每个类的变量都指定一个字段类型对象。在上一个示例中，`NameForm`表单有一个`name`文本字段和`submit`提交按钮。`StringField`类表示一个`type="text"`属性的`<input>`标签。`SubmitField`类表示一个`type="submit"`属性的`<input>`标签。字段构造函数的第一个参数是一个`label`，用于渲染表单到HTML。
+
+`StringField`构造函数包含可选参数`validators`，它定义了一组检查来验证用户提交的数据。`Required()`验证确保提交的字段不为空。
+
+>注：Flask-WTF扩展定义了表单基类，所以它从flask.ext.wtf导入。字段、验证都是直接从WTForms包中导入。
+
+表格4-1展示了一组WTForms支持的标准字段。
+
+_表格4-1. WTForms标准HTML字段_
+
+表格4-2展示了一组WTForms内建验证。
+
+_表格4-2. WTForms验证_
+
 ### 3、HTML渲染的表单
+
+
 
 
 
