@@ -5,3 +5,85 @@ date:   2014-11-05 23:00:10
 categories: flask
 author: young
 ---
+
+在第二章介绍的`request`对象，公开了所有由客户端发送的请求信息。特别地，`request.form`可以访问POST请求提交的表单数据。
+
+尽管Flask的`request`对象提供的支持足以处理web表单，但依然有许多任务会变得单调、重复。两个很好的例子就是表单的HTML代码的生成和验证所提交的表单数据。
+
+**Flask-WTF**扩展使处理web表单获得更愉快的体验。这个扩展是一个Flask集成，包装与框架无关的WTForms包。
+
+Flask-WTF和它的依赖集可以通过pip来安装：
+
+    (venv) $ pip install flask-wtf
+
+### 1、跨站请求伪造(CSRF)保护
+
+默认情况下，Flask-WTF保护各种形式对跨站请求伪造(CSRF)攻击。CSRF攻击发生在一个恶意网站发送请求到受害者登录的不同网站时。
+
+为了实现CSRF保护，Flask-WTF需要应用程序去配置一个加密密钥。Flask-WTF使用这个密钥去生成加密令牌用于验证请求表单数据的真实性。示例4-1展示如何配置加密密钥。
+
+_示例4-1. hello.py：Flask-WTF配置_
+
+{% highlight python %}
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'hard to guess string'
+
+{% endhighlight %}
+
+`app.config`字典通常是框架、扩展或应用程序自身存放配置变量的地方，可以使用标准字典语法添加配置值到`app.config`中。配置对象还有方法来从文件或环境导入配置值。
+
+`SECRET_KEY`配置变量作为Flask和一些第三方扩展的通用加密密钥。加密的强度取决于这个变量的值。给你构建的每个应用程序选择不同的密钥，并确保这个字符串不被其他任何人知道。
+
+>注：为了提高安全性，密钥应该存储在一个环境变量中，而不是嵌入到代码中。这种个会在第7章中描述。
+
+### 2、表单类
+
+使用Flask-WTF时，每个web表单是由继承自`Form`类的子类来表现的。该类在表单中定义了一组字段，每个都表示为一个对象。每个字段都可以连接一个或多个**validators**；`validators`是一个用于检查用户提交的输入是否合法的函数。
+
+示例4-2展示了一个拥有文本字段和提交按钮的简单web表单。
+
+_示例4-2. hello.py：表单类定义_
+
+{% highlight python %}
+
+from flask.ext.wtf import Form
+from wtforms import StringField, SubmitField 
+from wtforms.validators import Required
+
+class NameForm(Form):
+    name = StringField('What is your name?', validators=[Required()]) submit = SubmitField('Submit')
+
+{% endhighlight %}
+
+### 3、HTML渲染的表单
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
