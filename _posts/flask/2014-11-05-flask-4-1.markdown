@@ -72,7 +72,23 @@ _表格4-2. WTForms验证_
 
 ### 3、HTML渲染的表单
 
+表单字段是可调用的，调用时从模板渲染它们到HTML。假设视图函数传递一个参数名为`form`的`NameForm`实例给模板，模板就会生成一个简单的HTML表单，如下所示：
+    
+{% highlight html %}
 
+<form method="POST">
+    { { form.name.label }} { { form.name() }} 
+    { { form.submit() }}
+</form>
+
+{% endhighlight %}
+
+当然，结果是什么都没有。
+
+
+
+To improve the look of the form, any arguments sent into the calls that render the fields are converted into HTML attributes for the field
+改进的外观形式,任何参数发送到调用渲染字段转换成HTML属性字段
 
 
 
