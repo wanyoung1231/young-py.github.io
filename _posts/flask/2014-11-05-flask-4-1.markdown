@@ -121,7 +121,7 @@ _示例4-3. templates/index.html：使用Flask-WTF和Flask-Bootstrap渲染表单
 
 {% endhighlight %}
 
-模板的内容区有两节。第一节是页头部展示一个问候。这里使用了模板条件
+模板的内容区有两节。第一节是页头部展示一个问候。这里使用了模板条件判断。在Jinja2中格式`{% uf variable %}...{% else %}...{% endif %}`。如果条件为`True`则渲染`if`和`else`指令之间的内容。如果条件为`False`则渲染`else`和`endif`之间的内容。示例模板会渲染字符串“Hello，Stranger！”当`name`模板参数未定义的时候。第二节内容渲染`NameForm`对象使用`wtf.quick_form()`函数。
 
 
 
