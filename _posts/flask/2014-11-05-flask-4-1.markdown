@@ -83,16 +83,45 @@ _表格4-2. WTForms验证_
 
 {% endhighlight %}
 
-当然，结果是什么都没有。
+当然，结果是什么都没有。为了改变表单的外观显示，任何发送给字段的参数会被转换为HTML字段属性；例如，你可以给定字段`id`或`class`属性，然后定义CSS样式：
 
+{% highlight html %}
 
+<form method="POST">
+    { { form.name.label }} { { form.name(id='my-text-field') }} 
+    { { form.submit() }}
+</form>
 
-To improve the look of the form, any arguments sent into the calls that render the fields are converted into HTML attributes for the field
-改进的外观形式,任何参数发送到调用渲染字段转换成HTML属性字段
+{% endhighlight %}
 
+尽管带有HTML属性，用这种方式渲染表单是效果是显著的，所以最后是尽可能的使用Bootstrap自带的一系列表单样式。Flask-Bootstrap使用Bootstrap的预定义表单样式来提供高级的帮助函数来渲染染整个Flask-WTF表单，这些操作都只需要一个调用即可完成。使用Flask-Bootstrap，上一个表单可以像下面这样来渲染：
 
+{% highlight html %}
 
+    { % import "bootstrap/wtf.html" as wtf %}
+    { { wtf.quick_form(form) }}
 
+{% endhighlight %}
+
+`import`指令和常规的Python脚本一样的作用并且允许模板元素被导入并在许多模板中使用。被导入的`bootstrap/wtf.html`文件定义帮助函数使用Bootstrap渲染Flask-WTF表单。`wtf.quick_form()`函数携带Flask-WTF表单对象并使用默认Bootstrap样式渲染它。示例4-3展示了完整的`hello.py`模板。
+
+_示例4-3. templates/index.html：使用Flask-WTF和Flask-Bootstrap渲染表单_
+
+{% highlight html %}
+
+{ % extends "base.html" %}
+{ % import "bootstrap/wtf.html" as wtf %}
+{ % block title %}Flasky{% endblock %}
+{ % block page_content %}
+<div class="page-header">
+    <h1>Hello, { % if name %}{ { name }}{ % else %}Stranger{ % endif %}!</h1>
+</div>
+{ { wtf.quick_form(form) }}
+{ % endblock %}
+
+{% endhighlight %}
+
+模板的内容区有两节。第一节是页头部展示一个问候。这里使用了模板条件
 
 
 
