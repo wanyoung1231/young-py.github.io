@@ -117,7 +117,7 @@ _示例4-3. templates/index.html：使用Flask-WTF和Flask-Bootstrap渲染表单
 { % extends "base.html" %}
 { % import "bootstrap/wtf.html" as wtf %}
 
-{ % block title %}Flasky{% endblock %}
+{ % block title %}Flasky{ % endblock %}
 
 { % block page_content %}
 <div class="page-header">
@@ -128,7 +128,7 @@ _示例4-3. templates/index.html：使用Flask-WTF和Flask-Bootstrap渲染表单
 
 {% endhighlight %}
 
-目前模板的内容区有块。第一块是`page-header`div输出一个问候语。这里使用了模板条件判断语句。在Jinja2中格式为`{% uf variable %}...{% else %}...{% endif %}`。如果判断条件为`True`则渲染`if`和`else`之间的内容。如果判断条件为`False`则渲染`else`和`endif`之间的内容。示例模板会渲染字符串“Hello, Stranger!”当`name`模板参数未定义的时候。第二块内容使用`wtf.quick_form()`函数渲染`NameForm`对象。
+目前模板的内容区有块。第一块是`page-header`div输出一个问候语。这里使用了模板条件判断语句。在Jinja2中格式为`{ % if variable %}...{ % else %}...{ % endif %}`。如果判断条件为`True`则渲染`if`和`else`之间的内容。如果判断条件为`False`则渲染`else`和`endif`之间的内容。示例模板会渲染字符串“Hello, Stranger!”当`name`模板参数未定义的时候。第二块内容使用`wtf.quick_form()`函数渲染`NameForm`对象。
 
 
 
