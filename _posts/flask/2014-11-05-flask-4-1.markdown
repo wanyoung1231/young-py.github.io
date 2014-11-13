@@ -6,11 +6,11 @@ categories: flask
 author: young
 ---
 
-在第二章介绍的`request`对象，公开了所有由客户端发送的请求信息。特别地，`request.form`可以访问POST请求提交的表单数据。
+第二章中介绍的`request`对象公开了所有客户端发送的请求信息。特别是`request.form`可以访问`POST`请求提交的表单数据。
 
-尽管Flask的`request`对象提供的支持足以处理web表单，但依然有许多任务会变得单调、重复。两个很好的例子就是表单的HTML代码的生成和验证所提交的表单数据。
+尽管Flask的`request`对象提供的支持足以处理web表单，但依然有许多任务会变得单调且重复。表单的HTML代码生成和验证提交的表单数据就是两个很好的例子。
 
-**Flask-WTF**扩展使处理web表单获得更愉快的体验。这个扩展是一个Flask集成，包装与框架无关的WTForms包。
+**Flask-WTF**扩展使得处理web表单能获得更愉快的体验。该扩展是一个封装了与框架无关的WTForms包的Flask集成。
 
 Flask-WTF和它的依赖集可以通过pip来安装：
 
@@ -18,7 +18,7 @@ Flask-WTF和它的依赖集可以通过pip来安装：
 
 ### 1、跨站请求伪造(CSRF)保护
 
-默认情况下，Flask-WTF保护各种形式对跨站请求伪造(CSRF)攻击。CSRF攻击发生在一个恶意网站发送请求到受害者登录的不同网站时。
+默认情况下，Flask-WTF保护各种形式对跨站请求伪造(CSRF)攻击。一个CSRF攻击发生在一个恶意网站发送请求给受害者登录的其他网站。
 
 为了实现CSRF保护，Flask-WTF需要应用程序去配置一个加密密钥。Flask-WTF使用这个密钥去生成加密令牌用于验证请求表单数据的真实性。示例4-1展示如何配置加密密钥。
 
@@ -31,17 +31,17 @@ app.config['SECRET_KEY'] = 'hard to guess string'
 
 {% endhighlight %}
 
-`app.config`字典通常是框架、扩展或应用程序自身存放配置变量的地方，可以使用标准字典语法添加配置值到`app.config`中。配置对象还有方法来从文件或环境导入配置值。
+`app.config`字典通常是框架、扩展或应用程序自身存放配置变量的地方，可以使用标准字典语法添加配置值到`app.config`中。配置对象提供方法来从文件或环境导入配置值。
 
 `SECRET_KEY`配置变量作为Flask和一些第三方扩展的通用加密密钥。加密的强度取决于这个变量的值。给你构建的每个应用程序选择不同的密钥，并确保这个字符串不被其他任何人知道。
 
->注：为了提高安全性，密钥应该存储在一个环境变量中，而不是嵌入到代码中。这种个会在第7章中描述。
+>注：为了提高安全性，密钥应该存储在一个环境变量中，而不是嵌入到代码中。这个会在第7章中描述。
 
 ### 2、表单类
 
-使用Flask-WTF时，每个web表单是由继承自`Form`类的子类来表现的。该类在表单中定义了一组字段，每个都表示为一个对象。每个字段都可以连接一个或多个**validators**；`validators`是一个用于检查用户提交的输入是否合法的函数。
+使用Flask-WTF时，每个web表单是由继承自`Form`类的子类来展现的。该类在表单中定义了一组表单域，每个都表示为一个对象。每个表单域都可以连接到一个或多个**validators**；`validators`是一个用于检查用户提交的输入是否合法的函数。
 
-示例4-2展示了一个拥有文本字段和提交按钮的简单web表单。
+示例4-2展示了一个拥有文本框和提交按钮的简单web表单。
 
 _示例4-2. hello.py：表单类定义_
 
@@ -52,19 +52,20 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 
 class NameForm(Form):
-    name = StringField('What is your name?', validators=[Required()]) submit = SubmitField('Submit')
+    name = StringField('What is your name?', validators=[Required()]) 
+    submit = SubmitField('Submit')
 
 {% endhighlight %}
 
-表单中的字段被定义为类的变量，且每个类的变量都指定一个字段类型对象。在上一个示例中，`NameForm`表单有一个`name`文本字段和`submit`提交按钮。`StringField`类表示一个`type="text"`属性的`<input>`标签。`SubmitField`类表示一个`type="submit"`属性的`<input>`标签。字段构造函数的第一个参数是一个`label`，用于渲染表单到HTML。
+表单中的域被定义为类的变量，且每个类的变量都指定一个表单域类型对象。在上一个示例中，`NameForm`表单有一个`name`文本框和`submit`提交按钮。`StringField`类表示一个`type="text"`属性的`<input>`标签。`SubmitField`类表示一个`type="submit"`属性的`<input>`标签。表单域构造函数的第一个参数是一个`label`，在渲染表单到HTML时会使用。
 
-`StringField`构造函数包含可选参数`validators`，它定义了一组检查来验证用户提交的数据。`Required()`验证确保提交的字段不为空。
+`StringField`构造函数包含可选参数`validators`，它定义了一组检查来验证用户提交的数据。`Required()`验证确保提交的表单域不为空。
 
->注：Flask-WTF扩展定义了表单基类，所以它从flask.ext.wtf导入。字段、验证都是直接从WTForms包中导入。
+>注：Flask-WTF扩展定义了表单基类，所以它从flask.ext.wtf导入。表单域、验证都是直接从WTForms包中导入。
 
-表格4-1展示了一组WTForms支持的标准字段。
+表格4-1展示了一组WTForms支持的标准表单域。
 
-_表格4-1. WTForms标准HTML字段_
+_表格4-1. WTForms标准HTML表单域_
 
 表格4-2展示了一组WTForms内建验证。
 
@@ -72,7 +73,7 @@ _表格4-2. WTForms验证_
 
 ### 3、HTML渲染的表单
 
-表单字段是可调用的，调用时从模板渲染它们到HTML。假设视图函数传递一个参数名为`form`的`NameForm`实例给模板，模板就会生成一个简单的HTML表单，如下所示：
+表单域是可调用的，调用时从模板渲染它们到HTML。假设视图函数传递一个参数名为`form`的`NameForm`实例给模板，模板就会生成一个简单的HTML表单，如下所示：
     
 {% highlight html %}
 
@@ -83,7 +84,7 @@ _表格4-2. WTForms验证_
 
 {% endhighlight %}
 
-当然，结果是什么都没有。为了改变表单的外观显示，任何发送给字段的参数会被转换为HTML字段属性；例如，你可以给定字段`id`或`class`属性，然后定义CSS样式：
+当然，结果是什么都没有。为了改变表单的外观显示，任何发送给该表单域的参数会被转换为HTML表单域属性；例如，你可以给定表单域`id`或`class`属性，然后定义CSS样式：
 
 {% highlight html %}
 
@@ -94,7 +95,7 @@ _表格4-2. WTForms验证_
 
 {% endhighlight %}
 
-尽管带有HTML属性，用这种方式渲染表单是效果是显著的，所以最后是尽可能的使用Bootstrap自带的一系列表单样式。Flask-Bootstrap使用Bootstrap的预定义表单样式来提供高级的帮助函数来渲染染整个Flask-WTF表单，这些操作都只需要一个调用即可完成。使用Flask-Bootstrap，上一个表单可以像下面这样来渲染：
+即使有HTML属性，努力用这种方式渲染表单是非常重要的，所以最好是尽可能的使用Bootstrap自带的一系列表单样式。Flask-Bootstrap使用Bootstrap的预定义表单样式来提供高级的帮助函数来渲染整个Flask-WTF表单，这些操作都只需要一个调用即可完成。使用Flask-Bootstrap，上一个表单可以像下面这样来渲染：
 
 {% highlight html %}
 
@@ -103,7 +104,7 @@ _表格4-2. WTForms验证_
 
 {% endhighlight %}
 
-`import`指令和常规的Python脚本一样的作用并且允许模板元素被导入并在许多模板中使用。被导入的`bootstrap/wtf.html`文件定义帮助函数使用Bootstrap渲染Flask-WTF表单。`wtf.quick_form()`函数携带Flask-WTF表单对象并使用默认Bootstrap样式渲染它。示例4-3展示了完整的`hello.py`模板。
+`import`指令和常规的Python脚本一样的作用并且允许模板元素被导入并在许多模板中使用。被导入的`bootstrap/wtf.html`文件，定义了帮助函数使用Bootstrap来渲染Flask-WTF表单。`wtf.quick_form()`函数传入Flask-WTF表单对象并使用默认Bootstrap样式渲染它。示例4-3展示了完整的`hello.py`模板。
 
 _示例4-3. templates/index.html：使用Flask-WTF和Flask-Bootstrap渲染表单_
 
@@ -111,7 +112,9 @@ _示例4-3. templates/index.html：使用Flask-WTF和Flask-Bootstrap渲染表单
 
 { % extends "base.html" %}
 { % import "bootstrap/wtf.html" as wtf %}
+
 { % block title %}Flasky{% endblock %}
+
 { % block page_content %}
 <div class="page-header">
     <h1>Hello, { % if name %}{ { name }}{ % else %}Stranger{ % endif %}!</h1>
@@ -121,7 +124,7 @@ _示例4-3. templates/index.html：使用Flask-WTF和Flask-Bootstrap渲染表单
 
 {% endhighlight %}
 
-模板的内容区有两节。第一节是页头部展示一个问候。这里使用了模板条件判断。在Jinja2中格式`{% uf variable %}...{% else %}...{% endif %}`。如果条件为`True`则渲染`if`和`else`指令之间的内容。如果条件为`False`则渲染`else`和`endif`之间的内容。示例模板会渲染字符串“Hello，Stranger！”当`name`模板参数未定义的时候。第二节内容渲染`NameForm`对象使用`wtf.quick_form()`函数。
+目前模板的内容区有块。第一块是`page-header`div输出一个问候语。这里使用了模板条件判断语句。在Jinja2中格式为`{% uf variable %}...{% else %}...{% endif %}`。如果判断条件为`True`则渲染`if`和`else`之间的内容。如果判断条件为`False`则渲染`else`和`endif`之间的内容。示例模板会渲染字符串“Hello, Stranger!”当`name`模板参数未定义的时候。第二块内容使用`wtf.quick_form()`函数渲染`NameForm`对象。
 
 
 
