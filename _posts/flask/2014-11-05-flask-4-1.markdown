@@ -67,9 +67,13 @@ class NameForm(Form):
 
 _表格4-1. WTForms标准HTML表单域_
 
+<img style="width:407px; height:469px;" src="http://young-py.github.io/imgs/flask4-01.png">
+
 表格4-2展示了一组WTForms内建验证。
 
 _表格4-2. WTForms验证_
+
+<img style="width:494px; height:337px;" src="http://young-py.github.io/imgs/flask4-02.png">
 
 ### 3、HTML渲染的表单
 
