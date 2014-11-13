@@ -73,9 +73,9 @@
 <pre><code>(venv) $ pip install flask-wtf
 </code></pre>
 
-<h3 id="csrf">1、跨站请求伪造(CSRF)保护</h3>
+<h3 id="csrf">1、跨站请求伪造（CSRF）保护</h3>
 
-<p>默认情况下，Flask-WTF保护各种形式对跨站请求伪造(CSRF)攻击。一个CSRF攻击发生在一个恶意网站发送请求给受害者登录的其他网站。</p>
+<p>默认情况下，Flask-WTF保护各种形式对跨站请求伪造（CSRF）攻击。一个CSRF攻击发生在一个恶意网站发送请求给受害者登录的其他网站。</p>
 
 <p>为了实现CSRF保护，Flask-WTF需要应用程序去配置一个加密密钥。Flask-WTF使用这个密钥去生成加密令牌用于验证请求表单数据的真实性。示例4-1展示如何配置加密密钥。</p>
 
@@ -165,7 +165,7 @@
 { { wtf.quick_form(form) }}
 { % endblock %}</code></pre></div>
 
-<p>目前模板的内容区有块。第一块是<code>page-header</code>div输出一个问候语。这里使用了模板条件判断语句。在Jinja2中格式为<code>{ % if variable %}...{ % else %}...{ % endif %}</code>。如果判断条件为<code>True</code>则渲染<code>if</code>和<code>else</code>之间的内容。如果判断条件为<code>False</code>则渲染<code>else</code>和<code>endif</code>之间的内容。示例模板会渲染字符串“Hello, Stranger!”当<code>name</code>模板参数未定义的时候。第二块内容使用<code>wtf.quick_form()</code>函数渲染<code>NameForm</code>对象。</p>
+<p>目前模板的内容区有两块。第一块是<code>page-header</code>div输出一个问候语。这里使用了模板条件判断语句。在Jinja2中格式为<code>{ % if variable %}...{ % else %}...{ % endif %}</code>。如果判断条件为<code>True</code>则渲染<code>if</code>和<code>else</code>之间的内容。如果判断条件为<code>False</code>则渲染<code>else</code>和<code>endif</code>之间的内容。示例模板会渲染字符串“Hello, Stranger!”当<code>name</code>模板参数未定义的时候。第二块内容使用<code>wtf.quick_form()</code>函数渲染<code>NameForm</code>对象。</p>
 
 
   </article>

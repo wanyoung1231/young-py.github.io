@@ -19,9 +19,9 @@
 &lt;pre&gt;&lt;code&gt;(venv) $ pip install flask-wtf
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&quot;csrf&quot;&gt;1、跨站请求伪造(CSRF)保护&lt;/h3&gt;
+&lt;h3 id=&quot;csrf&quot;&gt;1、跨站请求伪造（CSRF）保护&lt;/h3&gt;
 
-&lt;p&gt;默认情况下，Flask-WTF保护各种形式对跨站请求伪造(CSRF)攻击。一个CSRF攻击发生在一个恶意网站发送请求给受害者登录的其他网站。&lt;/p&gt;
+&lt;p&gt;默认情况下，Flask-WTF保护各种形式对跨站请求伪造（CSRF）攻击。一个CSRF攻击发生在一个恶意网站发送请求给受害者登录的其他网站。&lt;/p&gt;
 
 &lt;p&gt;为了实现CSRF保护，Flask-WTF需要应用程序去配置一个加密密钥。Flask-WTF使用这个密钥去生成加密令牌用于验证请求表单数据的真实性。示例4-1展示如何配置加密密钥。&lt;/p&gt;
 
@@ -111,7 +111,7 @@
 { { wtf.quick_form(form) }}
 { % endblock %}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;目前模板的内容区有块。第一块是&lt;code&gt;page-header&lt;/code&gt;div输出一个问候语。这里使用了模板条件判断语句。在Jinja2中格式为&lt;code&gt;{ % if variable %}...{ % else %}...{ % endif %}&lt;/code&gt;。如果判断条件为&lt;code&gt;True&lt;/code&gt;则渲染&lt;code&gt;if&lt;/code&gt;和&lt;code&gt;else&lt;/code&gt;之间的内容。如果判断条件为&lt;code&gt;False&lt;/code&gt;则渲染&lt;code&gt;else&lt;/code&gt;和&lt;code&gt;endif&lt;/code&gt;之间的内容。示例模板会渲染字符串“Hello, Stranger!”当&lt;code&gt;name&lt;/code&gt;模板参数未定义的时候。第二块内容使用&lt;code&gt;wtf.quick_form()&lt;/code&gt;函数渲染&lt;code&gt;NameForm&lt;/code&gt;对象。&lt;/p&gt;
+&lt;p&gt;目前模板的内容区有两块。第一块是&lt;code&gt;page-header&lt;/code&gt;div输出一个问候语。这里使用了模板条件判断语句。在Jinja2中格式为&lt;code&gt;{ % if variable %}...{ % else %}...{ % endif %}&lt;/code&gt;。如果判断条件为&lt;code&gt;True&lt;/code&gt;则渲染&lt;code&gt;if&lt;/code&gt;和&lt;code&gt;else&lt;/code&gt;之间的内容。如果判断条件为&lt;code&gt;False&lt;/code&gt;则渲染&lt;code&gt;else&lt;/code&gt;和&lt;code&gt;endif&lt;/code&gt;之间的内容。示例模板会渲染字符串“Hello, Stranger!”当&lt;code&gt;name&lt;/code&gt;模板参数未定义的时候。第二块内容使用&lt;code&gt;wtf.quick_form()&lt;/code&gt;函数渲染&lt;code&gt;NameForm&lt;/code&gt;对象。&lt;/p&gt;
 
 </description>
         <pubDate>Thu, 06 Nov 2014 07:00:10 +0800</pubDate>
