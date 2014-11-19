@@ -1,0 +1,17 @@
+---
+layout: post
+title:  "Flask教程 —— 数据库（一）"
+date:   2014-11-19 10:31:12
+categories: flask
+author: young
+---
+
+### 1、SQL数据库
+
+### 2、NoSQL数据库
+
+### 3、SQL还是NoSQL
+
+### 4、python数据库框架
+
+### 5、使用Flask-SQLAlchemy管理数据库

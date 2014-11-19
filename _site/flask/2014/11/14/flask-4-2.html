@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Flask教程 —— Web表单（下）</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="关于Python及生活随记">
+    <link rel="canonical" href="/flask/2014/11/14/flask-4-2.html">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+
+</head>
+
+
+    <body>
+
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <a class="site-title" href="">小乌龟 の blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+          <a class="page-link" href="/about/">About</a>
+        
+          <a class="page-link" href="/feed.xml"></a>
+        
+          <a class="page-link" href="/index.html"></a>
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Flask教程 —— Web表单（下）</h1>
+    <br />
+    <p class="meta">Nov 14, 2014 by young</p>
+  </header>
+
+  <article class="post-content">
+  <h3 id="section">4、视图函数中的表单操作</h3>
+
+<p>在新版本的<code>hello.py</code>中，<code>index()</code>视图函数渲染表单并接收其数据。示例4-4展示更新后的<code>index()</code>视图函数。</p>
+
+<p><em>示例4-4. hello.py：路由方法</em></p>
+
+<div class="highlight"><pre><code class="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span> 
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">NameForm</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">validate_on_submit</span><span class="p">():</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">form</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></code></pre></div>
+
+<p><code>methods</code>参数被添加到<code>app.route</code>装饰器中，目的是让Flask注册视图函数为<code>GET</code>和<code>POST</code>请求处理程序到URL映射中。若<code>methods</code>参数未给出，视图函数将只注册为<code>GET</code>请求。</p>
+
+<p>添加<code>POST</code>到方法列表中是有必要的，因为表单提交使用<code>POST</code>请求操作会更方便。使用<code>GET</code>请求提交表单也行，只是<code>GET</code>请求没有<code>body</code>部分，数据是追加到URL上作为返回字符串且可以在浏览器的地址栏中看到。由于这个和其他一些原因，表单提交通常使用<code>POST</code>请求。</p>
+
+<p>局部变量<code>name</code>用于保存从表单中接收到的名字，初始化时变量为<code>None</code>。视图函数创建一个<code>NameForm</code>实例来表示一个表单。表单的<code>validate_on_submit()</code>方法会在表单被提交且数据通过了所有验证的时候返回<code>True</code>。其他情况下<code>validate_on_submit()</code>返回<code>False</code>。该方法的返回值有效的决定了表单是需要渲染还是其他处理。</p>
+
+<p>当用户第一次访问应用程序，服务器会收到一个没有表单数据的<code>GET</code>请求，这个时候<code>validate_on_submit()</code>会返回<code>False</code>。<code>if</code>语句中的代码将被略过直接进行渲染模板处理，这个时候<code>render_template()</code>函数将获取表单对象和已经被设置为<code>None</code>的<code>name</code>变量作为参数。用户则可以在浏览器上看到表单的显示。</p>
+
+<p>当用户提交表单，服务器会收到一个带有数据的<code>POST</code>请求。<code>validate_on_submit()</code>调用<code>Required()</code>验证程序验证相应的表单域。如果<code>name</code>不为空，验证程序接收它同时<code>validate_on_submit()</code>返回<code>True</code>。现在用户输入的名字已经是作为表单域可访问的数据属性。在<code>if</code>语句中，这个名字被赋值给局部变量<code>name</code>且表单域的数据属性通过赋值为空字符串而被清除。调用最后一行的<code>render_template()</code>来渲染模板，但是这次<code>name</code>参数包含了来自表单的名字，所以可以看到一个个性化的打招呼页面。</p>
+
+<blockquote>
+  <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 4a</code>来切换到这个版本的应用程序。</p>
+</blockquote>
+
+<p>图像4-1展示用户初次进入网站在浏览器窗口看到的表单是怎样的。当用户提交名字，应用程序收到一个个性化的打招呼响应。下面的表单仍然出现，所以只要愿意用户可以提交一个新的名字。图像4-2展示用户输入名字后的状态。</p>
+
+<p><img src="http://young-py.github.io/imgs/flask4-03.png" alt="" /></p>
+
+<p><em>图像4-1. Flask-WTF的web表单</em></p>
+
+<p>如果用户提交一个空名字的表单，<code>Required()</code>验证程序捕捉到错误，就像图像4-3那样。注意这些功能都是自动提供的。这是一个很好的例子，精心设计的Flask-WTF和Flask-Bootstrap扩展能让您的应用程序更强大。</p>
+
+<p><img src="http://young-py.github.io/imgs/flask4-04.png" alt="" /></p>
+
+<p><em>图像4-2. 提交后的web表单</em></p>
+
+<p><img src="http://young-py.github.io/imgs/flask4-05.png" alt="" /></p>
+
+<p><em>图像4-3. 验证错误后的web表单</em></p>
+
+<h3 id="sessions">5、重定向和用户sessions</h3>
+
+<p>上个版本的<code>hello.py</code>有个问题。如果你输入你的名字并提交它，然后单击浏览器中刷新按钮，你将得到一个警告要求再次确认之前提交的表单。因为请求刷新页面的时候浏览器重复了上一次发送的请求。当上一次发送的是一个带有表单数据的<code>POST</code>请求，刷新页面会导致重复的表单提交，事实上这些并不是我们想看到的。</p>
+
+<p>许多用户不能理解来自浏览器的这些警告。出于这个原因，对web应用程序来说，一种不错的方法是永远不将<code>POST</code>请求作为浏览器最后发送的请求。</p>
+
+<p>这个方法可以使用<strong>redirect</strong>响应<code>POST</code>请求来代替常规的响应来实现。重定向是一个特殊类型的响应，使用URL来代替HTML代码字符串。当浏览器收到这个响应，它就会给重定向URL发出一个GET请求，然后显示页面。页面也许需要几毫秒的时间来加载，因为需要发送第二个请求给服务器，除此之外用户不会看到任何不同。现在最后一次请求为<code>GET</code>，所以刷新会像预期的那样。这个方法被称为<strong>Post/Redirect/Get模式</strong>。</p>
+
+<p>但是这个方法带来了第二个问题。当应用程序处理<code>POST</code>请求，需要访问用户输入并保存在<code>form.name.data</code>中的名字，但是一旦该请求结束表单数据就会丢失。因为<code>POST</code>请求是通过重定向来处理，应用程序需要存储名字，以便重定向后的请求可以得到它并使用它来创建真实的响应。</p>
+
+<p>应用程序可以“记住”一些变量从一个请求到另一个请求通过将变量保存到<strong>用户会话</strong>中，对于每一个连接过来的客户端它都是一个私有存储区域。作为一个与请求上下文关联的变量之一，用户会话已经在第二章中介绍过了。它被称为<strong>会话</strong>并可以像Python标准字典那样访问。</p>
+
+<blockquote>
+  <p>注：默认情况下，用户会话被存放于客户端的cookies，使用配置的<code>SECRET_KEY</code>来加密签名。任何篡改cookie内容将会使签名无效，从而使会话失效。</p>
+</blockquote>
+
+<p>示例4-5展示实现重定向和用户会话的<code>index()</code>视图函数。</p>
+
+<p><em>示例4-5. hello.py：重定向和用户会话</em></p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span> 
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">NameForm</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">validate_on_submit</span><span class="p">():</span>
+        <span class="n">session</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;index&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">))</span></code></pre></div>
+
+<p>在上一个版本中，局部变量<code>name</code>用于保存用户在表单中输入的姓名。这个变量位于用户会话中的<code>session['name']</code>中，因此可以保存很长时间。</p>
+
+<p>现在请求来自表单的合法数据都会以<code>redirect()</code>调用来结束，生成HTTP重定向响应。<code>redirect()</code>函数把URL作为重定向的参数。这个例子中使用的重定向URL是一个根URL，所以响应可以写成<code>redirect('/')</code>这样简洁，但是我们通常使用Flask的URL生成器函数<code>url_for()</code>来代替。我们鼓励使用<code>url_for()</code>函数来生成URLs，因为该函数使用URL映射来生成URLs，所以生成的URLs保证与定义的路由兼容，并且使用这个函数任何路由名发生变化都会自动变得有效，路由功能不受影响。</p>
+
+<p><code>url_for()</code>唯一必须的参数就是<strong>endpoint</strong>名，也是每个路由的内部名。默认情况下，路由的endpoint是一个附加到视图函数的名称。在这个示例中，处理根URL的视图函数为<code>index()</code>，所以给<code>url_for()</code>的名称为index。</p>
+
+<p>最后一个改动是在<code>render_template()</code>函数中，使用<code>session.get('name')</code>从会话中获取<code>name</code>参数。和使用普通字典一样，使用<code>get()</code>去请求字典key来避免发生找不到key异常，因为对于没有的key<code>get()</code>返回默认值<code>None</code>。</p>
+
+<blockquote>
+  <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 4b</code>来切换到这个版本的应用程序。</p>
+</blockquote>
+
+<p>这个版本的应用程序，你可以在你的浏览器中刷新页面看到你预期的行为。</p>
+
+<h3 id="section-1">6、消息提示</h3>
+
+<p>有时候在请求完成后给用户一个提示消息是非常有用的。可以是一个确认消息、警告消息或错误消息。典型的示例就是当你在网站提交登录表单出现错误的时候服务器响应渲染登录表单并伴随一条消息，告知你的用户名或密码无效。</p>
+
+<p>作为核心特性Flask具有这样的功能。示例4-6展示如何使用<code>flash()</code>函数来实现这一目的。</p>
+
+<p><em>示例4-6. hello.py：消息提示</em></p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span><span class="p">,</span> <span class="n">flash</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span> 
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">NameForm</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">validate_on_submit</span><span class="p">():</span>
+        <span class="n">old_name</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">old_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">old_name</span> <span class="o">!=</span> <span class="n">form</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">flash</span><span class="p">(</span><span class="s">&#39;Looks like you have changed your name!&#39;</span><span class="p">)</span> 
+        <span class="n">session</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">form</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;index&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">,</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">form</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">))</span></code></pre></div>
+
+<p>在这个示例中，每次提交一个名字都会和用户会话中保存的名字进行比较。如果两个名字不一样，<code>flash()</code>函数会被调用，消息会在下一次发回客户端的响应中显示。</p>
+
+<p>调用<code>flash()</code>还不能获取并显示消息；应用程序使用的模板需要渲染这些消息。渲染消息最好的地方是在基础模板中，因为这可以使得所有页面都可以使用这些消息。Flask提供<code>get_flashed_messages()</code>函数给模板去接收消息并渲染它们，就像4-7展示的那样。</p>
+
+<p><em>示例4-7. templates/base.html：消息渲染</em></p>
+
+<div class="highlight"><pre><code class="html">{ % block content %}
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;container&quot;</span><span class="nt">&gt;</span>
+  { % for message in get_flashed_messages() %} 
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;alert alert-warning&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">type=</span><span class="s">&quot;button&quot;</span> <span class="na">class=</span><span class="s">&quot;close&quot;</span> <span class="na">data-dismiss=</span><span class="s">&quot;alert&quot;</span><span class="nt">&gt;</span><span class="ni">&amp;times;</span><span class="nt">&lt;/button&gt;</span>
+    { { message }}
+  <span class="nt">&lt;/div&gt;</span>
+  { % endfor %}
+
+  { % block page_content %}{ % endblock %}
+<span class="nt">&lt;/div&gt;</span>
+{ % endblock %}</code></pre></div>
+
+<p>在这个示例中，使用Bootstrap的警告CSS样式做警告消息渲染（展示在图像4-4中就是之一）。</p>
+
+<p><img src="http://young-py.github.io/imgs/flask4-06.png" alt="" /></p>
+
+<p><em>图像4-4. 消息提示</em></p>
+
+<p>这里需要使用循环因为可能会有多个消息排队显示，在前面的请求周期中每次都会调用<code>flash()</code>。</p>
+
+<p>从<code>get_flashed_messages()</code>中检索到的消息在下次调用这个函数时是不会返回的。所以消息只显示一次然后丢弃。</p>
+
+<blockquote>
+  <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 4c</code>来切换到这个版本的应用程序。</p>
+</blockquote>
+
+<p>能够接收用户通过web表单发送的数据是大多数应用程序的基本功能，同样将数据到永久存储到媒介上也是必须的。下一章的主题是Flask和数据库的使用。</p>
+
+
+  </article>
+
+</div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>iPython</li>
+        <li><a href="mailto:xiaowugui244345021@163.com">xiaowugui244345021@163.com</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://twitter.com/">
+            <span class="icon twitter">
+              <svg version="1.1" class="twitter-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill="#C2C2C2" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27
+                c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767
+                c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206
+                C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271
+                c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469
+                c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">关于Python及生活随记</p>
+    </div>
+
+  </div>
+
+</footer>
+
+
+    </body>
+</html>

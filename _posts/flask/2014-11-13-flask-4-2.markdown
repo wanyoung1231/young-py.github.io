@@ -1,0 +1,169 @@
+---
+layout: post
+title:  "Flask教程 —— Web表单（下）"
+date:   2014-11-13 21:44:00
+categories: flask
+author: young
+---
+
+### 4、视图函数中的表单操作
+
+在新版本的`hello.py`中，`index()`视图函数渲染表单并接收其数据。示例4-4展示更新后的`index()`视图函数。
+
+_示例4-4. hello.py：路由方法_
+
+{% highlight python %}
+
+@app.route('/', methods=['GET', 'POST']) 
+def index():
+    name = None
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ''
+    return render_template('index.html', form=form, name=name)
+
+{% endhighlight %}
+
+`methods`参数被添加到`app.route`装饰器中，目的是让Flask注册视图函数为`GET`和`POST`请求处理程序到URL映射中。若`methods`参数未给出，视图函数将只注册为`GET`请求。
+
+添加`POST`到方法列表中是有必要的，因为表单提交使用`POST`请求操作会更方便。使用`GET`请求提交表单也行，只是`GET`请求没有`body`部分，数据是追加到URL上作为返回字符串且可以在浏览器的地址栏中看到。由于这个和其他一些原因，表单提交通常使用`POST`请求。
+
+局部变量`name`用于保存从表单中接收到的名字，初始化时变量为`None`。视图函数创建一个`NameForm`实例来表示一个表单。表单的`validate_on_submit()`方法会在表单被提交且数据通过了所有验证的时候返回`True`。其他情况下`validate_on_submit()`返回`False`。该方法的返回值有效的决定了表单是需要渲染还是其他处理。
+
+当用户第一次访问应用程序，服务器会收到一个没有表单数据的`GET`请求，这个时候`validate_on_submit()`会返回`False`。`if`语句中的代码将被略过直接进行渲染模板处理，这个时候`render_template()`函数将获取表单对象和已经被设置为`None`的`name`变量作为参数。用户则可以在浏览器上看到表单的显示。
+
+当用户提交表单，服务器会收到一个带有数据的`POST`请求。`validate_on_submit()`调用`Required()`验证程序验证相应的表单域。如果`name`不为空，验证程序接收它同时`validate_on_submit()`返回`True`。现在用户输入的名字已经是作为表单域可访问的数据属性。在`if`语句中，这个名字被赋值给局部变量`name`且表单域的数据属性通过赋值为空字符串而被清除。调用最后一行的`render_template()`来渲染模板，但是这次`name`参数包含了来自表单的名字，所以可以看到一个个性化的打招呼页面。
+
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 4a`来切换到这个版本的应用程序。
+
+图像4-1展示用户初次进入网站在浏览器窗口看到的表单是怎样的。当用户提交名字，应用程序收到一个个性化的打招呼响应。下面的表单仍然出现，所以只要愿意用户可以提交一个新的名字。图像4-2展示用户输入名字后的状态。
+
+![](http://young-py.github.io/imgs/flask4-03.png)
+
+_图像4-1. Flask-WTF的web表单_
+
+如果用户提交一个空名字的表单，`Required()`验证程序捕捉到错误，就像图像4-3那样。注意这些功能都是自动提供的。这是一个很好的例子，精心设计的Flask-WTF和Flask-Bootstrap扩展能让您的应用程序更强大。
+
+![](http://young-py.github.io/imgs/flask4-04.png)
+
+_图像4-2. 提交后的web表单_
+
+![](http://young-py.github.io/imgs/flask4-05.png)
+
+_图像4-3. 验证错误后的web表单_
+
+### 5、重定向和用户sessions
+
+上个版本的`hello.py`有个问题。如果你输入你的名字并提交它，然后单击浏览器中刷新按钮，你将得到一个警告要求再次确认之前提交的表单。因为请求刷新页面的时候浏览器重复了上一次发送的请求。当上一次发送的是一个带有表单数据的`POST`请求，刷新页面会导致重复的表单提交，事实上这些并不是我们想看到的。
+
+许多用户不能理解来自浏览器的这些警告。出于这个原因，对web应用程序来说，一种不错的方法是永远不将`POST`请求作为浏览器最后发送的请求。
+
+这个方法可以使用**redirect**响应`POST`请求来代替常规的响应来实现。重定向是一个特殊类型的响应，使用URL来代替HTML代码字符串。当浏览器收到这个响应，它就会给重定向URL发出一个GET请求，然后显示页面。页面也许需要几毫秒的时间来加载，因为需要发送第二个请求给服务器，除此之外用户不会看到任何不同。现在最后一次请求为`GET`，所以刷新会像预期的那样。这个方法被称为**Post/Redirect/Get模式**。
+
+但是这个方法带来了第二个问题。当应用程序处理`POST`请求，需要访问用户输入并保存在`form.name.data`中的名字，但是一旦该请求结束表单数据就会丢失。因为`POST`请求是通过重定向来处理，应用程序需要存储名字，以便重定向后的请求可以得到它并使用它来创建真实的响应。
+
+应用程序可以“记住”一些变量从一个请求到另一个请求通过将变量保存到**用户会话**中，对于每一个连接过来的客户端它都是一个私有存储区域。作为一个与请求上下文关联的变量之一，用户会话已经在第二章中介绍过了。它被称为**会话**并可以像Python标准字典那样访问。
+
+>注：默认情况下，用户会话被存放于客户端的cookies，使用配置的`SECRET_KEY`来加密签名。任何篡改cookie内容将会使签名无效，从而使会话失效。
+
+示例4-5展示实现重定向和用户会话的`index()`视图函数。
+
+_示例4-5. hello.py：重定向和用户会话_
+
+{% highlight python %}
+
+from flask import Flask, render_template, session, redirect, url_for
+
+@app.route('/', methods=['GET', 'POST']) 
+def index():
+    form = NameForm()
+    if form.validate_on_submit():
+        session['name'] = form.name.data
+        return redirect(url_for('index'))
+    return render_template('index.html', form=form, name=session.get('name'))
+
+{% endhighlight %}
+
+在上一个版本中，局部变量`name`用于保存用户在表单中输入的姓名。这个变量位于用户会话中的`session['name']`中，因此可以保存很长时间。
+
+现在请求来自表单的合法数据都会以`redirect()`调用来结束，生成HTTP重定向响应。`redirect()`函数把URL作为重定向的参数。这个例子中使用的重定向URL是一个根URL，所以响应可以写成`redirect('/')`这样简洁，但是我们通常使用Flask的URL生成器函数`url_for()`来代替。我们鼓励使用`url_for()`函数来生成URLs，因为该函数使用URL映射来生成URLs，所以生成的URLs保证与定义的路由兼容，并且使用这个函数任何路由名发生变化都会自动变得有效，路由功能不受影响。
+
+`url_for()`唯一必须的参数就是**endpoint**名，也是每个路由的内部名。默认情况下，路由的endpoint是一个附加到视图函数的名称。在这个示例中，处理根URL的视图函数为`index()`，所以给`url_for()`的名称为index。
+
+最后一个改动是在`render_template()`函数中，使用`session.get('name')`从会话中获取`name`参数。和使用普通字典一样，使用`get()`去请求字典key来避免发生找不到key异常，因为对于没有的key`get()`返回默认值`None`。
+
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 4b`来切换到这个版本的应用程序。
+
+这个版本的应用程序，你可以在你的浏览器中刷新页面看到你预期的行为。
+
+### 6、消息提示
+
+有时候在请求完成后给用户一个提示消息是非常有用的。可以是一个确认消息、警告消息或错误消息。典型的示例就是当你在网站提交登录表单出现错误的时候服务器响应渲染登录表单并伴随一条消息，告知你的用户名或密码无效。
+
+作为核心特性Flask具有这样的功能。示例4-6展示如何使用`flash()`函数来实现这一目的。
+
+_示例4-6. hello.py：消息提示_
+
+{% highlight python %}
+
+from flask import Flask, render_template, session, redirect, url_for, flash
+
+@app.route('/', methods=['GET', 'POST']) 
+def index():
+    form = NameForm()
+    if form.validate_on_submit():
+        old_name = session.get('name')
+        if old_name is not None and old_name != form.name.data:
+            flash('Looks like you have changed your name!') 
+        session['name'] = form.name.data
+        form.name.data = ''
+        return redirect(url_for('index'))
+    return render_template('index.html',
+        form = form, name = session.get('name'))
+
+{% endhighlight %}
+
+在这个示例中，每次提交一个名字都会和用户会话中保存的名字进行比较。如果两个名字不一样，`flash()`函数会被调用，消息会在下一次发回客户端的响应中显示。
+
+调用`flash()`还不能获取并显示消息；应用程序使用的模板需要渲染这些消息。渲染消息最好的地方是在基础模板中，因为这可以使得所有页面都可以使用这些消息。Flask提供`get_flashed_messages()`函数给模板去接收消息并渲染它们，就像4-7展示的那样。
+
+_示例4-7. templates/base.html：消息渲染_
+
+{% highlight html %}
+
+{ % block content %}
+<div class="container">
+  { % for message in get_flashed_messages() %} 
+  <div class="alert alert-warning">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    { { message }}
+  </div>
+  { % endfor %}
+
+  { % block page_content %}{ % endblock %}
+</div>
+{ % endblock %}
+
+{% endhighlight %}
+
+在这个示例中，使用Bootstrap的警告CSS样式做警告消息渲染（展示在图像4-4中就是之一）。
+
+![](http://young-py.github.io/imgs/flask4-06.png)
+
+_图像4-4. 消息提示_
+
+这里需要使用循环因为可能会有多个消息排队显示，在前面的请求周期中每次都会调用`flash()`。
+
+从`get_flashed_messages()`中检索到的消息在下次调用这个函数时是不会返回的。所以消息只显示一次然后丢弃。
+
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 4c`来切换到这个版本的应用程序。
+
+能够接收用户通过web表单发送的数据是大多数应用程序的基本功能，同样将数据到永久存储到媒介上也是必须的。下一章的主题是Flask和数据库的使用。
+
+
+
+
+
+
+
