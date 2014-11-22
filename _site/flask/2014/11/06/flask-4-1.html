@@ -73,7 +73,7 @@
 <pre><code>(venv) $ pip install flask-wtf
 </code></pre>
 
-<h3 id="csrf">1、跨站请求伪造（CSRF）保护</h3>
+<h3 id="csrf"><strong>1、跨站请求伪造（CSRF）保护</strong></h3>
 
 <p>默认情况下，Flask-WTF保护各种形式对跨站请求伪造（CSRF）攻击。一个CSRF攻击发生在一个恶意网站发送请求给受害者登录的其他网站。</p>
 
@@ -92,7 +92,7 @@
   <p>注：为了提高安全性，密钥应该存储在一个环境变量中，而不是嵌入到代码中。这个会在第7章中描述。</p>
 </blockquote>
 
-<h3 id="section">2、表单类</h3>
+<h3 id="section"><strong>2、表单类</strong></h3>
 
 <p>使用Flask-WTF时，每个web表单是由继承自<code>Form</code>类的子类来展现的。该类在表单中定义了一组表单域，每个都表示为一个对象。每个表单域都可以连接到一个或多个<strong>validators</strong>；<code>validators</code>是一个用于检查用户提交的输入是否合法的函数。</p>
 
@@ -128,7 +128,7 @@
 
 <p><img style="width:494px; height:337px;" src="http://young-py.github.io/imgs/flask4-02.png" /></p>
 
-<h3 id="html">3、HTML渲染的表单</h3>
+<h3 id="html"><strong>3、HTML渲染的表单</strong></h3>
 
 <p>表单域是可调用的，调用时从模板渲染它们到HTML。假设视图函数传递一个参数名为<code>form</code>的<code>NameForm</code>实例给模板，模板就会生成一个简单的HTML表单，如下所示：</p>
 

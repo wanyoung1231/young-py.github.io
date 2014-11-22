@@ -6,12 +6,161 @@ categories: flask
 author: young
 ---
 
+**数据库**就是有组织的存储应用程序数据，然后查询检索指定需要的那部分。大部分web应用程序都采用基于**关系模型**的数据库，也称作结构化查询语言（SQL）数据库。但是最近几年面向文档数据库和键值数据库（通常称作NoSQL数据库），成为非常流行的替代者。个人推荐《七周七数据库》这本书，它对各种类型的数据库、应用场景和多种不同类型数据库配合使用有比较好的讲解。
+
 ### 1、SQL数据库
+
+关系数据库将数据保存在**表**中来模拟应用程序中不同的实体。例如，一个订单管理应用程序数据库可能会有customers、products和orders表。
+
+一个表有一个固定数量的列和一个可变的行数。列定义了数据表所代表的实体的属性。例如，customers表会有name、address、phone等列。表中的每一行定义了由所有列的值组成的实际数据元素。
+
+表有种特殊列称作**主键**，它持有一个惟一的标识符为表中存储的每一行。表也可以有**外键**，用于引用其他表的主键。这些行之间的连接称作**关系**，也是关系数据库模型的基础。
+
+图像5-1展示了存储users和roles表的简单数据库图。连接两个表的线代表两个表之间的关系。
+
+![](http://young-py.github.io/imgs/flask5-01.png)
+
+_图像5-1. 关系数据库示例_
+
+在这个数据库表中，roles表存储了一组所有可能的用户角色，每一个都被定义为唯一id值——也是表的主键。users表包含一组用户，同样每一个都有唯一id值。除了主键id，roles表还有name列，而users表还有username和password列。在users表中的role_id列是一个引用role表中id列的外键，以这种方式确立分配给每个用户的角色。
+
+就像这个示例中看到的那样，关系数据库存储数据高效且避免重复。重命名用户角色在这个数据库中会变得异常简单，因为角色名保存在单独的地方。当roles表中的角色名发生改变，所有用户持有的role_id引用的角色会立即看到这些变化。
+
+而另一方面，将数据拆分到多个表中则会变得更加复杂。生成一组用户及其角色会产生一个小问题，因为用户和用户角色需要从两张表中读，且只有**连接**后才能一起出现。当需要的时候关系数据库引擎会提供支持来执行两个表的连接操作。
 
 ### 2、NoSQL数据库
 
+与上一节描述相反的、非关系模型的数据库被统称为**NoSQL**数据库。NoSQL数据库常见的组织方式是使用**collections**代替表、**documents**代替记录。NoSQL数据库的设计方式使得连接会很复杂，所以大部分都不支持这个操作。图像5-1如果用NoSQL数据库结构来表达则是这样的：列出用户及他们的角色，需要应用程序自己通过读取每个用户的role_id字段去执行连接操作，然后查找roles表。
+
+图像5-2展示了更接近NoSQL数据库的设计思想。这个操作运用了一个被称为**反模式**的思想，减少了表的数量却增加了重复数据。
+
+![](http://young-py.github.io/imgs/flask5-02.png)
+
+_图像5-2. NoSQL数据库示例_
+
+这种结构的数据库为每个用户显式的存储用户角色名。重命名角色名绝对是一项昂贵的操作，可能需要更新大量的文档。
+
+但对于NoSQL数据库这并不都是坏消息。虽然有重复的数据，但是查询速度快，因为不需要连接，可以直接列出用户和他们的角色。
+
 ### 3、SQL还是NoSQL
 
-### 4、python数据库框架
+SQL数据库擅长以高效、紧凑的形式存储结构化数据。这些数据库竭尽全力保持一致性。NoSQL数据库会放低一些一致性要求，因此在性能上有更大的优势。
+
+全面分析和比较数据库类型已经超出了本教程的范围。对于中小型应用程序SQL数据库和NoSQL数据库完全可以胜任，且性能几乎差不多。
+
+### 4、Python数据库框架
+
+Python有大部分的数据库引擎包，包括开源的和商业的。Flask在可使用的数据库包上没有限制，所以你可以使用MySQL、Postgres、SQLite、Redis、MongoDB或者CouchDB中你喜欢的任何一个。
+
+如果这些还不够，也有大量的数据库抽象层包，如SQLAlchemy或MongoEngine让你像操作常规Python对象那样，而不是数据库实体表、文档或查询语句。
+
+在选择数据库框架的时候需要评估许多因素：
+
+* 易用性 
+
+如果直接比较数据库引擎和数据库抽象层，第二者明显胜出。抽象层又称作对象关系映射（ORM）或对象文档映射（ODM），提供从高级面向对象操作到底层数据库指令的透明转换。
+
+* 性能
+
+ORM和ODM的转化需要从对象域转化为数据库域，所以会有一些开销。大多数情况下，性能损耗是微不足道的，但总有例外。一般来说，ORM和ODM获得的生产力远远超过了性能下降的那部分，所以这不是一个有效的论点来完全抛弃ORM和ODM。应该关心的是选择怎样的数据库抽象层，提供可访问底层数据库中特定操作，就像本地数据库指令那样实现的抽象层最佳。
+
+* 可移植性
+
+数据库的选择必须考虑开发和生产平台。例如，如果你计划在云主机上托管应用程序，那么你应该找出提供该服务的数据库。
+
+另一方面ORM和ODM的可移植性不错。尽管一些框架只为单个数据库引擎提供抽象层，有些抽象层更高级，可以选择哪种数据库引擎且访问使用的是同一个面向对象的接口。最好的例子就是SQLAlchemy ORM，支持一组关系数据库引擎，包括流行的MySQL、Postgres和SQLite。
+
+* Flask集成
+
+选择一个集成了Flask的框架并不是必须的，但是可以不用自己写集成代码。Flask集成可以简化配置和操作，所以应该优先使用专门设计的Flask扩展包。
+
+基于这些目的，[Flask-SQLAlchemy](http://pythonhosted.org/Flask-SQLAlchemy/)将是本书示例中应该选择的数据库框架，它对[SQLAlchemy](http://www.sqlalchemy.org/)进行了封装。
 
 ### 5、使用Flask-SQLAlchemy管理数据库
+
+Flask-SQLAlchemy是一个Flask扩展，它简化了在Flask应用程序中对SQLAlchemy的使用。SQLAlchemy是一个强大的关系数据库框架，支持一些数据库后端。提供高级的ORM和底层访问数据库的本地SQL功能。
+
+和其他扩展一样，通过pip安装Flask-SQLAlchemy：
+
+    (venv) $ pip install flask-sqlalchemy
+
+在Flask-SQLAlchemy，数据库被指定为URL。表格5-1列出三个最受欢迎的数据库引擎url的格式。
+
+<img style="width:482px; height:148px;" src="http://young-py.github.io/imgs/flask5-03.png">
+
+_表格5-1. Flask-SQLAlchemy数据URLs_
+
+在这些URL中，**hostname**是指托管MySQL服务的服务器，可能是本地（localhost）又或是远程服务器。数据库服务器可以托管多个数据库，所以**database**指出要使用的数据库名。数据库需要身份验证，**username**和***password*是数据库用户凭证。
+
+注：> SQLite数据库没有服务，所以hostname、username和password可以缺省且数据库是一个磁盘文件名。
+
+应用程序数据库URL必须在Flask配置对象中的SQLALCHEMY_DATABASE_URI键中进行配置。另一个有用的选项是SQLALCHEMY_COMMIT_ON_TEARDOWN，可以设置为True来启用自动提交数据库更改在每个请求中。查阅Flask-SQLAlchemy文档获取更多其他配置选项。示例5-1展示如何初始化并配置简单的SQLite数据库。
+
+_示例5-1. hello.py：数据库配置_
+
+{% highlight python %}
+
+
+from flask.ext.sqlalchemy import SQLAlchemy
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+    'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+
+db = SQLAlchemy(app)
+
+{% endhighlight %}
+
+由`SQLAlchemy`实例化的`db`对象表示数据库且提供访问Flask-SQLAlchemy的所有功能。
+
+### **6、模型定义**
+
+**模型**是指由应用程序使用的持久化实体。在ORM的背景下，一个模型通常是一个带有属性的Python类，其属性与数据库表的列相匹配对应。Flask-SQLAlchemy数据库实例提供了一个基类以及一组辅助类和函数用于定义它的结构。表格5-1中的roles表和users表可以定义为Role模型和User模型如示例5-2所示。
+
+_示例5-2.hello.py：Role模型和User模型定义_
+
+{% highlight python %}
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True) 
+    name = db.Column(db.String(64), unique=True)
+
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+
+def __repr__(self):
+    return '<User %r>' % self.username
+
+{% endhighlight %}
+
+`__tablename__`类变量定义数据库中表的名称。如果`__tablename__`缺省Flask-SQLAlchemy会指定默认的表名，但是这些缺省名称不遵守使用复数命名的约定，所以最好是显式命名表名。其余的变量是模型的属性，被定义为`db.Column`类的实例。
+
+传给`db.Column`构造函数的第一个参数是数据库列的类型也就是模型属性的数据类型。表格5-2列出一些可用的列的类型，也是用于模型中的Python类型。
+
+<img style="width:488px; height:494px;" src="http://young-py.github.io/imgs/flask5-04.png">
+
+_表格5-2. 最常见的SQLAlchemy列类型_
+
+`db.Column`剩余的参数为每个属性指定了配置选项。表格5-3列出一些可用的选项。
+
+<img style="width:489px; height:192px;" src="http://young-py.github.io/imgs/flask5-03.png">
+
+_表格5-3. 最常见的SQLAlchemy列选项_
+
+注：> Flask-SQLAlchemy需要所有的模型定义**primary_key**列，通常命名为id。
+
+两个模型都包含了`repr()`方法来给它们显示一个可读字符串，虽然不是完全必要，不过用于调试和测试还是很不错的。
+
+
+
+
+

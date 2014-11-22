@@ -72,7 +72,7 @@
 
 <p>模板就是包含响应文本的文件，带有占位符变量的动态部分只在请求上下文中被知道。用真实的值替换变量并返回最终响应字符串，这个过程称为<strong>渲染</strong>。对于渲染模板任务，Flask使用强大的模板引擎<strong>Jinja2</strong>。</p>
 
-<h3 id="jinja2">1、Jinja2模板引擎</h3>
+<h3 id="jinja2"><strong>1、Jinja2模板引擎</strong></h3>
 
 <p>Jinja2模板最简单的形式就是一个包含响应文本的文件。示例3-1展示了Jinja2模板匹配示例2-1中<code>index()</code>视图函数响应。</p>
 
@@ -88,7 +88,7 @@
 <pre><code>&lt;h1&gt;Hello, !&lt;/h1&gt;
 </code></pre>
 
-<h5 id="section">1.1、渲染模板</h5>
+<h5 id="section"><strong>1.1、渲染模板</strong></h5>
 
 <p>Flask默认会在应用程序的<strong>templates</strong>子目录中寻找模板。下个版本的<code>hello.py</code>，你需要将之前定义的<code>index.html</code>和<code>user.html</code>模板存放到新的templates文件夹下。</p>
 
@@ -116,7 +116,7 @@
   <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 3a</code>来切换到这个版本的应用程序。</p>
 </blockquote>
 
-<h5 id="section-1">1.2、变量</h5>
+<h5 id="section-1"><strong>1.2、变量</strong></h5>
 
 <p>示例3-2的模板中的``结构引用一个变量，特殊的占位符告诉模板引擎，那个地方的值应该从模板被渲染时提供的数据中获取。</p>
 
@@ -147,7 +147,7 @@
 
 <p>完整的过滤器列表可以从Jinja2官方文档中获取。</p>
 
-<h5 id="section-2">1.3、控制结构</h5>
+<h5 id="section-2"><strong>1.3、控制结构</strong></h5>
 
 <p>Jinja2提供一些控制结构用于改变模板流。这一节用简单例子来介绍一些最有用的。</p>
 

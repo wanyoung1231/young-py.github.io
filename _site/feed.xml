@@ -8,15 +8,181 @@
     
       <item>
         <title>Flask教程 —— 数据库（一）</title>
-        <description>&lt;h3 id=&quot;sql&quot;&gt;1、SQL数据库&lt;/h3&gt;
+        <description>&lt;h3 id=&quot;section&quot;&gt;7、关系&lt;/h3&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;8、数据库操作&lt;/h3&gt;
+
+&lt;h5 id=&quot;section-2&quot;&gt;8.1、创建表&lt;/h5&gt;
+
+&lt;h5 id=&quot;section-3&quot;&gt;8.2、插入行&lt;/h5&gt;
+
+&lt;h5 id=&quot;section-4&quot;&gt;8.3、修改行&lt;/h5&gt;
+
+&lt;h5 id=&quot;section-5&quot;&gt;8.4、删除行&lt;/h5&gt;
+
+&lt;h5 id=&quot;section-6&quot;&gt;8.5、返回行&lt;/h5&gt;
+</description>
+        <pubDate>Sat, 22 Nov 2014 16:38:50 +0800</pubDate>
+        <link>/flask/2014/11/22/flask-5-2.html</link>
+        <guid isPermaLink="true">/flask/2014/11/22/flask-5-2.html</guid>
+      </item>
+    
+      <item>
+        <title>Flask教程 —— 数据库（一）</title>
+        <description>&lt;p&gt;&lt;strong&gt;数据库&lt;/strong&gt;就是有组织的存储应用程序数据，然后查询检索指定需要的那部分。大部分web应用程序都采用基于&lt;strong&gt;关系模型&lt;/strong&gt;的数据库，也称作结构化查询语言（SQL）数据库。但是最近几年面向文档数据库和键值数据库（通常称作NoSQL数据库），成为非常流行的替代者。个人推荐《七周七数据库》这本书，它对各种类型的数据库、应用场景和多种不同类型数据库配合使用有比较好的讲解。&lt;/p&gt;
+
+&lt;h3 id=&quot;sql&quot;&gt;1、SQL数据库&lt;/h3&gt;
+
+&lt;p&gt;关系数据库将数据保存在&lt;strong&gt;表&lt;/strong&gt;中来模拟应用程序中不同的实体。例如，一个订单管理应用程序数据库可能会有customers、products和orders表。&lt;/p&gt;
+
+&lt;p&gt;一个表有一个固定数量的列和一个可变的行数。列定义了数据表所代表的实体的属性。例如，customers表会有name、address、phone等列。表中的每一行定义了由所有列的值组成的实际数据元素。&lt;/p&gt;
+
+&lt;p&gt;表有种特殊列称作&lt;strong&gt;主键&lt;/strong&gt;，它持有一个惟一的标识符为表中存储的每一行。表也可以有&lt;strong&gt;外键&lt;/strong&gt;，用于引用其他表的主键。这些行之间的连接称作&lt;strong&gt;关系&lt;/strong&gt;，也是关系数据库模型的基础。&lt;/p&gt;
+
+&lt;p&gt;图像5-1展示了存储users和roles表的简单数据库图。连接两个表的线代表两个表之间的关系。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/flask5-01.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;图像5-1. 关系数据库示例&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;在这个数据库表中，roles表存储了一组所有可能的用户角色，每一个都被定义为唯一id值——也是表的主键。users表包含一组用户，同样每一个都有唯一id值。除了主键id，roles表还有name列，而users表还有username和password列。在users表中的role_id列是一个引用role表中id列的外键，以这种方式确立分配给每个用户的角色。&lt;/p&gt;
+
+&lt;p&gt;就像这个示例中看到的那样，关系数据库存储数据高效且避免重复。重命名用户角色在这个数据库中会变得异常简单，因为角色名保存在单独的地方。当roles表中的角色名发生改变，所有用户持有的role_id引用的角色会立即看到这些变化。&lt;/p&gt;
+
+&lt;p&gt;而另一方面，将数据拆分到多个表中则会变得更加复杂。生成一组用户及其角色会产生一个小问题，因为用户和用户角色需要从两张表中读，且只有&lt;strong&gt;连接&lt;/strong&gt;后才能一起出现。当需要的时候关系数据库引擎会提供支持来执行两个表的连接操作。&lt;/p&gt;
 
 &lt;h3 id=&quot;nosql&quot;&gt;2、NoSQL数据库&lt;/h3&gt;
 
+&lt;p&gt;与上一节描述相反的、非关系模型的数据库被统称为&lt;strong&gt;NoSQL&lt;/strong&gt;数据库。NoSQL数据库常见的组织方式是使用&lt;strong&gt;collections&lt;/strong&gt;代替表、&lt;strong&gt;documents&lt;/strong&gt;代替记录。NoSQL数据库的设计方式使得连接会很复杂，所以大部分都不支持这个操作。图像5-1如果用NoSQL数据库结构来表达则是这样的：列出用户及他们的角色，需要应用程序自己通过读取每个用户的role_id字段去执行连接操作，然后查找roles表。&lt;/p&gt;
+
+&lt;p&gt;图像5-2展示了更接近NoSQL数据库的设计思想。这个操作运用了一个被称为&lt;strong&gt;反模式&lt;/strong&gt;的思想，减少了表的数量却增加了重复数据。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/flask5-02.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;图像5-2. NoSQL数据库示例&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;这种结构的数据库为每个用户显式的存储用户角色名。重命名角色名绝对是一项昂贵的操作，可能需要更新大量的文档。&lt;/p&gt;
+
+&lt;p&gt;但对于NoSQL数据库这并不都是坏消息。虽然有重复的数据，但是查询速度快，因为不需要连接，可以直接列出用户和他们的角色。&lt;/p&gt;
+
 &lt;h3 id=&quot;sqlnosql&quot;&gt;3、SQL还是NoSQL&lt;/h3&gt;
 
-&lt;h3 id=&quot;python&quot;&gt;4、python数据库框架&lt;/h3&gt;
+&lt;p&gt;SQL数据库擅长以高效、紧凑的形式存储结构化数据。这些数据库竭尽全力保持一致性。NoSQL数据库会放低一些一致性要求，因此在性能上有更大的优势。&lt;/p&gt;
+
+&lt;p&gt;全面分析和比较数据库类型已经超出了本教程的范围。对于中小型应用程序SQL数据库和NoSQL数据库完全可以胜任，且性能几乎差不多。&lt;/p&gt;
+
+&lt;h3 id=&quot;python&quot;&gt;4、Python数据库框架&lt;/h3&gt;
+
+&lt;p&gt;Python有大部分的数据库引擎包，包括开源的和商业的。Flask在可使用的数据库包上没有限制，所以你可以使用MySQL、Postgres、SQLite、Redis、MongoDB或者CouchDB中你喜欢的任何一个。&lt;/p&gt;
+
+&lt;p&gt;如果这些还不够，也有大量的数据库抽象层包，如SQLAlchemy或MongoEngine让你像操作常规Python对象那样，而不是数据库实体表、文档或查询语句。&lt;/p&gt;
+
+&lt;p&gt;在选择数据库框架的时候需要评估许多因素：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;易用性 &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;如果直接比较数据库引擎和数据库抽象层，第二者明显胜出。抽象层又称作对象关系映射（ORM）或对象文档映射（ODM），提供从高级面向对象操作到底层数据库指令的透明转换。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;性能&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;ORM和ODM的转化需要从对象域转化为数据库域，所以会有一些开销。大多数情况下，性能损耗是微不足道的，但总有例外。一般来说，ORM和ODM获得的生产力远远超过了性能下降的那部分，所以这不是一个有效的论点来完全抛弃ORM和ODM。应该关心的是选择怎样的数据库抽象层，提供可访问底层数据库中特定操作，就像本地数据库指令那样实现的抽象层最佳。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;可移植性&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;数据库的选择必须考虑开发和生产平台。例如，如果你计划在云主机上托管应用程序，那么你应该找出提供该服务的数据库。&lt;/p&gt;
+
+&lt;p&gt;另一方面ORM和ODM的可移植性不错。尽管一些框架只为单个数据库引擎提供抽象层，有些抽象层更高级，可以选择哪种数据库引擎且访问使用的是同一个面向对象的接口。最好的例子就是SQLAlchemy ORM，支持一组关系数据库引擎，包括流行的MySQL、Postgres和SQLite。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Flask集成&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;选择一个集成了Flask的框架并不是必须的，但是可以不用自己写集成代码。Flask集成可以简化配置和操作，所以应该优先使用专门设计的Flask扩展包。&lt;/p&gt;
+
+&lt;p&gt;基于这些目的，&lt;a href=&quot;http://pythonhosted.org/Flask-SQLAlchemy/&quot;&gt;Flask-SQLAlchemy&lt;/a&gt;将是本书示例中应该选择的数据库框架，它对&lt;a href=&quot;http://www.sqlalchemy.org/&quot;&gt;SQLAlchemy&lt;/a&gt;进行了封装。&lt;/p&gt;
 
 &lt;h3 id=&quot;flask-sqlalchemy&quot;&gt;5、使用Flask-SQLAlchemy管理数据库&lt;/h3&gt;
+
+&lt;p&gt;Flask-SQLAlchemy是一个Flask扩展，它简化了在Flask应用程序中对SQLAlchemy的使用。SQLAlchemy是一个强大的关系数据库框架，支持一些数据库后端。提供高级的ORM和底层访问数据库的本地SQL功能。&lt;/p&gt;
+
+&lt;p&gt;和其他扩展一样，通过pip安装Flask-SQLAlchemy：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv) $ pip install flask-sqlalchemy
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在Flask-SQLAlchemy，数据库被指定为URL。表格5-1列出三个最受欢迎的数据库引擎url的格式。&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;width:482px; height:148px;&quot; src=&quot;http://young-py.github.io/imgs/flask5-03.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;表格5-1. Flask-SQLAlchemy数据URLs&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;在这些URL中，&lt;strong&gt;hostname&lt;/strong&gt;是指托管MySQL服务的服务器，可能是本地（localhost）又或是远程服务器。数据库服务器可以托管多个数据库，所以&lt;strong&gt;database&lt;/strong&gt;指出要使用的数据库名。数据库需要身份验证，&lt;strong&gt;username&lt;/strong&gt;和&lt;em&gt;**password&lt;/em&gt;是数据库用户凭证。&lt;/p&gt;
+
+&lt;p&gt;注：&amp;gt; SQLite数据库没有服务，所以hostname、username和password可以缺省且数据库是一个磁盘文件名。&lt;/p&gt;
+
+&lt;p&gt;应用程序数据库URL必须在Flask配置对象中的SQLALCHEMY_DATABASE_URI键中进行配置。另一个有用的选项是SQLALCHEMY_COMMIT_ON_TEARDOWN，可以设置为True来启用自动提交数据库更改在每个请求中。查阅Flask-SQLAlchemy文档获取更多其他配置选项。示例5-1展示如何初始化并配置简单的SQLite数据库。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例5-1. hello.py：数据库配置&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.sqlalchemy&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLAlchemy&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;basedir&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;abspath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__file__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;SQLALCHEMY_DATABASE_URI&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;\
+    &lt;span class=&quot;s&quot;&gt;&amp;#39;sqlite:///&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;basedir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;data.sqlite&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;SQLALCHEMY_COMMIT_ON_TEARDOWN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLAlchemy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;由&lt;code&gt;SQLAlchemy&lt;/code&gt;实例化的&lt;code&gt;db&lt;/code&gt;对象表示数据库且提供访问Flask-SQLAlchemy的所有功能。&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;6、模型定义&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;模型&lt;/strong&gt;是指由应用程序使用的持久化实体。在ORM的背景下，一个模型通常是一个带有属性的Python类，其属性与数据库表的列相匹配对应。Flask-SQLAlchemy数据库实例提供了一个基类以及一组辅助类和函数用于定义它的结构。表格5-1中的roles表和users表可以定义为Role模型和User模型如示例5-2所示。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例5-2.hello.py：Role模型和User模型定义&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;__tablename__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;roles&amp;#39;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Integer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;primary_key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unique&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__repr__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;lt;Role &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%r&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;gt;&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;__tablename__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;users&amp;#39;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Integer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;primary_key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unique&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__repr__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;lt;User &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%r&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;gt;&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code&gt;__tablename__&lt;/code&gt;类变量定义数据库中表的名称。如果&lt;code&gt;__tablename__&lt;/code&gt;缺省Flask-SQLAlchemy会指定默认的表名，但是这些缺省名称不遵守使用复数命名的约定，所以最好是显式命名表名。其余的变量是模型的属性，被定义为&lt;code&gt;db.Column&lt;/code&gt;类的实例。&lt;/p&gt;
+
+&lt;p&gt;传给&lt;code&gt;db.Column&lt;/code&gt;构造函数的第一个参数是数据库列的类型也就是模型属性的数据类型。表格5-2列出一些可用的列的类型，也是用于模型中的Python类型。&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;width:488px; height:494px;&quot; src=&quot;http://young-py.github.io/imgs/flask5-04.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;表格5-2. 最常见的SQLAlchemy列类型&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;db.Column&lt;/code&gt;剩余的参数为每个属性指定了配置选项。表格5-3列出一些可用的选项。&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;width:489px; height:192px;&quot; src=&quot;http://young-py.github.io/imgs/flask5-03.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;表格5-3. 最常见的SQLAlchemy列选项&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;注：&amp;gt; Flask-SQLAlchemy需要所有的模型定义&lt;strong&gt;primary_key&lt;/strong&gt;列，通常命名为id。&lt;/p&gt;
+
+&lt;p&gt;两个模型都包含了&lt;code&gt;repr()&lt;/code&gt;方法来给它们显示一个可读字符串，虽然不是完全必要，不过用于调试和测试还是很不错的。&lt;/p&gt;
+
 </description>
         <pubDate>Wed, 19 Nov 2014 18:31:12 +0800</pubDate>
         <link>/flask/2014/11/19/flask-5-1.html</link>
@@ -25,7 +191,7 @@
     
       <item>
         <title>Flask教程 —— Web表单（下）</title>
-        <description>&lt;h3 id=&quot;section&quot;&gt;4、视图函数中的表单操作&lt;/h3&gt;
+        <description>&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;4、视图函数中的表单操作&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;在新版本的&lt;code&gt;hello.py&lt;/code&gt;中，&lt;code&gt;index()&lt;/code&gt;视图函数渲染表单并接收其数据。示例4-4展示更新后的&lt;code&gt;index()&lt;/code&gt;视图函数。&lt;/p&gt;
 
@@ -70,7 +236,7 @@
 
 &lt;p&gt;&lt;em&gt;图像4-3. 验证错误后的web表单&lt;/em&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;sessions&quot;&gt;5、重定向和用户sessions&lt;/h3&gt;
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;5、重定向和用户会话&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;上个版本的&lt;code&gt;hello.py&lt;/code&gt;有个问题。如果你输入你的名字并提交它，然后单击浏览器中刷新按钮，你将得到一个警告要求再次确认之前提交的表单。因为请求刷新页面的时候浏览器重复了上一次发送的请求。当上一次发送的是一个带有表单数据的&lt;code&gt;POST&lt;/code&gt;请求，刷新页面会导致重复的表单提交，事实上这些并不是我们想看到的。&lt;/p&gt;
 
@@ -114,7 +280,7 @@
 
 &lt;p&gt;这个版本的应用程序，你可以在你的浏览器中刷新页面看到你预期的行为。&lt;/p&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;6、消息提示&lt;/h3&gt;
+&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;6、消息提示&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;有时候在请求完成后给用户一个提示消息是非常有用的。可以是一个确认消息、警告消息或错误消息。典型的示例就是当你在网站提交登录表单出现错误的时候服务器响应渲染登录表单并伴随一条消息，告知你的用户名或密码无效。&lt;/p&gt;
 
@@ -191,7 +357,7 @@
 &lt;pre&gt;&lt;code&gt;(venv) $ pip install flask-wtf
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&quot;csrf&quot;&gt;1、跨站请求伪造（CSRF）保护&lt;/h3&gt;
+&lt;h3 id=&quot;csrf&quot;&gt;&lt;strong&gt;1、跨站请求伪造（CSRF）保护&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;默认情况下，Flask-WTF保护各种形式对跨站请求伪造（CSRF）攻击。一个CSRF攻击发生在一个恶意网站发送请求给受害者登录的其他网站。&lt;/p&gt;
 
@@ -210,7 +376,7 @@
   &lt;p&gt;注：为了提高安全性，密钥应该存储在一个环境变量中，而不是嵌入到代码中。这个会在第7章中描述。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h3 id=&quot;section&quot;&gt;2、表单类&lt;/h3&gt;
+&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;2、表单类&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;使用Flask-WTF时，每个web表单是由继承自&lt;code&gt;Form&lt;/code&gt;类的子类来展现的。该类在表单中定义了一组表单域，每个都表示为一个对象。每个表单域都可以连接到一个或多个&lt;strong&gt;validators&lt;/strong&gt;；&lt;code&gt;validators&lt;/code&gt;是一个用于检查用户提交的输入是否合法的函数。&lt;/p&gt;
 
@@ -246,7 +412,7 @@
 
 &lt;p&gt;&lt;img style=&quot;width:494px; height:337px;&quot; src=&quot;http://young-py.github.io/imgs/flask4-02.png&quot; /&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;html&quot;&gt;3、HTML渲染的表单&lt;/h3&gt;
+&lt;h3 id=&quot;html&quot;&gt;&lt;strong&gt;3、HTML渲染的表单&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;表单域是可调用的，调用时从模板渲染它们到HTML。假设视图函数传递一个参数名为&lt;code&gt;form&lt;/code&gt;的&lt;code&gt;NameForm&lt;/code&gt;实例给模板，模板就会生成一个简单的HTML表单，如下所示：&lt;/p&gt;
 
@@ -293,7 +459,7 @@
     
       <item>
         <title>Flask教程 —— 模板（下）</title>
-        <description>&lt;h3 id=&quot;section&quot;&gt;4、链接&lt;/h3&gt;
+        <description>&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;4、链接&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;任何应用程序都有多个路由，必然需要包含链接来连接不同的页面，例如导航栏。&lt;/p&gt;
 
@@ -311,7 +477,7 @@
 
 &lt;p&gt;&lt;code&gt;url_for()&lt;/code&gt;可以不限参数的使用动态路由。函数会增加扩展参数给查询字符串。例如&lt;code&gt;url_for(&#39;index&#39;, page=2)&lt;/code&gt;会返回&lt;code&gt;/?page=2&lt;/code&gt;。&lt;/p&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;5、静态文件&lt;/h3&gt;
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;5、静态文件&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;Web应用程序不仅仅是由Python代码和模板组成。大部分的应用程序会使用静态文件，例如从HTML代码中引用的图片、JavaScript源文件和CSS。&lt;/p&gt;
 
@@ -337,7 +503,7 @@
   &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 3d&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h3 id=&quot;flask-moment&quot;&gt;6、Flask-Moment中的本地化日期和时间&lt;/h3&gt;
+&lt;h3 id=&quot;flask-moment&quot;&gt;&lt;strong&gt;6、Flask-Moment中的本地化日期和时间&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;当用户工作在世界各个不同的地方，在web应用程序中处理日期和时间就变成了一个比较重要的问题。&lt;/p&gt;
 
@@ -412,7 +578,7 @@
     
       <item>
         <title>Flask教程 —— 模板（中）</title>
-        <description>&lt;h3 id=&quot;twitter-bootstrapflask-bootstrap&quot;&gt;2、集成Twitter Bootstrap的Flask-Bootstrap&lt;/h3&gt;
+        <description>&lt;h3 id=&quot;twitter-bootstrapflask-bootstrap&quot;&gt;&lt;strong&gt;2、集成Twitter Bootstrap的Flask-Bootstrap&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;&lt;strong&gt;Bootstrap&lt;/strong&gt;是Twitter的一个开源框架，提供用户交互组件来创建一个清新且有吸引力的web页面，并兼容所有现代web浏览器。&lt;/p&gt;
 
@@ -498,7 +664,7 @@
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;script &lt;/span&gt;&lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;src=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;my-script.js&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/script&amp;gt;&lt;/span&gt; 
 { % endblock %}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;h3 id=&quot;section&quot;&gt;3、自定义错误页面&lt;/h3&gt;
+&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;3、自定义错误页面&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;当你输入错误路径在你的浏览器地址栏，你会得到404错误代码页面。目前的错误页面很普通也没有吸引力，且没有一致的使用Bootstrap页面。&lt;/p&gt;
 
@@ -608,7 +774,7 @@
 
 &lt;p&gt;模板就是包含响应文本的文件，带有占位符变量的动态部分只在请求上下文中被知道。用真实的值替换变量并返回最终响应字符串，这个过程称为&lt;strong&gt;渲染&lt;/strong&gt;。对于渲染模板任务，Flask使用强大的模板引擎&lt;strong&gt;Jinja2&lt;/strong&gt;。&lt;/p&gt;
 
-&lt;h3 id=&quot;jinja2&quot;&gt;1、Jinja2模板引擎&lt;/h3&gt;
+&lt;h3 id=&quot;jinja2&quot;&gt;&lt;strong&gt;1、Jinja2模板引擎&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;Jinja2模板最简单的形式就是一个包含响应文本的文件。示例3-1展示了Jinja2模板匹配示例2-1中&lt;code&gt;index()&lt;/code&gt;视图函数响应。&lt;/p&gt;
 
@@ -624,7 +790,7 @@
 &lt;pre&gt;&lt;code&gt;&amp;lt;h1&amp;gt;Hello, !&amp;lt;/h1&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h5 id=&quot;section&quot;&gt;1.1、渲染模板&lt;/h5&gt;
+&lt;h5 id=&quot;section&quot;&gt;&lt;strong&gt;1.1、渲染模板&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;Flask默认会在应用程序的&lt;strong&gt;templates&lt;/strong&gt;子目录中寻找模板。下个版本的&lt;code&gt;hello.py&lt;/code&gt;，你需要将之前定义的&lt;code&gt;index.html&lt;/code&gt;和&lt;code&gt;user.html&lt;/code&gt;模板存放到新的templates文件夹下。&lt;/p&gt;
 
@@ -652,7 +818,7 @@
   &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 3a&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h5 id=&quot;section-1&quot;&gt;1.2、变量&lt;/h5&gt;
+&lt;h5 id=&quot;section-1&quot;&gt;&lt;strong&gt;1.2、变量&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;示例3-2的模板中的``结构引用一个变量，特殊的占位符告诉模板引擎，那个地方的值应该从模板被渲染时提供的数据中获取。&lt;/p&gt;
 
@@ -683,7 +849,7 @@
 
 &lt;p&gt;完整的过滤器列表可以从Jinja2官方文档中获取。&lt;/p&gt;
 
-&lt;h5 id=&quot;section-2&quot;&gt;1.3、控制结构&lt;/h5&gt;
+&lt;h5 id=&quot;section-2&quot;&gt;&lt;strong&gt;1.3、控制结构&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;Jinja2提供一些控制结构用于改变模板流。这一节用简单例子来介绍一些最有用的。&lt;/p&gt;
 
@@ -1141,128 +1307,6 @@ optional arguments:
         <pubDate>Tue, 19 Aug 2014 01:26:38 +0800</pubDate>
         <link>/flask/2014/08/19/flask-2-1.html</link>
         <guid isPermaLink="true">/flask/2014/08/19/flask-2-1.html</guid>
-      </item>
-    
-      <item>
-        <title>Flask教程 —— 安装</title>
-        <description>&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;1、安装虚拟环境&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;安装&lt;strong&gt;Flask&lt;/strong&gt;最方便的方法就是使用虚拟环境。虚拟环境是在Python解释器上的一个私有复制，你可以在一个隔绝的环境下安装packages，不会影响到你系统中全局的Python解释器。&lt;/p&gt;
-
-&lt;p&gt;虚拟环境非常有用，因为它可以防止系统出现包管理混乱和版本冲突的问题。为每个应用程序创建一个虚拟环境可以确保应用程序只能访问它们自己使用的包，从而全局解释器只作为一个源且依然整洁干净，更多的虚拟环境可以被创建。另一个好处是，虚拟环境不需要管理员权限。&lt;/p&gt;
-
-&lt;p&gt;虚拟环境由第三方程序&lt;strong&gt;virtualenv&lt;/strong&gt;创建。检查在你的系统中是否已经安装，可以输入以下命令：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ virtualenv --version
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果你得到一个错误，你需要安装该程序。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;注：Python 3.3增加了本地支持的虚拟环境通过venv模块和pyvenv命令。pyenv可以用来代替virtualenv，但是注意通过pyvenv创建的虚拟环境不包含pip，需要手动安装。这个限制会在Python 3.4中移除，到时候pyvenv可以当作完整的virtualenv替代品。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;大多数Linux发行版都提供一个virtualenv包。例如，Ubuntu用户就可以使用以下命令进行安装：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo apt-get install python-virtualenv
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果你使用的是Mac OSX，你可以使用easy_install安装virtualenv：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ sudo easy_install virtualenv
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果你使用的是Microsoft Windows或者是任何没有提供官方virtualenv包的操作系统，接下来你会有一个稍微复杂的安装过程。&lt;/p&gt;
-
-&lt;p&gt;使用你的web浏览器，导航到&lt;a href=&quot;https://bitbucket.org/pypa/setuptools&quot;&gt;https://bitbucket.org/pypa/setuptools&lt;/a&gt;，setuptools安装程序的主页，找到链接下载一个叫ez_setup.py安装程序脚本。保存这个文件到你电脑的临时文件夹中，然后在那个目录下运行以下命令：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ python ez_setup.py
-$ easy_install virtualenv
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;注：前一个命令必须由管理员权限的账户发出。在Microsoft Windows，以管理员身份选项运行命令提示符窗口。在基于Unix的系统中，两个安装命令前面必须加上&lt;code&gt;sudo&lt;/code&gt;或作为&lt;code&gt;root&lt;/code&gt;用户执行。一旦安装完毕，virtualenv程序可以通过普通账户执行。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;现在你需要创建文件夹用来组织从GitHub仓库中获取的示例代码。在十三页中《如何使用示例代码》讨论的那样，最方便的方法就是使用Git客户端直接从Github中检出代码。下面的命令从GitHub中下载示例代码并初始化应用程序文件目录为“1a”版本，初始版本的应用程序：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ git clone https://github.com/miguelgrinberg/flasky.git
-$ cd flasky
-$ git checkout 1a
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;下一步就是使用virtualenv命令创建Python虚拟环境到flasky文件夹中。这个命令有一个需要的参数：虚拟环境的名称。一个指定名称的文件夹和在里面的、与虚拟环境相关的所有文件会在当前目录下被创建。一般给虚拟环境约定命名为venv：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ virtualenv venv
-New python executable in venv/bin/python2.7
-Also creating executable in venv/bin/python
-Installing setuptools............done.
-Installing pip...............done.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;现在你有一个venv文件夹在flasky文件夹里面和一个全新的虚拟环境，包含一个私有的Python解释器。使用虚拟环境的时候，你必须“激活”它。如果你是使用bash命令行工具(Linux和Mac OSX用户)，你可以使用这个命令激活虚拟环境：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ source venv/bin/activate
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果你是使用Microsoft Windows，激活命令是：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ venv\Scripts\activate
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;当虚拟环境被激活了，Python解释器的位置会被添加到&lt;code&gt;PATH&lt;/code&gt;中，但是这个改动并不是永久的；它只影响当前命令会话。提醒一下，你激活了虚拟环境，该激活命令会将环境的名称包含在命令提示符里面：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv)$ 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;当你在虚拟环境中完成工作并想回到全局Python解释器，在命令提示符中输入&lt;code&gt;deactivate&lt;/code&gt;就可以了。&lt;/p&gt;
-
-&lt;h3 id=&quot;pippython&quot;&gt;&lt;strong&gt;2、使用pip安装python包&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;大多数的Python包是通过&lt;strong&gt;pip&lt;/strong&gt;程序安装的，在创建虚拟环境的时候virtualenv会自动添加进去。当一个虚拟环境被激活后，pip程序的位置会被添加到&lt;code&gt;PATH&lt;/code&gt;中。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;注：如果你使用pyvenv创建虚拟环境在Python 3.3中，则必须手动安装pip。安装指令在pip网站上可以找到。在Python 3.4下，pyvenv会自动安装pip。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;安装Flask到虚拟环境中，使用下面的命令：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv)$ pip install flask
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;通过这个命令，Flask和它的依赖集都会安装到虚拟环境中。你可以验证Flask是否正确安装通过启动Python解释器并试着导入它：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv)$ python
-&amp;gt;&amp;gt;&amp;gt; import flask
-&amp;gt;&amp;gt;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果需要安装的包比较多的时候，这样做会比较繁琐，我们还有一键安装的方法。首先新建一个文本文件，如：&lt;code&gt;requirements.txt&lt;/code&gt;，然后将你需要安装的包名保存到该文件中(根据自己的需要)，如下：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;Babel==1.3
-Flask==0.10.1
-Flask-Login==0.2.7
-Flask-SQLAlchemy==1.0
-Flask-WTF==0.9.3
-Jinja2==2.7.1
-SQLAlchemy==0.8.2
-WTForms==1.0.5
-Werkzeug==0.9.4
-psycopg2==2.5.1
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;最后你只需要输入以下命令，所有需要的包就可以全部安装好了：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;pip install -r requirements.txt
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果没有出现错误，祝贺你：你可以准备进入下一章节，接着你就可以写你的第一个web应用程序了。&lt;/p&gt;
-
-</description>
-        <pubDate>Sat, 16 Aug 2014 19:32:38 +0800</pubDate>
-        <link>/flask/2014/08/16/flask-1-1.html</link>
-        <guid isPermaLink="true">/flask/2014/08/16/flask-1-1.html</guid>
       </item>
     
   </channel>

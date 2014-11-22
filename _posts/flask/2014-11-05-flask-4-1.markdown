@@ -16,7 +16,7 @@ Flask-WTF和它的依赖集可以通过pip来安装：
 
     (venv) $ pip install flask-wtf
 
-### 1、跨站请求伪造（CSRF）保护
+### **1、跨站请求伪造（CSRF）保护**
 
 默认情况下，Flask-WTF保护各种形式对跨站请求伪造（CSRF）攻击。一个CSRF攻击发生在一个恶意网站发送请求给受害者登录的其他网站。
 
@@ -37,7 +37,7 @@ app.config['SECRET_KEY'] = 'hard to guess string'
 
 >注：为了提高安全性，密钥应该存储在一个环境变量中，而不是嵌入到代码中。这个会在第7章中描述。
 
-### 2、表单类
+### **2、表单类**
 
 使用Flask-WTF时，每个web表单是由继承自`Form`类的子类来展现的。该类在表单中定义了一组表单域，每个都表示为一个对象。每个表单域都可以连接到一个或多个**validators**；`validators`是一个用于检查用户提交的输入是否合法的函数。
 
@@ -75,7 +75,7 @@ _表格4-2. WTForms验证_
 
 <img style="width:494px; height:337px;" src="http://young-py.github.io/imgs/flask4-02.png">
 
-### 3、HTML渲染的表单
+### **3、HTML渲染的表单**
 
 表单域是可调用的，调用时从模板渲染它们到HTML。假设视图函数传递一个参数名为`form`的`NameForm`实例给模板，模板就会生成一个简单的HTML表单，如下所示：
     
