@@ -90,7 +90,7 @@ Flask-SQLAlchemy是一个Flask扩展，它简化了在Flask应用程序中对SQL
 
 _表格5-1. Flask-SQLAlchemy数据URLs_
 
-在这些URL中，**hostname**是指托管MySQL服务的服务器，可能是本地（localhost）又或是远程服务器。数据库服务器可以托管多个数据库，所以**database**指出要使用的数据库名。数据库需要身份验证，**username**和***password*是数据库用户凭证。
+在这些URL中，**hostname**是指托管MySQL服务的服务器，可能是本地（localhost）又或是远程服务器。数据库服务器可以托管多个数据库，所以**database**指出要使用的数据库名。数据库需要身份验证，**username**和**password**是数据库用户凭证。
 
 注：> SQLite数据库没有服务，所以hostname、username和password可以缺省且数据库是一个磁盘文件名。
 

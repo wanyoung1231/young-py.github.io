@@ -28,7 +28,7 @@
       </item>
     
       <item>
-        <title>Flask教程 —— 数据库（一）</title>
+        <title>Flask教程 —— 数据库（上）</title>
         <description>&lt;p&gt;&lt;strong&gt;数据库&lt;/strong&gt;就是有组织的存储应用程序数据，然后查询检索指定需要的那部分。大部分web应用程序都采用基于&lt;strong&gt;关系模型&lt;/strong&gt;的数据库，也称作结构化查询语言（SQL）数据库。但是最近几年面向文档数据库和键值数据库（通常称作NoSQL数据库），成为非常流行的替代者。个人推荐《七周七数据库》这本书，它对各种类型的数据库、应用场景和多种不同类型数据库配合使用有比较好的讲解。&lt;/p&gt;
 
 &lt;h3 id=&quot;sql&quot;&gt;1、SQL数据库&lt;/h3&gt;
@@ -121,7 +121,7 @@
 
 &lt;p&gt;&lt;em&gt;表格5-1. Flask-SQLAlchemy数据URLs&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;在这些URL中，&lt;strong&gt;hostname&lt;/strong&gt;是指托管MySQL服务的服务器，可能是本地（localhost）又或是远程服务器。数据库服务器可以托管多个数据库，所以&lt;strong&gt;database&lt;/strong&gt;指出要使用的数据库名。数据库需要身份验证，&lt;strong&gt;username&lt;/strong&gt;和&lt;em&gt;**password&lt;/em&gt;是数据库用户凭证。&lt;/p&gt;
+&lt;p&gt;在这些URL中，&lt;strong&gt;hostname&lt;/strong&gt;是指托管MySQL服务的服务器，可能是本地（localhost）又或是远程服务器。数据库服务器可以托管多个数据库，所以&lt;strong&gt;database&lt;/strong&gt;指出要使用的数据库名。数据库需要身份验证，&lt;strong&gt;username&lt;/strong&gt;和&lt;strong&gt;password&lt;/strong&gt;是数据库用户凭证。&lt;/p&gt;
 
 &lt;p&gt;注：&amp;gt; SQLite数据库没有服务，所以hostname、username和password可以缺省且数据库是一个磁盘文件名。&lt;/p&gt;
 
