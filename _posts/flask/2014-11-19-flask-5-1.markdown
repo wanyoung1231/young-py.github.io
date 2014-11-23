@@ -152,7 +152,7 @@ _表格5-2. 最常见的SQLAlchemy列类型_
 
 `db.Column`剩余的参数为每个属性指定了配置选项。表格5-3列出一些可用的选项。
 
-<img style="width:489px; height:192px;" src="http://young-py.github.io/imgs/flask5-03.png">
+<img style="width:489px; height:192px;" src="http://young-py.github.io/imgs/flask5-05.png">
 
 _表格5-3. 最常见的SQLAlchemy列选项_
 

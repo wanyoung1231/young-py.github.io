@@ -174,7 +174,7 @@
 
 &lt;p&gt;&lt;code&gt;db.Column&lt;/code&gt;剩余的参数为每个属性指定了配置选项。表格5-3列出一些可用的选项。&lt;/p&gt;
 
-&lt;p&gt;&lt;img style=&quot;width:489px; height:192px;&quot; src=&quot;http://young-py.github.io/imgs/flask5-03.png&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;width:489px; height:192px;&quot; src=&quot;http://young-py.github.io/imgs/flask5-05.png&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;表格5-3. 最常见的SQLAlchemy列选项&lt;/em&gt;&lt;/p&gt;
 
