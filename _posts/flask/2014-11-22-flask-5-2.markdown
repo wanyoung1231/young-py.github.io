@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Flask教程 —— 数据库（一）"
+title:  "Flask教程 —— 数据库（中）"
 date:   2014-11-22 08:38:50
 categories: flask
 author: young
@@ -8,14 +8,198 @@ author: young
 
 ### 7、关系
 
+关系数据库通过使用**关系**在不同的表中建立连接。图像5-1的关系图表达了用户和用户角色之间的简单关系。这个角色和用户是**一对多**关系，因为一个角色可以从属于多个用户，而一个用户只能拥有一个角色。
+
+示例5-3的模型类展示了图像5-1中表达的一对多关系。
+
+_示例5-3. hello.py：关系_
+
+{% highlight python %}
+
+class Role(db.Model): 
+    # ...
+    users = db.relationship('User', backref='role')
+
+class User(db.Model): 
+    # ...
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+
+{% endhighlight %}
+
+就像图像5-1中看到的那样，关系通过使用外键来连接两行。添加给`User`模型的`role_id`列被定义为外键，且建立关系。`db.ForeignKey()`的参数`roles.id`指定的列应该理解为在`roles`表的行中持有id值的列。
+
+添加到`Role`模型的`users`属性表现了关系的面向对象的观点。给定`Role`类的实例，`users`属性会返回一组连接到该角色的用户。指定给`db.relationship()`的第一个参数表明模型中关系的另一边。如果类还未定义，这个模型可以作为字符串提供。
+
+>注意：之前在segmentdefault中遇到的问题，后来粗略阅读了SQLAlchemy的源码。ForeignKey类的`column`接收三种类型的参数，一种是“模型名.属性名”；一种是“表名.列名”，最后一种没看明白，下次试着用一下。
+
+`db.relationship()`的`backref`参数通过给`User`模型增加`role`属性来定义反向关系。这个属性可以替代`role_id`访问`Role`模型，是作为对象而不是外键。
+
+大多数情况下`db.relationship()`可以定位自己的外键关系，但是有时候不能确定哪个列被用作外键。例如，如果`User`模型有两个或更多列被定义为`Role`的外键，SQLAlchemy将不知道使用两个中的哪一个。每当外键配置模棱两可的时候，就必须使用额外参数`db.relationship()`。表格5-4列出一些常用配置选项用于定义关系。
+
+_表格5-4. 常用SQLAlchemy关系选项_
+
+<img style="width:570px; height:292px;" src="http://young-py.github.io/imgs/flask5-06.png">
+
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 5a`来切换到这个版本的应用程序。
+
+除了**一对多**关系还有其他种类关系。**一对一**关系可以表述为前面描述的一对多关系，只要将`db.relationship()`中的`uselist`选项设置为`False`，“多”就变为“一”了。**多对一**关系也可表示为将表反转后的一对多关系，或表示为外键和`db.relationship()`定义在“多”那边。最复杂的关系类型，**多对多**，需要一个被称作**关联表**的额外表。你将在第十二章学习多对多关系。
+
 ### 8、数据库操作
+
+根据图像5-1的数据库图，模型已经完全配置完且准备好使用。学习怎样使用模型的最好方式就是使用Python shell。以下部分将介绍最常见的数据库操作。
 
 ##### 8.1、创建表
 
+首先要做的第一件事情就是指示Flask-SQLAlchemy基于模型类创建数据库。`db.create_all()`函数会完成这些：
+
+    (venv) $ python hello.py shell 
+    >>> from hello import db
+    >>> db.create_all()
+
+如果你检查应用程序目录，你会发现名为`data.sqlite`的新文件，SQLite数据库名在配置中给出。如果数据库已存在`db.create_all()`函数不会重新创建或更新数据库表。这会非常的不方便当模型被修改且更改需要应用到现有的数据库时。更新现有的数据库表的蛮力解决方案是先删除旧的表：
+
+    >>> db.drop_all()
+    >>> db.create_all()
+
+不幸的是,这种方法有个不受欢迎的副作用就是摧毁旧的数据库中的所有数据。更新数据库问题的解决方案会在这章快结束的时候介绍。
+
 ##### 8.2、插入行
+
+下面的示例会创建新的角色和用户：
+
+    >>> from hello import Role, User
+    >>> admin_role = Role(name='Admin')
+    >>> mod_role = Role(name='Moderator')
+    >>> user_role = Role(name='User')
+    >>> user_john = User(username='john', role=admin_role) 
+    >>> user_susan = User(username='susan', role=user_role) 
+    >>> user_david = User(username='david', role=user_role)
+
+模型的构造函数接受模型属性的初始值作为关键字参数。注意，甚至可以使用`role`属性，即使它不是一个真正的数据库列，而是一对多关系的高级表示。这些新对象的`id`属性没有显式设置：主键由Flask-SQLAlchemy来管理。到目前为止对象只存于Python中，他们还没有被写入数据库。因为他们的`id`值尚未分配：
+
+    >>> print(admin_role.id) None
+    >>> print(mod_role.id) None
+    >>> print(user_role.id) None
+
+修改数据库的操作由Flask-SQLAlchemy提供的`db.session`数据库**会话**来管理。准备写入到数据库中的对象必须添加到会话中：
+
+    >>> db.session.add(admin_role)
+    >>> db.session.add(mod_role)
+    >>> db.session.add(user_role)
+    >>> db.session.add(user_john)
+    >>> db.session.add(user_susan)
+    >>> db.session.add(user_david)
+
+或，更简洁的：
+    
+    >>> db.session.add_all([admin_role, mod_role, user_role,
+    ...     user_john, user_susan, user_david])
+
+为了写对象到数据库，需要通过它的`commit()`方法来**提交**会话：
+
+    >>> db.session.commit()
+
+再次检查`id`属性；这个时候它们都已经被设置好了：
+
+    >>> print(admin_role.id) 
+    1
+    >>> print(mod_role.id)
+    2
+    >>> print(user_role.id) 
+    3
+
+>注：`db.session`数据库会话和第四章讨论的Flask会话没有任何联系。数据库会话也叫**事务**。
+
+数据库会话在数据库**一致性**上是非常有用的。提交操作会**原子性**地将所有添加到会话中的对象写入数据库。如果在写入的过程发生错误，会将整个会话丢弃。如果你总是在一个会话提交相关修改，你必须保证避免因部分更新导致的数据库不一致的情况。
+
+>注：数据库会话也可以**回滚**。如果调用`db.session.rollback()`，任何添加到数据库会话中的对象都会恢复到它们曾经在数据库中的状态。
 
 ##### 8.3、修改行
 
+数据库会话中的`add()`方法同样可以用于更新模型。继续在同一shell会话中，下面的示例重命名“Admin”角色为“Administrator”：
+    
+    >>> admin_role.name = 'Administrator'
+    >>> db.session.add(admin_role)
+    >>> db.session.commit()
+
+>注意：不过貌似我们在做更新操作的时候都不使用`db.session.add()`，而是直接使用`db.session.commit()`来提交事务。
+
 ##### 8.4、删除行
 
+数据库会话同样有`delete()`方法。下面的示例从数据库中删除“Moderator”角色：
+
+    >>> db.session.delete(mod_role)
+    >>> db.session.commit()
+
+注意删除，和插入更新一样，都是在数据库会话提交后执行。
+
 ##### 8.5、返回行
+
+Flask-SQLAlchemy为每个模型类创建一个**query**对象。最基本的查询模型是返回对应的表的全部内容：
+
+    >>> Role.query.all()
+    [<Role u'Administrator'>, <Role u'User'>]
+    >>> User.query.all()
+    [<User u'john'>, <User u'susan'>, <User u'david'>]
+
+使用**过滤器**可以配置查询对象去执行更具体的数据库搜索。下面的例子查找所有被分配“User”角色的用户：
+
+    >>> User.query.filter_by(role=user_role).all()
+    [<User u'susan'>, <User u'david'>]
+
+对于给定的查询还可以检查SQLAlchemy生成的原生SQL查询，并将查询对象转换为一个字符串：
+
+    >>> str(User.query.filter_by(role=user_role))
+    'SELECT users.id AS users_id, users.username AS users_username,
+    users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id'
+
+如果你退出shell会话，在前面的示例中创建的对象将不能作为Python对象而存在，但可继续作为行记录存在各自的数据库表中。如果你开始一个全新的shell会话，你必须从它们的数据库行中重新创建Python对象。下面的示例执行查询来加载名字为“User”的用户角色。
+
+    >>> user_role = Role.query.filter_by(name='User').first()
+
+过滤器如`filter_by()`通过`query`对象来调用，且返回经过提炼后的`query`。多个过滤器可以依次调用直到需要的查询配置结束为止。
+
+表格5-5展示一些查询中常用的过滤器。完整的列表参阅[SQLAlchemy文档](http://docs.sqlalchemy.org/)。
+
+_表格5-5.常用SQLAlchemy查询过滤器_
+
+<img style="width:516px; height:198px;" src="http://young-py.github.io/imgs/flask5-07.png">
+
+在需要的过滤器已经全部运用于`query`后，调用`all()`会触发`query`执行并返回一组结果，但是除了`all()`以外还有其他方式可以触发执行。表格5-6.展示其他查询执行方法。
+
+_表格5-6.常用SQLAlchemy查询执行器_
+
+<img style="width:560px; height:224px;" src="http://young-py.github.io/imgs/flask5-08.png">
+
+关系的原理类似于查询。下面的示例从两边查询角色和用户之间的一对多关系：
+
+    >>> users = user_role.users
+    >>> users
+    [<User u'susan'>, <User u'david'>]
+    >>> users[0].role
+    <Role u'User'>
+
+此处的`user_role.users`查询有点小问题。当`user_role.users`表达式在内部调用`all()`时隐式查询执行来返回用户的列表。因为查询对象是隐藏的，是不可能通过附加查询过滤器提炼出来。在这个特定的例子中，它可能是有用的用于按字母排列顺序返回用户列表。在示例5-4中，被`lazy = 'dynamic'`参数修改过的关系配置的查询时不会自动执行的。 
+
+_示例5-4. app/models.py：动态关系_
+
+{% highlight python %}
+
+class Role(db.Model): 
+    # ...
+    users = db.relationship('User', backref='role', lazy='dynamic') 
+    # ...
+
+{% endhighlight %}
+
+用这种方式配置关系，`user_roles.user`查询还没有执行，所以可以给它增加过滤器：
+    
+    >>> user_role.users.order_by(User.username).all()
+    [<User u'david'>, <User u'susan'>]
+    >>> user_role.users.count()
+    2
+
+
+
+
+
