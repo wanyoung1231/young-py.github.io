@@ -1,0 +1,201 @@
+---
+layout: post
+title:  "Flask教程 —— 大型应用程序结构（上）"
+date:   2014-11-28 15:48:27
+categories: flask
+author: young
+---
+
+虽然小型web应用程序存储在一个单一的脚本可以很方便，但这种方法不能很好地扩展。随着应用程序变得复杂，在单个大的源文件中处理会变得问题重重。
+
+与大多数其他web框架不同，Flask不施加特定的大型项目组织；应用程序的结构完全交给开发人员。在这一章，一个可能的方式来组织一个大型应用程序包和模块。这种结构将用于书中其余的例子。
+
+### **1、项目结构**
+
+示例7-1展示基本Flask应用程序结构
+
+_示例7-1：基本多文件Flask应用结构_
+
+    |-flasky
+      |-app/
+        |-templates/
+        |-static/
+        |-main/
+          |-__init__.py
+          |-errors.py
+          |-forms.py
+          |-views.py
+        |-__init__.py
+        |-email.py
+        |-models.py
+      |-migrations/
+      |-tests/
+        |-__init__.py
+        |-test*.py
+      |-venv/
+      |-requirements.txt
+      |-config.py
+      |-manage.py
+
+这个结构有四个顶层目录：
+
+* Flask应用一般放置在名为`app`的目录下。
+
+* `migrations`目录包含数据库迁移脚本，这和之前说的一样。
+
+* 单元测试放置在`test`包下
+
+* `venv`目录包含Python虚拟环境，这和之前说的也是一样的。
+
+还有一些新的文件：
+
+* `requirements.txt`列出一些依赖包，这样就可以很容易的在不同的计算机上部署一个相同的虚拟环境。
+
+* `config.py`存储了一些配置设置。
+
+* `manage.py`启动应用程序和其他应用程序任务。
+
+为了帮助你完全理解这个结构，一下部分描述将`hello.py`应用改为符合这一结构的整个流程。
+
+### **2、配置选项**
+
+应用程序通常需要几个配置设置。最好的例子就是在开发过程中需要使用不同的数据库，测试，生产环境，这样他们可以做到互不干扰。
+
+我们可以使用配置类的层次结构来代替简单类字典结构配置。示例7-2展示了`config.py`文件。
+
+_示例7-2. config.py：应用程序配置_
+
+{% highlight python %}
+
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string' 
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+    FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
+    FLASKY_MAIL_SENDER = 'Flasky Admin <flasky@example.com>' FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
+    
+    @staticmethod
+    def init_app(app): 
+        pass
+
+class DevelopmentConfig(Config): 
+    DEBUG = True
+
+    MAIL_SERVER = 'smtp.googlemail.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+
+class TestingConfig(Config): 
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \ 'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+
+class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+
+config = {
+    'development': DevelopmentConfig,
+    'testing': TestingConfig,
+    'production': ProductionConfig,
+    'default': DevelopmentConfig
+}
+
+{% endhighlight %}
+
+`Config`基类包含一些配置的相同设置；不同的子类定义其他不同的配置设置。额外配置可以在需要的时候在加入。
+
+为了让配置更灵活更安全，一些设置可以从环境变量中导入。例如，`SECRET_KEY`，由于它的敏感性，可以在环境中设置，但如果环境中没有定义就必须提供一个默认值。
+
+在三个配置中`SQLALCHEMY_DATABASE_URI`变量被分配不同的值。这使得应用程序可以在不同的配置下运行，每一个使用不同的数据库。
+
+配置类可以定义一个`init_app()`静态方法，将应用程序实例作为一个参数。这里特定于配置可以初始化并执行。现在`Config`基类实现一个空`init_app()`方法。
+
+在配置脚本的底部，浙西不同的配置是注册在配置字典中。其中一个配置(开发配置)注册为默认配置。
+
+### **3、应用程序包**
+
+应用程序包放置了所有应用程序代码、模板和静态文件。它被简单的称为`app`，也可以给定一个特定于应用程序的名称(如果需要的话)。`templates`和`static`目录是应用程序包的一部分，因此这两个目录应该放置在`app`中。数据库模型和电子邮件支持功能也要置入到这个包中，每个都以app/models.py和app/email.py形式存入自己的模块当中。
+
+##### **3.1、使用一个应用程序工厂**
+
+在单个文件中创建应用程序版本的方式非常方便，但是它有一个大缺点。因为应用程序创建在全局范围，没有办法动态的适应应用配置的更改:脚本运行时，应用程序实例已经创建，所以它已经来不及更改配置。这是特别重要的单元测试，因为有时需要在不同的配置下运行应用程序设置来获得更好的测试覆盖率。
+
+解决这一问题的方法就是从脚本显示调用将应用程序放入一个**工厂函数**来延迟创建应用程序。
+
+这不仅给脚本充足的时间设置配置也能够创建多个应用程序实例——一些在测试过程中非常有用的东西。应用程序工厂函数会在示例7-3中展示，被定义在`app`包的构造函数中。
+
+这个构造函数导入大部分当前需要使用的扩展，但因为没有应用程序实例初始化它们，它可以创建但不初始化它们通过不传递参数给它们的构造函数。`create_app()`函数是应用程序工厂，需要传入用于应用程序的配置名。保存在`config.py`中定义在一个类里面的配置设置可以使用Flask的`app.config`配置对象的`from_object()`方法来直接导入。配置对象可从`config`字典中选出。一旦应用程序被创建且配置好，扩展就可以被初始化。调用之前创建并完成初始化后扩展中的`init_app()`。
+
+_示例7-3. app/__init__.py：应用程序包构造函数_
+
+{% highlight python %}
+
+from flask import Flask, render_template 
+from flask.ext.bootstrap import Bootstrap 
+from flask.ext.mail import Mail
+from flask.ext.moment import Moment
+from flask.ext.sqlalchemy import SQLAlchemy 
+from config import config
+
+bootstrap = Bootstrap()
+mail = Mail()
+moment = Moment()
+db = SQLAlchemy()
+
+def create_app(config_name):
+    app = Flask(__name__) 
+    app.config.from_object(config[config_name]) config[config_name].init_app(app)
+    
+    bootstrap.init_app(app)
+    mail.init_app(app)
+    moment.init_app(app)
+    db.init_app(app)
+
+    # attach routes and custom error pages here
+    
+    return app
+
+{% endhighlight %}
+
+工厂函数返回创建的应用程序实例，但是请注意，在当前状态下使用工厂创建函数创建的应用程序是不完整的，因为它们没有路由和自定义错误页面处理程序。这会是下一节的主题。
+
+##### **3.2、在Blueprint中实现应用程序的功能**
+
+应用程序工厂转化引出了路由的复杂化。在单一脚本应用程序，应用程序实例存在全局范围内，所以路线可以很容易地定义使用`app.route`装饰器。但是现在应用程序在运行时创建，`app.route`装饰器只有在`create_app()`调用才开始存在，这就太迟了。就像路由那样，这些通过`app.errorhandler`装饰器定义的自定义错误页面处理程序也存在同样的问题。
+
+幸运的是Flask使用**blueprints**提供了一个更好的解决方案。一个blueprint就类似于一个可以定义路由的应用程序。不同的是，和路由相关联的blueprint都在休眠状态，直到blueprint在应用程序中注册，此时的路由成为它的一部分。使用定义在全局作用域的blueprint，定义应用程序的路由几乎可以和单脚本应用程序一样。
+
+和应用程序一样，blueprint可以定义在一个文件或可以与多个模块一起创建更结构化的方法在一个包中。允许最大的适应性，应用程序包中创建子包来持有blueprint。示例7-4展示了创建blueprint的包构造函数。
+
+_示例7-4. app/main/__init__.py：创建Blueprint_
+
+{% highlight python %}
+
+from flask import Blueprint
+
+main = Blueprint('main', __name__) 
+
+from . import views, errors
+
+{% endhighlight %}
+
+blueprint是通过实例化`Blueprint`类对象来创建。这个类的构造函数接受两个参数：blueprint名和模块或包的blueprint所在位置。与应用程序一样，在大多数情况下，Python的`__name__`变量是正确的对于第二个参数值。
+
+应用程序的路由都存储在`app/main/views.py`模块内部，错误处理程序是`app/main/errors.py`。导入这些模块使路由、错误处理程序与blueprint相关联。重要的是要注意，在`app/init.py`脚本的底部导入的模块要避免循环依赖，因为`view.py`和`errors.py`需要导入`main`蓝图。
+
+The blueprint is registered with the application inside the create app() factory function, as shown in Example 7-5.
+
+blueprint是注册到应用程序内创建应用程序()工厂函数,如示例7 - 5所示。
+
+### **4、启动脚本**
+
+### **5、所需文件**
+
+### **6、单元测试**
+
+### **7、数据库启动**

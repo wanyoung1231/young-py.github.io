@@ -213,7 +213,7 @@ INFO  [alembic.migration] Running upgrade None -&amp;gt; 1bc594146bb5, initial m
     
       <item>
         <title>Flask教程 —— 数据库（中）</title>
-        <description>&lt;h3 id=&quot;section&quot;&gt;7、关系&lt;/h3&gt;
+        <description>&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;7、关系&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;关系数据库通过使用&lt;strong&gt;关系&lt;/strong&gt;在不同的表中建立连接。图像5-1的关系图表达了用户和用户角色之间的简单关系。这个角色和用户是&lt;strong&gt;一对多&lt;/strong&gt;关系，因为一个角色可以从属于多个用户，而一个用户只能拥有一个角色。&lt;/p&gt;
 
@@ -251,11 +251,11 @@ INFO  [alembic.migration] Running upgrade None -&amp;gt; 1bc594146bb5, initial m
 
 &lt;p&gt;除了&lt;strong&gt;一对多&lt;/strong&gt;关系还有其他种类关系。&lt;strong&gt;一对一&lt;/strong&gt;关系可以表述为前面描述的一对多关系，只要将&lt;code&gt;db.relationship()&lt;/code&gt;中的&lt;code&gt;uselist&lt;/code&gt;选项设置为&lt;code&gt;False&lt;/code&gt;，“多”就变为“一”了。&lt;strong&gt;多对一&lt;/strong&gt;关系也可表示为将表反转后的一对多关系，或表示为外键和&lt;code&gt;db.relationship()&lt;/code&gt;定义在“多”那边。最复杂的关系类型，&lt;strong&gt;多对多&lt;/strong&gt;，需要一个被称作&lt;strong&gt;关联表&lt;/strong&gt;的额外表。你将在第十二章学习多对多关系。&lt;/p&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;8、数据库操作&lt;/h3&gt;
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;8、数据库操作&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;根据图像5-1的数据库图，模型已经完全配置完且准备好使用。学习怎样使用模型的最好方式就是使用Python shell。以下部分将介绍最常见的数据库操作。&lt;/p&gt;
 
-&lt;h5 id=&quot;section-2&quot;&gt;8.1、创建表&lt;/h5&gt;
+&lt;h5 id=&quot;section-2&quot;&gt;&lt;strong&gt;8.1、创建表&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;首先要做的第一件事情就是指示Flask-SQLAlchemy基于模型类创建数据库。&lt;code&gt;db.create_all()&lt;/code&gt;函数会完成这些：&lt;/p&gt;
 
@@ -272,7 +272,7 @@ INFO  [alembic.migration] Running upgrade None -&amp;gt; 1bc594146bb5, initial m
 
 &lt;p&gt;不幸的是,这种方法有个不受欢迎的副作用就是摧毁旧的数据库中的所有数据。更新数据库问题的解决方案会在这章快结束的时候介绍。&lt;/p&gt;
 
-&lt;h5 id=&quot;section-3&quot;&gt;8.2、插入行&lt;/h5&gt;
+&lt;h5 id=&quot;section-3&quot;&gt;&lt;strong&gt;8.2、插入行&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;下面的示例会创建新的角色和用户：&lt;/p&gt;
 
@@ -333,7 +333,7 @@ INFO  [alembic.migration] Running upgrade None -&amp;gt; 1bc594146bb5, initial m
   &lt;p&gt;注：数据库会话也可以&lt;strong&gt;回滚&lt;/strong&gt;。如果调用&lt;code&gt;db.session.rollback()&lt;/code&gt;，任何添加到数据库会话中的对象都会恢复到它们曾经在数据库中的状态。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h5 id=&quot;section-4&quot;&gt;8.3、修改行&lt;/h5&gt;
+&lt;h5 id=&quot;section-4&quot;&gt;&lt;strong&gt;8.3、修改行&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;数据库会话中的&lt;code&gt;add()&lt;/code&gt;方法同样可以用于更新模型。继续在同一shell会话中，下面的示例重命名“Admin”角色为“Administrator”：&lt;/p&gt;
 
@@ -346,7 +346,7 @@ INFO  [alembic.migration] Running upgrade None -&amp;gt; 1bc594146bb5, initial m
   &lt;p&gt;注意：不过貌似我们在做更新操作的时候都不使用&lt;code&gt;db.session.add()&lt;/code&gt;，而是直接使用&lt;code&gt;db.session.commit()&lt;/code&gt;来提交事务。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h5 id=&quot;section-5&quot;&gt;8.4、删除行&lt;/h5&gt;
+&lt;h5 id=&quot;section-5&quot;&gt;&lt;strong&gt;8.4、删除行&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;数据库会话同样有&lt;code&gt;delete()&lt;/code&gt;方法。下面的示例从数据库中删除“Moderator”角色：&lt;/p&gt;
 
@@ -356,7 +356,7 @@ INFO  [alembic.migration] Running upgrade None -&amp;gt; 1bc594146bb5, initial m
 
 &lt;p&gt;注意删除，和插入更新一样，都是在数据库会话提交后执行。&lt;/p&gt;
 
-&lt;h5 id=&quot;section-6&quot;&gt;8.5、返回行&lt;/h5&gt;
+&lt;h5 id=&quot;section-6&quot;&gt;&lt;strong&gt;8.5、返回行&lt;/strong&gt;&lt;/h5&gt;
 
 &lt;p&gt;Flask-SQLAlchemy为每个模型类创建一个&lt;strong&gt;query&lt;/strong&gt;对象。最基本的查询模型是返回对应的表的全部内容：&lt;/p&gt;
 
@@ -407,7 +407,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 &amp;lt;Role u&#39;User&#39;&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;此处的&lt;code&gt;user_role.users&lt;/code&gt;查询有点小问题。当&lt;code&gt;user_role.users&lt;/code&gt;表达式在内部调用&lt;code&gt;all()&lt;/code&gt;时隐式查询执行来返回用户的列表。因为查询对象是隐藏的，是不可能通过附加查询过滤器提炼出来。在这个特定的例子中，它可能是有用的用于按字母排列顺序返回用户列表。在示例5-4中，被&lt;code&gt;lazy = &#39;dynamic&#39;&lt;/code&gt;参数修改过的关系配置的查询时不会自动执行的。 &lt;/p&gt;
+&lt;p&gt;此处的&lt;code&gt;user_role.users&lt;/code&gt;查询有点小问题。当&lt;code&gt;user_role.users&lt;/code&gt;表达式在内部调用&lt;code&gt;all()&lt;/code&gt;时通过隐式查询执行来返回用户的列表。因为查询对象是隐藏的，是不可能通过附加查询过滤器进一步提取出来。在这个特定的例子中，它可能是用于按字母排列顺序返回用户列表。在示例5-4中，被&lt;code&gt;lazy = &#39;dynamic&#39;&lt;/code&gt;参数修改过的关系配置的查询是不会自动执行的。 &lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例5-4. app/models.py：动态关系&lt;/em&gt;&lt;/p&gt;
 
@@ -434,7 +434,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
         <title>Flask教程 —— 数据库（上）</title>
         <description>&lt;p&gt;&lt;strong&gt;数据库&lt;/strong&gt;就是有组织的存储应用程序数据，然后查询检索指定需要的那部分。大部分web应用程序都采用基于&lt;strong&gt;关系模型&lt;/strong&gt;的数据库，也称作结构化查询语言（SQL）数据库。但是最近几年面向文档数据库和键值数据库（通常称作NoSQL数据库），成为非常流行的替代者。个人推荐《七周七数据库》这本书，它对各种类型的数据库、应用场景和多种不同类型数据库配合使用有比较好的讲解。&lt;/p&gt;
 
-&lt;h3 id=&quot;sql&quot;&gt;1、SQL数据库&lt;/h3&gt;
+&lt;h3 id=&quot;sql&quot;&gt;&lt;strong&gt;1、SQL数据库&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;关系数据库将数据保存在&lt;strong&gt;表&lt;/strong&gt;中来模拟应用程序中不同的实体。例如，一个订单管理应用程序数据库可能会有customers、products和orders表。&lt;/p&gt;
 
@@ -454,7 +454,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;而另一方面，将数据拆分到多个表中则会变得更加复杂。生成一组用户及其角色会产生一个小问题，因为用户和用户角色需要从两张表中读，且只有&lt;strong&gt;连接&lt;/strong&gt;后才能一起出现。当需要的时候关系数据库引擎会提供支持来执行两个表的连接操作。&lt;/p&gt;
 
-&lt;h3 id=&quot;nosql&quot;&gt;2、NoSQL数据库&lt;/h3&gt;
+&lt;h3 id=&quot;nosql&quot;&gt;&lt;strong&gt;2、NoSQL数据库&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;与上一节描述相反的、非关系模型的数据库被统称为&lt;strong&gt;NoSQL&lt;/strong&gt;数据库。NoSQL数据库常见的组织方式是使用&lt;strong&gt;collections&lt;/strong&gt;代替表、&lt;strong&gt;documents&lt;/strong&gt;代替记录。NoSQL数据库的设计方式使得连接会很复杂，所以大部分都不支持这个操作。图像5-1如果用NoSQL数据库结构来表达则是这样的：列出用户及他们的角色，需要应用程序自己通过读取每个用户的role_id字段去执行连接操作，然后查找roles表。&lt;/p&gt;
 
@@ -468,13 +468,13 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;但对于NoSQL数据库这并不都是坏消息。虽然有重复的数据，但是查询速度快，因为不需要连接，可以直接列出用户和他们的角色。&lt;/p&gt;
 
-&lt;h3 id=&quot;sqlnosql&quot;&gt;3、SQL还是NoSQL&lt;/h3&gt;
+&lt;h3 id=&quot;sqlnosql&quot;&gt;&lt;strong&gt;3、SQL还是NoSQL&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;SQL数据库擅长以高效、紧凑的形式存储结构化数据。这些数据库竭尽全力保持一致性。NoSQL数据库会放低一些一致性要求，因此在性能上有更大的优势。&lt;/p&gt;
 
 &lt;p&gt;全面分析和比较数据库类型已经超出了本教程的范围。对于中小型应用程序SQL数据库和NoSQL数据库完全可以胜任，且性能几乎差不多。&lt;/p&gt;
 
-&lt;h3 id=&quot;python&quot;&gt;4、Python数据库框架&lt;/h3&gt;
+&lt;h3 id=&quot;python&quot;&gt;&lt;strong&gt;4、Python数据库框架&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;Python有大部分的数据库引擎包，包括开源的和商业的。Flask在可使用的数据库包上没有限制，所以你可以使用MySQL、Postgres、SQLite、Redis、MongoDB或者CouchDB中你喜欢的任何一个。&lt;/p&gt;
 
@@ -484,24 +484,24 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;ul&gt;
   &lt;li&gt;
-    &lt;p&gt;易用性&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;易用性&lt;/strong&gt;&lt;/p&gt;
 
     &lt;p&gt;如果直接比较数据库引擎和数据库抽象层，第二者明显胜出。抽象层又称作对象关系映射（ORM）或对象文档映射（ODM），提供从高级面向对象操作到底层数据库指令的透明转换。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;性能&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;性能&lt;/strong&gt;&lt;/p&gt;
 
     &lt;p&gt;ORM和ODM的转化需要从对象域转化为数据库域，所以会有一些开销。大多数情况下，性能损耗是微不足道的，但总有例外。一般来说，ORM和ODM获得的生产力远远超过了性能下降的那部分，所以这不是一个有效的论点来完全抛弃ORM和ODM。应该关心的是选择怎样的数据库抽象层，提供可访问底层数据库中特定操作，就像本地数据库指令那样实现的抽象层最佳。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;可移植性&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;可移植性&lt;/strong&gt;&lt;/p&gt;
 
     &lt;p&gt;数据库的选择必须考虑开发和生产平台。例如，如果你计划在云主机上托管应用程序，那么你应该找出提供该服务的数据库。&lt;/p&gt;
 
     &lt;p&gt;另一方面ORM和ODM的可移植性不错。尽管一些框架只为单个数据库引擎提供抽象层，有些抽象层更高级，可以选择哪种数据库引擎且访问使用的是同一个面向对象的接口。最好的例子就是SQLAlchemy ORM，支持一组关系数据库引擎，包括流行的MySQL、Postgres和SQLite。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;Flask集成&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Flask集成&lt;/strong&gt;&lt;/p&gt;
 
     &lt;p&gt;选择一个集成了Flask的框架并不是必须的，但是可以不用自己写集成代码。Flask集成可以简化配置和操作，所以应该优先使用专门设计的Flask扩展包。&lt;/p&gt;
   &lt;/li&gt;
@@ -509,7 +509,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;基于这些目的，&lt;a href=&quot;http://pythonhosted.org/Flask-SQLAlchemy/&quot;&gt;Flask-SQLAlchemy&lt;/a&gt;将是本书示例中应该选择的数据库框架，它对&lt;a href=&quot;http://www.sqlalchemy.org/&quot;&gt;SQLAlchemy&lt;/a&gt;进行了封装。&lt;/p&gt;
 
-&lt;h3 id=&quot;flask-sqlalchemy&quot;&gt;5、使用Flask-SQLAlchemy管理数据库&lt;/h3&gt;
+&lt;h3 id=&quot;flask-sqlalchemy&quot;&gt;&lt;strong&gt;5、使用Flask-SQLAlchemy管理数据库&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;Flask-SQLAlchemy是一个Flask扩展，它简化了在Flask应用程序中对SQLAlchemy的使用。SQLAlchemy是一个强大的关系数据库框架，支持一些数据库后端。提供高级的ORM和底层访问数据库的本地SQL功能。&lt;/p&gt;
 
