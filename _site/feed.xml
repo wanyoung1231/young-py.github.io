@@ -10,21 +10,162 @@
         <title>Flask教程 —— Email</title>
         <description>&lt;p&gt;许多类型的应用程序需要通知用户当某些事件发生的时候，常用的沟通方法就是电子邮件。尽管在Flask应用程序中，可以使用Python标准库中的&lt;code&gt;smtplib&lt;/code&gt;包来发送电子邮件，不过Flask-Mail扩展封装了&lt;code&gt;smtplib&lt;/code&gt;且与Flask整合的非常好。&lt;/p&gt;
 
-&lt;h3 id=&quot;flask-mail&quot;&gt;1、使用Flask-Mail作为邮件支持&lt;/h3&gt;
+&lt;h3 id=&quot;flask-mail&quot;&gt;&lt;strong&gt;1、使用Flask-Mail作为邮件支持&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;使用pip安装Flask-Mail：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;(venv) $ pip install flask-mail
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The extension connects to a Simple Mail Transfer Protocol (SMTP) server and passes emails to it for delivery. If no configuration is given, Flask-Mail connects to localhost at port 25 and sends email without authentication. Table 6-1 shows the list of configuration keys that can be used to configure the SMTP server.
-扩展连接到一个简单邮件传输协议(SMTP)服务器并将邮件传递到交付。如果没有配置,Flask-Mail连接到本地主机端口25没有身份验证和发送电子邮件。表6 - 1所示的列表配置键可以用来配置SMTP服务器。&lt;/p&gt;
+&lt;p&gt;扩展连接到一个简单邮件传输协议(SMTP)服务器并将邮件传递交付给它。如果没有给出配置，Flask-Mail连接到本地主机端口25并发送没有验证的电子邮件。表6-1所示的列表配置键可以用来配置SMTP服务器。&lt;/p&gt;
 
-&lt;h5 id=&quot;python-shell&quot;&gt;1.1、使用python shell发送邮件&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;表格6-1. Flask-Mail SMTP服务器配置键&lt;/em&gt;&lt;/p&gt;
 
-&lt;h5 id=&quot;section&quot;&gt;1.2、集成邮件到应用程序&lt;/h5&gt;
+&lt;p&gt;在开发过程中可能连接到一个外部SMTP服务器会更方便。示例6-1展示了如何配置应用程序通过谷歌的Gmail帐户发送电子邮件。&lt;/p&gt;
 
-&lt;h5 id=&quot;section-1&quot;&gt;1.3、发送异步邮件&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;示例6-1. hello.py：Flask-Mail配置Gmail&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_SERVER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;smtp.googlemail.com&amp;#39;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PORT&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;587&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_USE_TLS&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_USERNAME&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_USERNAME&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PASSWORD&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PASSWORD&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;建议：永远不要将账户证书直接在您的脚本里面，尤其是如果你打算将你的的工作开源。为了保护你的帐户信息，必须让脚本从你的配置环境中导入敏感信息。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;示例6-2展示了Flask-Mail的初始化。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例6-2. hello.py：Flask-Mail初始化&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; 
+&lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;持有email服务器用户名和密码的两个变量需要定义在环境中。如果你是使用Linux或Mac OS X上的bash，您可以设置这些变量如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv) $ export MAIL_USERNAME=&amp;lt;Gmail username&amp;gt;
+(venv) $ export MAIL_PASSWORD=&amp;lt;Gmail password&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;对于Windows用户，可以设置环境变量如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv) $ set MAIL_USERNAME=&amp;lt;Gmail username&amp;gt;
+(venv) $ set MAIL_PASSWORD=&amp;lt;Gmail password&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&quot;python-shell&quot;&gt;&lt;strong&gt;1.1、使用python shell发送邮件&lt;/strong&gt;&lt;/h5&gt;
+
+&lt;p&gt;为了测试配置，你可以开启一个shell会话并发送测试email：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv) $ python hello.py shell
+&amp;gt;&amp;gt;&amp;gt; from flask.ext.mail import Message
+&amp;gt;&amp;gt;&amp;gt; from hello import mail
+&amp;gt;&amp;gt;&amp;gt; msg = Message(&#39;test subject&#39;, sender=&#39;you@example.com&#39;, ... recipients=[&#39;you@example.com&#39;])
+&amp;gt;&amp;gt;&amp;gt; msg.body = &#39;text body&#39;
+&amp;gt;&amp;gt;&amp;gt; msg.html = &#39;&amp;lt;b&amp;gt;HTML&amp;lt;/b&amp;gt; body&#39;
+&amp;gt;&amp;gt;&amp;gt; with app.app_context():
+... mail.send(msg)
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;注意，Flask-Mail的&lt;code&gt;send()&lt;/code&gt;函数使用&lt;code&gt;current_app&lt;/code&gt;，所以它需要执行已激活的应用程序上下文。&lt;/p&gt;
+
+&lt;h5 id=&quot;section&quot;&gt;&lt;strong&gt;1.2、集成邮件到应用程序&lt;/strong&gt;&lt;/h5&gt;
+
+&lt;p&gt;为了避免每次都手动创建电子邮件消息，将应用电子邮件发送功能的共同部分抽象到一个函数中是非常不错的做法。另一个好处是，这个函数可以从Jinja2模板以最大的灵活性渲染。示例6-3展示了怎么实现。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例6-3. hello.py：Email支持&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt; 
+
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SUBJECT_PREFIX&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;[Flasky]&amp;#39;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SENDER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;Flasky Admin &amp;lt;flasky@example.com&amp;gt;&amp;#39;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;send_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SUBJECT_PREFIX&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                  &lt;span class=&quot;n&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SENDER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recipients&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;.txt&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;html&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;为发件人的主题和地址定义前缀字符串的函数依赖于两个特定于应用程序的配置键。&lt;code&gt;send_email&lt;/code&gt;函数携带目的地址、主题、邮件体模板和一组关键字参数。模板名不能有扩展，这样两个版本的模板可以使用纯文本或富文本。调用者传递关键字参数给&lt;code&gt;render_template()&lt;/code&gt;调用，这样模板就可以生成email体。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;index()&lt;/code&gt;视图函数可以非常容易的扩展发送一个email给管理员，每当从表单中收到一个新的名字的时候。示例6-4展示所做的改动。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例6-4. hello.py：Email示例&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NameForm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;validate_on_submit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filter_by&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+            &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+            &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;known&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;send_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;New User&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                           &lt;span class=&quot;s&quot;&gt;&amp;#39;mail/new_user&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;known&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url_for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; 
+                            &lt;span class=&quot;n&quot;&gt;known&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;known&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;在启动的过程中，在&lt;code&gt;FLASKY_ADMIN&lt;/code&gt;环境变量中给出的email的收件人会加载到同名的配置变量中。需要创建文本和HTML两个版本的email模板文件。这些文件都存储在&lt;code&gt;template&lt;/code&gt;内的&lt;code&gt;mail&lt;/code&gt;子目录中，让他们独立于普通模板。电子邮件模板需要给出用户作为该模板参数，因此&lt;code&gt;send_email()&lt;/code&gt;调用包括用户来作为一个关键字参数。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 6a&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;除了前面描述的&lt;code&gt;MAIL_USERNAME&lt;/code&gt;和&lt;code&gt;MAIL_PASSWORD&lt;/code&gt;环境变量，这个版本的应用程序需要&lt;code&gt;FLASKY_ADMIN&lt;/code&gt;环境变量。对于Linux和Mac OS X用户来说，启动应用程序命令：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv) $ export FLASKY_ADMIN=&amp;lt;your-email-address&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;对于Windows用户，命令如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv) $ set FLASKY_ADMIN=&amp;lt;Gmail username&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;使用这些环境变量设置，当你每次在表单中输入一个新的名字的时候都可以测试应用程序和接收电子邮件。&lt;/p&gt;
+
+&lt;h5 id=&quot;section-1&quot;&gt;&lt;strong&gt;1.3、发送异步邮件&lt;/strong&gt;&lt;/h5&gt;
+
+&lt;p&gt;如果你发送一些测试邮件，你可能注意到&lt;code&gt;mail.send()&lt;/code&gt;函数在发送电子邮件的时候会阻塞几秒钟，这段时间浏览器看起来没有响应。为了避免请求处理不必要的延误，可以将邮件发送功能移到一个后台线程去处理。示例6-5展示了以上改动。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例6-5. hello.py：异步邮件支持&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;threading&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt; 
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;send_async_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;send_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SUBJECT_PREFIX&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                  &lt;span class=&quot;n&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SENDER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recipients&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;.txt&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;html&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;thr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;send_async_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;thr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;thr&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这个实现突出了一个有趣的问题。许多Flask扩展操作在假设有活动应用程序和请求上下文。Flask-Mail的&lt;code&gt;send()&lt;/code&gt;函数使用&lt;code&gt;current_app&lt;/code&gt;，所以它需要已激活的应用程序上下文。但是当&lt;code&gt;mail.send()&lt;/code&gt;函数在一个不同的线程上执行，应用程序上下文需要人为地创建使用&lt;code&gt;app.app_context()&lt;/code&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 6b&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;如果你现在运行应用程序，你会发现它更敏感，但请记住，发送大量的电子邮件的应用程序，其拥有一个致力于发送电子邮件的服务比开启一个新的线程更合适。例如，执行&lt;code&gt;send_async_email()&lt;/code&gt;函数可以将邮件发送到&lt;a href=&quot;http://www.celeryproject.org/&quot;&gt;Celery&lt;/a&gt;的任务队列中。&lt;/p&gt;
+
+&lt;p&gt;本章完成的是大多数web应用程序必备的功能。现在的问题是，&lt;code&gt;hello.py&lt;/code&gt;脚本开始大，这使得它变得更难管理。在下一章中，你将学习如何构建一个更大的应用程序。&lt;/p&gt;
+
 </description>
         <pubDate>Sat, 29 Nov 2014 00:32:50 +0800</pubDate>
         <link>/flask/2014/11/29/flask-6-1.html</link>
@@ -32,10 +173,213 @@
       </item>
     
       <item>
+        <title>Flask教程 —— 大型应用程序结构（上）</title>
+        <description>&lt;p&gt;虽然小型web应用程序存储在一个单一的脚本可以很方便，但这种方法不能很好地扩展。随着应用程序变得复杂，在单个大的源文件中处理会变得问题重重。&lt;/p&gt;
+
+&lt;p&gt;与大多数其他web框架不同，Flask不施加特定的大型项目组织；应用程序的结构完全交给开发人员。在这一章，一个可能的方式来组织一个大型应用程序包和模块。这种结构将用于书中其余的例子。&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;1、项目结构&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;示例7-1展示基本Flask应用程序结构&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例7-1：基本多文件Flask应用结构&lt;/em&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;|-flasky
+  |-app/
+    |-templates/
+    |-static/
+    |-main/
+      |-__init__.py
+      |-errors.py
+      |-forms.py
+      |-views.py
+    |-__init__.py
+    |-email.py
+    |-models.py
+  |-migrations/
+  |-tests/
+    |-__init__.py
+    |-test*.py
+  |-venv/
+  |-requirements.txt
+  |-config.py
+  |-manage.py
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这个结构有四个顶层目录：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Flask应用一般放置在名为&lt;code&gt;app&lt;/code&gt;的目录下。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;migrations&lt;/code&gt;目录包含数据库迁移脚本，这和之前说的一样。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;单元测试放置在&lt;code&gt;test&lt;/code&gt;包下&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;venv&lt;/code&gt;目录包含Python虚拟环境，这和之前说的也是一样的。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;还有一些新的文件：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;requirements.txt&lt;/code&gt;列出一些依赖包，这样就可以很容易的在不同的计算机上部署一个相同的虚拟环境。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;config.py&lt;/code&gt;存储了一些配置设置。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;manage.py&lt;/code&gt;启动应用程序和其他应用程序任务。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;为了帮助你完全理解这个结构，一下部分描述将&lt;code&gt;hello.py&lt;/code&gt;应用改为符合这一结构的整个流程。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;2、配置选项&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;应用程序通常需要几个配置设置。最好的例子就是在开发过程中需要使用不同的数据库，测试，生产环境，这样他们可以做到互不干扰。&lt;/p&gt;
+
+&lt;p&gt;我们可以使用配置类的层次结构来代替简单类字典结构配置。示例7-2展示了&lt;code&gt;config.py&lt;/code&gt;文件。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例7-2. config.py：应用程序配置&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;basedir&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;abspath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__file__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;SECRET_KEY&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;SECRET_KEY&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;hard to guess string&amp;#39;&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;SQLALCHEMY_COMMIT_ON_TEARDOWN&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;FLASKY_MAIL_SUBJECT_PREFIX&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;[Flasky]&amp;#39;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;FLASKY_MAIL_SENDER&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;Flasky Admin &amp;lt;flasky@example.com&amp;gt;&amp;#39;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FLASKY_ADMIN&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;nd&quot;&gt;@staticmethod&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;init_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
+        &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DevelopmentConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;DEBUG&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;MAIL_SERVER&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;smtp.googlemail.com&amp;#39;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;MAIL_PORT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;587&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;MAIL_USE_TLS&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;MAIL_USERNAME&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_USERNAME&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;MAIL_PASSWORD&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PASSWORD&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLALCHEMY_DATABASE_URI&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;DEV_DATABASE_URL&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; \
+        &lt;span class=&quot;s&quot;&gt;&amp;#39;sqlite:///&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;basedir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;data-dev.sqlite&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TestingConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;TESTING&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;SQLALCHEMY_DATABASE_URI&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;TEST_DATABASE_URL&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; \ &lt;span class=&quot;s&quot;&gt;&amp;#39;sqlite:///&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;basedir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;data-test.sqlite&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ProductionConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;SQLALCHEMY_DATABASE_URI&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;DATABASE_URL&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; \
+        &lt;span class=&quot;s&quot;&gt;&amp;#39;sqlite:///&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;basedir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;data.sqlite&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&amp;#39;development&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DevelopmentConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&amp;#39;testing&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TestingConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&amp;#39;production&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ProductionConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&amp;#39;default&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DevelopmentConfig&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code&gt;Config&lt;/code&gt;基类包含一些配置的相同设置；不同的子类定义其他不同的配置设置。额外配置可以在需要的时候在加入。&lt;/p&gt;
+
+&lt;p&gt;为了让配置更灵活更安全，一些设置可以从环境变量中导入。例如，&lt;code&gt;SECRET_KEY&lt;/code&gt;，由于它的敏感性，可以在环境中设置，但如果环境中没有定义就必须提供一个默认值。&lt;/p&gt;
+
+&lt;p&gt;在三个配置中&lt;code&gt;SQLALCHEMY_DATABASE_URI&lt;/code&gt;变量被分配不同的值。这使得应用程序可以在不同的配置下运行，每一个使用不同的数据库。&lt;/p&gt;
+
+&lt;p&gt;配置类可以定义一个&lt;code&gt;init_app()&lt;/code&gt;静态方法，将应用程序实例作为一个参数。这里特定于配置可以初始化并执行。现在&lt;code&gt;Config&lt;/code&gt;基类实现一个空&lt;code&gt;init_app()&lt;/code&gt;方法。&lt;/p&gt;
+
+&lt;p&gt;在配置脚本的底部，浙西不同的配置是注册在配置字典中。其中一个配置(开发配置)注册为默认配置。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;3、应用程序包&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;应用程序包放置了所有应用程序代码、模板和静态文件。它被简单的称为&lt;code&gt;app&lt;/code&gt;，也可以给定一个特定于应用程序的名称(如果需要的话)。&lt;code&gt;templates&lt;/code&gt;和&lt;code&gt;static&lt;/code&gt;目录是应用程序包的一部分，因此这两个目录应该放置在&lt;code&gt;app&lt;/code&gt;中。数据库模型和电子邮件支持功能也要置入到这个包中，每个都以app/models.py和app/email.py形式存入自己的模块当中。&lt;/p&gt;
+
+&lt;h5 id=&quot;section-3&quot;&gt;&lt;strong&gt;3.1、使用一个应用程序工厂&lt;/strong&gt;&lt;/h5&gt;
+
+&lt;p&gt;在单个文件中创建应用程序版本的方式非常方便，但是它有一个大缺点。因为应用程序创建在全局范围，没有办法动态的适应应用配置的更改:脚本运行时，应用程序实例已经创建，所以它已经来不及更改配置。这是特别重要的单元测试，因为有时需要在不同的配置下运行应用程序设置来获得更好的测试覆盖率。&lt;/p&gt;
+
+&lt;p&gt;解决这一问题的方法就是从脚本显示调用将应用程序放入一个&lt;strong&gt;工厂函数&lt;/strong&gt;来延迟创建应用程序。&lt;/p&gt;
+
+&lt;p&gt;这不仅给脚本充足的时间设置配置也能够创建多个应用程序实例——一些在测试过程中非常有用的东西。应用程序工厂函数会在示例7-3中展示，被定义在&lt;code&gt;app&lt;/code&gt;包的构造函数中。&lt;/p&gt;
+
+&lt;p&gt;这个构造函数导入大部分当前需要使用的扩展，但因为没有应用程序实例初始化它们，它可以创建但不初始化它们通过不传递参数给它们的构造函数。&lt;code&gt;create_app()&lt;/code&gt;函数是应用程序工厂，需要传入用于应用程序的配置名。保存在&lt;code&gt;config.py&lt;/code&gt;中定义在一个类里面的配置设置可以使用Flask的&lt;code&gt;app.config&lt;/code&gt;配置对象的&lt;code&gt;from_object()&lt;/code&gt;方法来直接导入。配置对象可从&lt;code&gt;config&lt;/code&gt;字典中选出。一旦应用程序被创建且配置好，扩展就可以被初始化。调用之前创建并完成初始化后扩展中的&lt;code&gt;init_app()&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例7-3. app/&lt;strong&gt;init&lt;/strong&gt;.py：应用程序包构造函数&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt; 
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.bootstrap&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Bootstrap&lt;/span&gt; 
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.moment&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Moment&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.sqlalchemy&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLAlchemy&lt;/span&gt; 
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;config&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;bootstrap&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Bootstrap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;moment&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Moment&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLAlchemy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;from_object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;init_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;bootstrap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;init_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;init_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;moment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;init_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;init_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;# attach routes and custom error pages here&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;工厂函数返回创建的应用程序实例，但是请注意，在当前状态下使用工厂创建函数创建的应用程序是不完整的，因为它们没有路由和自定义错误页面处理程序。这会是下一节的主题。&lt;/p&gt;
+
+&lt;h5 id=&quot;blueprint&quot;&gt;&lt;strong&gt;3.2、在Blueprint中实现应用程序的功能&lt;/strong&gt;&lt;/h5&gt;
+
+&lt;p&gt;应用程序工厂转化引出了路由的复杂化。在单一脚本应用程序，应用程序实例存在全局范围内，所以路线可以很容易地定义使用&lt;code&gt;app.route&lt;/code&gt;装饰器。但是现在应用程序在运行时创建，&lt;code&gt;app.route&lt;/code&gt;装饰器只有在&lt;code&gt;create_app()&lt;/code&gt;调用才开始存在，这就太迟了。就像路由那样，这些通过&lt;code&gt;app.errorhandler&lt;/code&gt;装饰器定义的自定义错误页面处理程序也存在同样的问题。&lt;/p&gt;
+
+&lt;p&gt;幸运的是Flask使用&lt;strong&gt;blueprints&lt;/strong&gt;提供了一个更好的解决方案。一个blueprint就类似于一个可以定义路由的应用程序。不同的是，和路由相关联的blueprint都在休眠状态，直到blueprint在应用程序中注册，此时的路由成为它的一部分。使用定义在全局作用域的blueprint，定义应用程序的路由几乎可以和单脚本应用程序一样。&lt;/p&gt;
+
+&lt;p&gt;和应用程序一样，blueprint可以定义在一个文件或可以与多个模块一起创建更结构化的方法在一个包中。允许最大的适应性，应用程序包中创建子包来持有blueprint。示例7-4展示了创建blueprint的包构造函数。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例7-4. app/main/&lt;strong&gt;init&lt;/strong&gt;.py：创建Blueprint&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Blueprint&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;main&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Blueprint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;main&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;views&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;errors&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;blueprint是通过实例化&lt;code&gt;Blueprint&lt;/code&gt;类对象来创建。这个类的构造函数接受两个参数：blueprint名和模块或包的blueprint所在位置。与应用程序一样，在大多数情况下，Python的&lt;code&gt;__name__&lt;/code&gt;变量是正确的对于第二个参数值。&lt;/p&gt;
+
+&lt;p&gt;应用程序的路由都存储在&lt;code&gt;app/main/views.py&lt;/code&gt;模块内部，错误处理程序是&lt;code&gt;app/main/errors.py&lt;/code&gt;。导入这些模块使路由、错误处理程序与blueprint相关联。重要的是要注意，在&lt;code&gt;app/init.py&lt;/code&gt;脚本的底部导入的模块要避免循环依赖，因为&lt;code&gt;view.py&lt;/code&gt;和&lt;code&gt;errors.py&lt;/code&gt;需要导入&lt;code&gt;main&lt;/code&gt;蓝图。&lt;/p&gt;
+
+&lt;p&gt;The blueprint is registered with the application inside the create app() factory function, as shown in Example 7-5.&lt;/p&gt;
+
+&lt;p&gt;blueprint是注册到应用程序内创建应用程序()工厂函数,如示例7 - 5所示。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-4&quot;&gt;&lt;strong&gt;4、启动脚本&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h3 id=&quot;section-5&quot;&gt;&lt;strong&gt;5、所需文件&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h3 id=&quot;section-6&quot;&gt;&lt;strong&gt;6、单元测试&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h3 id=&quot;section-7&quot;&gt;&lt;strong&gt;7、数据库启动&lt;/strong&gt;&lt;/h3&gt;
+</description>
+        <pubDate>Fri, 28 Nov 2014 23:48:27 +0800</pubDate>
+        <link>/flask/2014/11/28/flask-7-1.html</link>
+        <guid isPermaLink="true">/flask/2014/11/28/flask-7-1.html</guid>
+      </item>
+    
+      <item>
         <title>Flask教程 —— 数据库（下）</title>
         <description>&lt;h3 id=&quot;section&quot;&gt;9、数据库在视图函数中的使用&lt;/h3&gt;
 
-&lt;p&gt;在前面章节描述的数据库操作可以在视图函数中直接使用。示例5-5展示的新版本主页路径记录了用户输入的名字到数据库中。&lt;/p&gt;
+&lt;p&gt;在前面章节描述的数据库操作是可以在视图函数中直接使用的。示例5-5展示的新版本主页实现了用户输入名字并保存到数据库中。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例5-5. hello.py：数据库在视图函数中的使用&lt;/em&gt;&lt;/p&gt;
 
@@ -56,7 +400,7 @@
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;known&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;known&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;在这个已修改的应用程序版本中，每次提交一个名字应用程序都要使用&lt;code&gt;filter_by()&lt;/code&gt;查询过滤器到数据库中检查一遍。&lt;code&gt;known&lt;/code&gt;变量写入到用户会话后，重定向后信息可以发送到模板，用于定制问候语。注意为了应用程序可以工作，必须创建好Python shell中展示的那些数据库表。&lt;/p&gt;
+&lt;p&gt;在这个已修改的应用程序版本中，每次提交一个名字应用程序都要使用&lt;code&gt;filter_by()&lt;/code&gt;查询过滤器到数据库中检查一遍。&lt;code&gt;known&lt;/code&gt;变量被写入到用户会话中，这样在重定向后信息就可以发送到模板来定制问候语。注意为了应用程序可以工作，必须创建好之前在Python shell中展示的那些数据库表。&lt;/p&gt;
 
 &lt;p&gt;新版本的相关模板在示例5-6中展示。这个模板使用&lt;code&gt;known&lt;/code&gt;参数用于区分是已知用户还是新用户的问候。&lt;/p&gt;
 
@@ -83,7 +427,7 @@
 
 &lt;h3 id=&quot;python-shell&quot;&gt;10、与python shell的集成&lt;/h3&gt;
 
-&lt;p&gt;每次shell会话启动都必须导入数据库实例和模型是非常单调乏味的工作。避免不断重复这些导入,可以配置Flask-Script的shell命令来自动导入特定的对象。&lt;/p&gt;
+&lt;p&gt;每次shell会话启动都必须导入数据库实例和模型是非常单调乏味的工作。为了避免不断重复这些导入，可以配置Flask-Script的shell命令来自动导入特定的对象。&lt;/p&gt;
 
 &lt;p&gt;shell命令需要注册&lt;code&gt;make_context&lt;/code&gt;回调函数来将对象添加到导入列表。如示例5-7所示。&lt;/p&gt;
 
@@ -92,8 +436,7 @@
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.script&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Shell&lt;/span&gt; 
 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;make_shell_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
-
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;manager&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add_command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;shell&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Shell&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;make_context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;make_shell_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;code&gt;make_shell_context()&lt;/code&gt;函数注册应用程序和数据库的实例及模型，这样就可以自动导入到shell中了：&lt;/p&gt;
@@ -115,11 +458,11 @@
 
 &lt;p&gt;随着开发进度不断向前，你会发现你的数据库模型需要更改，而当这种情况发生时需要更新数据库。&lt;/p&gt;
 
-&lt;p&gt;Flask-SQLAlchemy只有当数据库表不存在了才从模型它们，所以让更新表的唯一途径就是销毁旧的表，当然这将导致所有的数据库中的数据丢失。&lt;/p&gt;
+&lt;p&gt;Flask-SQLAlchemy只有当数据库表不存在了才从模型创建它们，所以更新表的唯一途径就是销毁旧的表，当然这将导致所有数据库中的数据丢失。&lt;/p&gt;
 
-&lt;p&gt;一个更好的解决方案是使用一个&lt;strong&gt;数据库迁移&lt;/strong&gt;框架。和源码版本控制工具跟踪更改源码文件一样，数据库迁移框架跟踪更改数据库模型，然后增量变化可以应用到数据库中。&lt;/p&gt;
+&lt;p&gt;有个更好的解决方案就是使用&lt;strong&gt;数据库迁移&lt;/strong&gt;框架。和源码版本控制工具跟踪更改源码文件一样，数据库迁移框架跟踪更改数据库模型，然后将增量变化应用到数据库中。&lt;/p&gt;
 
-&lt;p&gt;SQLAlchemy的主要开发人员写了一个&lt;a href=&quot;http://alembic.readthedocs.org/en/latest/&quot;&gt;Alembic&lt;/a&gt;迁移框架，但是替代直接使用Alembic，Flask应用可以使用&lt;a href=&quot;http://flask-migrate.readthedocs.org/en/latest/&quot;&gt;Flask-Migrate&lt;/a&gt;扩展，一个集成了Flask-Script来提供所有操作命令的轻量级Alembic包。&lt;/p&gt;
+&lt;p&gt;SQLAlchemy的主要开发人员写了一个&lt;a href=&quot;http://alembic.readthedocs.org/en/latest/&quot;&gt;Alembic&lt;/a&gt;迁移框架，但我们不直接使用Alembic，Flask应用可以使用&lt;a href=&quot;http://flask-migrate.readthedocs.org/en/latest/&quot;&gt;Flask-Migrate&lt;/a&gt;扩展，一个集成了Flask-Script来提供所有操作命令的轻量级Alembic包。&lt;/p&gt;
 
 &lt;h5 id=&quot;section-1&quot;&gt;11.1、创建迁移仓库&lt;/h5&gt;
 
@@ -139,10 +482,9 @@
 &lt;span class=&quot;n&quot;&gt;migrate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Migrate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;manager&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add_command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;db&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MigrateCommand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;为了公开数据库迁移命令，Flask-Migrate公开&lt;code&gt;MigrateCommand&lt;/code&gt;类连接到Flask-Script的&lt;code&gt;manager&lt;/code&gt;对象。在这个示例中使用&lt;code&gt;db&lt;/code&gt;来连接到命令。&lt;/p&gt;
+&lt;p&gt;为了可以使用数据库迁移命令，Flask-Migrate提供&lt;code&gt;MigrateCommand&lt;/code&gt;类来连接Flask-Script的&lt;code&gt;manager&lt;/code&gt;对象。在这个示例中使用&lt;code&gt;db&lt;/code&gt;来连接到命令。&lt;/p&gt;
 
-&lt;p&gt;Before database migrations can be maintained, it is necessary to create a migration repository with the init subcommand
-在数据库迁移可以维护之前，必须通过&lt;code&gt;init&lt;/code&gt;子命令来创建一个迁移库：&lt;/p&gt;
+&lt;p&gt;在数据库迁移可以维护之前，必须通过&lt;code&gt;init&lt;/code&gt;子命令来创建一个迁移库：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;(venv) $ python hello.py db init
   Creating directory /home/flask/flasky/migrations...done
@@ -162,16 +504,14 @@
   &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 5c&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;在数据库迁移仓库里的文件必须被添加到版本控制中作为应用程序的一部分。&lt;/p&gt;
-
 &lt;h5 id=&quot;section-2&quot;&gt;11.2、创建迁移脚本&lt;/h5&gt;
 
-&lt;p&gt;在Alembic，数据库迁移工作由迁移脚本完成。这个脚本有两个函数，分别叫做&lt;code&gt;upgrade()&lt;/code&gt;和&lt;code&gt;downgrade()&lt;/code&gt;。&lt;code&gt;upgrade()&lt;/code&gt;函数实施数据库更改，是迁移的一部分，&lt;code&gt;downgrade()&lt;/code&gt;函数则删除它们。通过添加和删除数据库变化的能力，Alembic可以重新配置数据库到历史记录中的任何时间点。&lt;/p&gt;
+&lt;p&gt;在Alembic，数据库迁移工作由迁移脚本完成。这个脚本有两个函数，分别叫做&lt;code&gt;upgrade()&lt;/code&gt;和&lt;code&gt;downgrade()&lt;/code&gt;。&lt;code&gt;upgrade()&lt;/code&gt;函数实施数据库更改，是迁移的一部分，&lt;code&gt;downgrade()&lt;/code&gt;函数则删除它们。通过添加和删除数据库变化的能力，Alembic可以重新配置数据库从历史记录中的任何时间点。&lt;/p&gt;
 
-&lt;p&gt;Alembic迁移可以手动或自动创建分别使用&lt;code&gt;revision&lt;/code&gt;和&lt;code&gt;migrate&lt;/code&gt;命令。手动迁移通过由开发人员使用Alembic的&lt;code&gt;Operations&lt;/code&gt;对象的指令来实现的空&lt;code&gt;upgrade()&lt;/code&gt;和&lt;code&gt;downgrade()&lt;/code&gt;函数创建迁移框架脚本。另一方面，自动迁移生成的代码让&lt;code&gt;upgrade()&lt;/code&gt;和&lt;code&gt;downgrade()&lt;/code&gt;函数在模型定义和数据库当前状态中寻找差异。&lt;/p&gt;
+&lt;p&gt;Alembic迁移可以分别使用&lt;code&gt;revision&lt;/code&gt;和&lt;code&gt;migrate&lt;/code&gt;命令手动或自动创建。手动迁移通过由开发人员使用Alembic的&lt;code&gt;Operations&lt;/code&gt;对象指令实现的空&lt;code&gt;upgrade()&lt;/code&gt;和&lt;code&gt;downgrade()&lt;/code&gt;函数创建迁移框架脚本。另一方面，自动迁移通过寻找模型定义和数据库当前状态间的不同为&lt;code&gt;upgrade()&lt;/code&gt;和&lt;code&gt;downgrade()&lt;/code&gt;生成代码。&lt;/p&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;警告：自动迁移并不总是准确的，可以忽略一些细节。应该经常审查一下自动生成的迁移脚本。&lt;/p&gt;
+  &lt;p&gt;警告：自动迁移并不总是准确的，可以忽略一些细节。所以应该经常审查一下自动生成的迁移脚本。&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;&lt;code&gt;migrate&lt;/code&gt;子命令创建自动迁移脚本：&lt;/p&gt;
@@ -193,7 +533,7 @@ INFO  [alembic.autogenerate.compare] Detected added index
 
 &lt;h5 id=&quot;section-3&quot;&gt;11.3、更新数据库&lt;/h5&gt;
 
-&lt;p&gt;一旦迁移脚本被审查且接受，就可以使用&lt;code&gt;db upgrade&lt;/code&gt;命令实施到数据库中：&lt;/p&gt;
+&lt;p&gt;一旦迁移脚本被审查且接受，就可以使用&lt;code&gt;db upgrade&lt;/code&gt;命令更新到数据库中：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;(venv) $ python hello.py db upgrade
 INFO  [alembic.migration] Context impl SQLiteImpl.
@@ -203,7 +543,7 @@ INFO  [alembic.migration] Running upgrade None -&amp;gt; 1bc594146bb5, initial m
 
 &lt;p&gt;第一次迁移实际上相当于调用&lt;code&gt;db.create_all()&lt;/code&gt;，但在后续迁移中，&lt;code&gt;upgrade&lt;/code&gt;命令对表实施更新操作但不影响表中的内容。&lt;/p&gt;
 
-&lt;p&gt;主题数据库的设计和使用是非常重要的，事实上整本书都是围绕这个主题来写的。你应该把本章作为一个概述来研究；更高级的主题将在以后的章节中讨论。下一章致力于讲解发送电子邮件。&lt;/p&gt;
+&lt;p&gt;数据库的设计和使用是非常重要的，事实上整本书都是围绕这个主题来写的。你应该把本章作为一个概述来研究；更高级的主题将在以后的章节中讨论。下一章致力于讲解发送电子邮件。&lt;/p&gt;
 
 </description>
         <pubDate>Thu, 27 Nov 2014 06:41:40 +0800</pubDate>
@@ -1339,231 +1679,6 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
         <pubDate>Fri, 24 Oct 2014 04:19:30 +0800</pubDate>
         <link>/flask/2014/10/24/flask-3-1.html</link>
         <guid isPermaLink="true">/flask/2014/10/24/flask-3-1.html</guid>
-      </item>
-    
-      <item>
-        <title>Flask教程 —— 基本应用程序结构（下）</title>
-        <description>&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;5、请求-响应循环&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;现在你已经玩过一个基本的Flask应用程序，你也许想要知道更多关于Flask如何施展魔力。下面章节描述了一些框架设计方面的特点。&lt;/p&gt;
-
-&lt;h5 id=&quot;contextcontext&quot;&gt;&lt;strong&gt;5.1、应用程序Context和请求Context&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;当Flask从客户端收到一个请求，它需要提供几个可用对象给视图函数处理。&lt;strong&gt;request对象&lt;/strong&gt;是个不错的例子，它封装了客户端发送的HTTP请求。&lt;/p&gt;
-
-&lt;p&gt;Flask视图函数访问request对象的最好方式，就是作为一个参数发送它，但这需要每个单一视图函数在应用程序中有一个额外的参数。考虑一下，如果request对象不是唯一一个视图函数需要访问完成请求的对象，事情将会变得更加复杂。&lt;/p&gt;
-
-&lt;p&gt;为了避免弄乱视图函数那些可能需要或不需要的参数，Flask使用&lt;strong&gt;context&lt;/strong&gt;来临时确定可访问的全局对象。也多亏了context，视图函数可以写成下面这样：&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;user_agent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;User-Agent&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;lt;p&amp;gt;Your browser is &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%s&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;lt;/p&amp;gt;&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user_agent&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;注意，在这个视图函数中，request是如何被作为一个全局变量来使用的。现实中，request是不能作为全局变量的，如果是多线程服务器，同一时间线程作用于不同客户端的不同请求，所以每一个线程需要看到request中的不同对象。contexts使得Flask确定可访问的全局变量而不干扰其他线程。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;注：线程是可以独立管理的最小指令序列。一个进程中有多个活动的线程是非常常见的，有时分享内存或文件句柄资源。多线程web服务器会启动一个线程池并从池中选择一个线程来处理每个传入的请求。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Flask有两类context： &lt;em&gt;应用级context&lt;/em&gt; 和 &lt;em&gt;请求级context&lt;/em&gt; 。表2-1展示了这些context提供的变量。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;表2-1. Flask全局context&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/flask2-03.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Flask激活（或压栈）应用级context和请求级context在调度请求之前，然后删除他们当请求被处理后。当应用程序context被压入栈，线程中&lt;code&gt;current_app&lt;/code&gt;和&lt;code&gt;g&lt;/code&gt;变量变得可用；同样的，当请求级context被压入栈，&lt;code&gt;request&lt;/code&gt;和&lt;code&gt;session&lt;/code&gt;变量也同样变得可用。如果这些变量中的任何一个不是由激活的应用级或请求级context访问，会产生错误。在后面的章节会详细讨论四个context变量，所以不要担心你不理解它们的用处。&lt;/p&gt;
-
-&lt;p&gt;下面的Python shell会话演示了应用级context是如何工作的：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; from hello import app
-&amp;gt;&amp;gt;&amp;gt; from flask import current_app
-&amp;gt;&amp;gt;&amp;gt; current_app.name
-Traceback (most recent call last):
-...
-RuntimeError: working outside of the application context
-&amp;gt;&amp;gt;&amp;gt; app_ctx = app.app_context()
-&amp;gt;&amp;gt;&amp;gt; app_ctx.push()
-&amp;gt;&amp;gt;&amp;gt; current_app.name
-&#39;hello&#39;
-&amp;gt;&amp;gt;&amp;gt; app_ctx.pop()
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;在这个示例中，当应用级context没有激活，但是却作为有效的context被压入栈中，&lt;code&gt;current_app.name&lt;/code&gt;报错。注意在应用程序实例中一个应用级context是如何通过调用&lt;code&gt;app.app_context()&lt;/code&gt;来获得的。&lt;/p&gt;
-
-&lt;h5 id=&quot;section-1&quot;&gt;&lt;strong&gt;5.2、请求调度&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;当一个应用程序收到客户端的请求，它需要找到响应的视图函数为之服务。对于这个任务，Flask会在应用程序的&lt;strong&gt;URL映射&lt;/strong&gt;中查找请求的URL，该映射包含URLs和操作它们的视图函数。Flask通过&lt;code&gt;app.route&lt;/code&gt;装饰器或非装饰器版本&lt;code&gt;app.add_url_rule()&lt;/code&gt;来建立这个映射。&lt;/p&gt;
-
-&lt;p&gt;看一下Flask应用程序中URL映射是怎样的，你可以在Python shell中检查&lt;code&gt;hello.py&lt;/code&gt;创建的映射。测试中，请确保你的虚拟环境是激活状态：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) % python
-&amp;gt;&amp;gt;&amp;gt; from hello import app
-&amp;gt;&amp;gt;&amp;gt; app.url_map
-Map([&amp;lt;Rule &#39;/&#39; (HEAD, OPTIONS, GET) -&amp;gt; index&amp;gt;,
-  &amp;lt;Rule &#39;/static/&amp;lt;filename&amp;gt;&#39; (HEAD, OPTIONS, GET) -&amp;gt; static&amp;gt;,
-  &amp;lt;Rule &#39;/user/&amp;lt;name&amp;gt;&#39; (HEAD, OPTIONS, GET) -&amp;gt; user&amp;gt;])
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;code&gt;/&lt;/code&gt;和&lt;code&gt;/user/&amp;lt;name&amp;gt;&lt;/code&gt;路由是由应用程序中的&lt;code&gt;app.route&lt;/code&gt;所定义。&lt;code&gt;/static/&amp;lt;filename&amp;gt;&lt;/code&gt;路由是由Flask添加，用于访问静态文件的一个特殊路由。你将在第三章学习更多关于静态文件的内容。&lt;/p&gt;
-
-&lt;p&gt;URL映射中所示的&lt;code&gt;HEAD&lt;/code&gt;、&lt;code&gt;OPTIONS&lt;/code&gt;、&lt;code&gt;GET&lt;/code&gt;元素为&lt;strong&gt;request方法&lt;/strong&gt;，由路由处理。Flask连接方法到每个路由，这样不同的请求方法发送到相同的URL可以被不同的视图函数处理。&lt;code&gt;HEAD&lt;/code&gt;和&lt;code&gt;OPTIONS&lt;/code&gt;方法由Flask自动管理，所以实际上可以说，在这个应用程序中URL映射的三个路由都连接到&lt;code&gt;GET&lt;/code&gt;方法了。在第四章你将学习为路由指定不同的请求方法。&lt;/p&gt;
-
-&lt;h5 id=&quot;hooks&quot;&gt;&lt;strong&gt;5.3、请求Hooks&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;有些时候在每个请求处理之前或之后执行代码是非常有用的。例如，在开始每一个请求前可能有必要创建数据库连接，或对用户请求进行验证。为了避免复制处理这些操作的代码到每一个视图函数中，Flask给你选择注册相同函数来调用，在请求被分配给视图函数之前或之后。&lt;/p&gt;
-
-&lt;p&gt;请求hooks由装饰器实现。下面是四个Flask支持的hooks：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code&gt;before_first_request&lt;/code&gt;：在第一个请求被处理前注册一个函数运行。&lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;before_request&lt;/code&gt;：在每一个请求前注册一个函数运行。&lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;after_request&lt;/code&gt;：如果没有未处理的异常发生，在每一个请求后注册一个函数运行。&lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;teardown_request&lt;/code&gt;：即使未处理的异常发生，在每一个请求后注册一个函数运行。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;在请求hook函数和视图函数之间共享数据的惯用方法就是使用&lt;code&gt;g&lt;/code&gt;全局context。例如，&lt;code&gt;before_request&lt;/code&gt;处理程序可以从数据库加载已登录的用户并保存在&lt;code&gt;g.user&lt;/code&gt;中。之后，当视图函数被调用，可以从那访问用户。&lt;/p&gt;
-
-&lt;p&gt;请求hooks的示例会在未来的章节中展示给大家，所以不用担心，&lt;/p&gt;
-
-&lt;h5 id=&quot;section-2&quot;&gt;&lt;strong&gt;5.4、响应&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;当Flask调用一个视图函数，并期望它的返回值去响应该请求。大多数的响应是将简单字符串构成的HTML页面发回给客户端。&lt;/p&gt;
-
-&lt;p&gt;但是HTTP协议需要比字符串更多的信息作为请求的响应。一个HTTP响应中非常重要的部分是&lt;strong&gt;状态码&lt;/strong&gt;，Flask默认设置200来指示请求已经成功处理。&lt;/p&gt;
-
-&lt;p&gt;当视图函数需要用不同的状态码响应，可以在响应文本后添加数字码作为第二个返回值。例如，下面的视图函数返回400错误状态码的请求：&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;lt;h1&amp;gt;Bad Request&amp;lt;/h1&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;400&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;视图函数返回的响应还可以携带第三个参数，添加一个头部字典给HTTP响应。通常很少用到，但是你可以在第十四章看到示例。&lt;/p&gt;
-
-&lt;p&gt;除了返回一个、两个或三个值的元组，Flask视图函数可以选择返回&lt;strong&gt;response对象&lt;/strong&gt;。&lt;code&gt;make_response()&lt;/code&gt;函数可携带一个、两个或三个参数，和视图函数返回的值一样，并返回一个response对象。有时候在视图函数中执行这个转换是非常有用的，然后使用response对象中的方法进一步配置响应。下面的示例创建response对象并设置cookie：&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make_response&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make_response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;lt;h1&amp;gt;This document carries a cookie!&amp;lt;/h1&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set_cookie&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;answer&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;42&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;有一类特殊的响应称作&lt;strong&gt;重定向&lt;/strong&gt;。这类响应不包含页面文档；只是给浏览器一个新的URL去加载新的页面。重定向通常和web表单一起使用，你将在第四章学习。&lt;/p&gt;
-
-&lt;p&gt;重定向通常由302响应状态码注明并且重定向的URL由头部的&lt;code&gt;Location&lt;/code&gt;给出。重定向响应可以使用三个值的返回生成，也可通过响应对象生成，但是鉴于它频繁的使用，Flask提供&lt;code&gt;redirect()&lt;/code&gt;函数来创建这样的响应：&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;http://www.example.com&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;另一个具有中断功能的特殊响应用来错误处理。下面的示例，当URL给出的id动态参数不是一个合法的用户时返回状态码404：&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;abort&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/user/&amp;lt;id&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;load_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;abort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;404&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;lt;h1&amp;gt;Hello, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%s&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;lt;/h1&amp;gt;&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;注意终止不是指将控制权返回给调用它的函数，而是指通过抛出异常将控制权返回给web服务。&lt;/p&gt;
-
-&lt;h3 id=&quot;flask&quot;&gt;&lt;strong&gt;6、Flask扩展&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;Flask是可扩展的。它故意腾出地给重要的功能，例如数据库和用户授权，给你自由去选择最适合你的应用程序的包，或写一个自己想要的。&lt;/p&gt;
-
-&lt;p&gt;社区开发了非常多的&lt;strong&gt;扩展&lt;/strong&gt;用于各种用途，如果这还不够，可以使用任何Python标准包和库。为了让你了解一个扩展是如何并入一个应用程序的，下面的章节给hello.py添加一个扩展，增加应用程序的命令行参数。&lt;/p&gt;
-
-&lt;h5 id=&quot;flask-script&quot;&gt;&lt;strong&gt;6.1、Flask-Script命令行选项&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;Flask开发，其web服务器支持一系列的启动配置选项，但是配置它们的唯一方式只有在脚本中传递参数给&lt;code&gt;app.run()&lt;/code&gt;并调用。这不是非常的方便，理想方法是通过命令行参数传递配置选项。&lt;/p&gt;
-
-&lt;p&gt;Flask-Script是给你的Flask应用程序添加命令行解释的扩展。它打包了一组通用的选项，还支持自定义命令。&lt;/p&gt;
-
-&lt;p&gt;使用pip安装扩展：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) $ pip install flask-script
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;示例2-3展示了在 &lt;em&gt;hello.py&lt;/em&gt; 应用程序中添加命令行解释的变化。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例2-3. hello.py：使用Flask-Script&lt;/em&gt; &lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.script&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Manager&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;manager&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Manager&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;manager&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;专为Flask开发的扩展暴露在&lt;code&gt;flask.ext&lt;/code&gt;命名空间下。Flask-Script从&lt;code&gt;flask.ext.script&lt;/code&gt;中导出一个名为&lt;code&gt;Manager&lt;/code&gt;的类。&lt;/p&gt;
-
-&lt;p&gt;初始化这个扩展的方法和其他许多扩展一样：主类实例的初始化是通过将应用程序实例作为参数传递给构造函数实现的。创建的对象适当的用于每一个扩展。在这个示例中，服务器启动通过&lt;code&gt;manager.run()&lt;/code&gt;来路由，且命令行在这被解析。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 2c&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;因为这些变化，应用程序获得一组基本的命令行选项。运行&lt;code&gt;hello.py&lt;/code&gt;显示可用信息：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ python hello.py
-usage: hello.py [-h] {shell, runserver} ...
-
-positional arguments:
-  {shell, runserver}
-    shell           在Flask应用程序上下文的内部运行一个Python Shell。
-    runserver       运行Flask开发服务器，例如：app.run()
-
-optional arguments:
-  -h, --help        显示这个帮助信息并退出
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;code&gt;shell&lt;/code&gt;命令用于在应用程序上下文中启动一个Python shell会话。你可以使用这个会话去运行维护任务，或测试，或调试错误。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;runserver&lt;/code&gt;命令，就像它的名称一样，启动web服务。运行&lt;code&gt;python hello.py runserver&lt;/code&gt;在调试模式下启动web服务，还有更多的选项：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) $ python hello.py runserver --help
-usage: hello.py runserver [-h] [-t HOST] [-p PORT] [--threaded]
-                          [--processes PROCESSES] [--passthrough-errors] [-d]
-                          [-r]
-
-运行Flask开发服务器，例如：app.run()
-
-optional arguments:
-  -h, --help             显示这个帮助信息并退出
-  -t HOST, --host HOST
-  -p PORT, --port PORT
-  --threaded
-  --processes PROCESSES
-  --passthrough-errors
-  -d, --no-debug
-  -r, --no-reload 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;code&gt;--host&lt;/code&gt;参数是一个非常有用的选项，因为它能告诉web服务器监听哪个网络接口的客户端连接。默认，Flask开发的web服务器监听&lt;code&gt;localhost&lt;/code&gt;的连接，所以只有来自内部计算机运行的服务器可以接收。下面的命令使得web服务器监听公网接口，其他网络上的计算机可以连接：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) $ python hello.py runserver --host 0.0.0.0
- * Running on http://0.0.0.0:5000/
- * Restarting with reload
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;现在web服务器应该可以从网络中的任何一台计算机访问 &lt;em&gt;http://a.b.c.d:5000&lt;/em&gt; ，“a.b.c.d”是运行服务的计算机的外部IP地址。&lt;/p&gt;
-
-&lt;p&gt;这一章介绍了请求响应的概念，但说的更多的是响应。Flask使用&lt;strong&gt;模板&lt;/strong&gt;为生成响应提供非常好的支持，这是非常重要的话题，下一章会重点讲它。&lt;/p&gt;
-
-</description>
-        <pubDate>Mon, 20 Oct 2014 01:31:30 +0800</pubDate>
-        <link>/flask/2014/10/20/flask-2-2.html</link>
-        <guid isPermaLink="true">/flask/2014/10/20/flask-2-2.html</guid>
       </item>
     
   </channel>

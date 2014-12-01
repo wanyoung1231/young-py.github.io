@@ -8,7 +8,7 @@ author: young
 
 ### 9、数据库在视图函数中的使用
 
-在前面章节描述的数据库操作可以在视图函数中直接使用。示例5-5展示的新版本主页路径记录了用户输入的名字到数据库中。
+在前面章节描述的数据库操作是可以在视图函数中直接使用的。示例5-5展示的新版本主页实现了用户输入名字并保存到数据库中。
 
 _示例5-5. hello.py：数据库在视图函数中的使用_
 
@@ -33,7 +33,7 @@ def index():
 
 {% endhighlight %}
 
-在这个已修改的应用程序版本中，每次提交一个名字应用程序都要使用`filter_by()`查询过滤器到数据库中检查一遍。`known`变量写入到用户会话后，重定向后信息可以发送到模板，用于定制问候语。注意为了应用程序可以工作，必须创建好Python shell中展示的那些数据库表。
+在这个已修改的应用程序版本中，每次提交一个名字应用程序都要使用`filter_by()`查询过滤器到数据库中检查一遍。`known`变量被写入到用户会话中，这样在重定向后信息就可以发送到模板来定制问候语。注意为了应用程序可以工作，必须创建好之前在Python shell中展示的那些数据库表。
 
 新版本的相关模板在示例5-6中展示。这个模板使用`known`参数用于区分是已知用户还是新用户的问候。
 
@@ -62,7 +62,7 @@ def index():
 
 ### 10、与python shell的集成
 
-每次shell会话启动都必须导入数据库实例和模型是非常单调乏味的工作。避免不断重复这些导入,可以配置Flask-Script的shell命令来自动导入特定的对象。
+每次shell会话启动都必须导入数据库实例和模型是非常单调乏味的工作。为了避免不断重复这些导入，可以配置Flask-Script的shell命令来自动导入特定的对象。
 
 shell命令需要注册`make_context`回调函数来将对象添加到导入列表。如示例5-7所示。
 
@@ -73,8 +73,7 @@ _示例5-7. hello.py：增加shell上下文_
 from flask.ext.script import Shell 
 
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Role=Role) 
-
+    return dict(app=app, db=db, User=User, Role=Role)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 
 {% endhighlight %}
@@ -95,11 +94,11 @@ manager.add_command("shell", Shell(make_context=make_shell_context))
 
 随着开发进度不断向前，你会发现你的数据库模型需要更改，而当这种情况发生时需要更新数据库。
 
-Flask-SQLAlchemy只有当数据库表不存在了才从模型它们，所以让更新表的唯一途径就是销毁旧的表，当然这将导致所有的数据库中的数据丢失。
+Flask-SQLAlchemy只有当数据库表不存在了才从模型创建它们，所以更新表的唯一途径就是销毁旧的表，当然这将导致所有数据库中的数据丢失。
 
-一个更好的解决方案是使用一个**数据库迁移**框架。和源码版本控制工具跟踪更改源码文件一样，数据库迁移框架跟踪更改数据库模型，然后增量变化可以应用到数据库中。
+有个更好的解决方案就是使用**数据库迁移**框架。和源码版本控制工具跟踪更改源码文件一样，数据库迁移框架跟踪更改数据库模型，然后将增量变化应用到数据库中。
 
-SQLAlchemy的主要开发人员写了一个[Alembic](http://alembic.readthedocs.org/en/latest/)迁移框架，但是替代直接使用Alembic，Flask应用可以使用[Flask-Migrate](http://flask-migrate.readthedocs.org/en/latest/)扩展，一个集成了Flask-Script来提供所有操作命令的轻量级Alembic包。
+SQLAlchemy的主要开发人员写了一个[Alembic](http://alembic.readthedocs.org/en/latest/)迁移框架，但我们不直接使用Alembic，Flask应用可以使用[Flask-Migrate](http://flask-migrate.readthedocs.org/en/latest/)扩展，一个集成了Flask-Script来提供所有操作命令的轻量级Alembic包。
 
 ##### 11.1、创建迁移仓库
 
@@ -122,9 +121,8 @@ manager.add_command('db', MigrateCommand)
 
 {% endhighlight %}
 
-为了公开数据库迁移命令，Flask-Migrate公开`MigrateCommand`类连接到Flask-Script的`manager`对象。在这个示例中使用`db`来连接到命令。
+为了可以使用数据库迁移命令，Flask-Migrate提供`MigrateCommand`类来连接Flask-Script的`manager`对象。在这个示例中使用`db`来连接到命令。
 
-Before database migrations can be maintained, it is necessary to create a migration repository with the init subcommand
 在数据库迁移可以维护之前，必须通过`init`子命令来创建一个迁移库：
 
     (venv) $ python hello.py db init
@@ -142,15 +140,13 @@ Before database migrations can be maintained, it is necessary to create a migrat
 
 >建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 5c`来切换到这个版本的应用程序。
 
-在数据库迁移仓库里的文件必须被添加到版本控制中作为应用程序的一部分。
-
 ##### 11.2、创建迁移脚本
 
-在Alembic，数据库迁移工作由迁移脚本完成。这个脚本有两个函数，分别叫做`upgrade()`和`downgrade()`。`upgrade()`函数实施数据库更改，是迁移的一部分，`downgrade()`函数则删除它们。通过添加和删除数据库变化的能力，Alembic可以重新配置数据库到历史记录中的任何时间点。
+在Alembic，数据库迁移工作由迁移脚本完成。这个脚本有两个函数，分别叫做`upgrade()`和`downgrade()`。`upgrade()`函数实施数据库更改，是迁移的一部分，`downgrade()`函数则删除它们。通过添加和删除数据库变化的能力，Alembic可以重新配置数据库从历史记录中的任何时间点。
 
-Alembic迁移可以手动或自动创建分别使用`revision`和`migrate`命令。手动迁移通过由开发人员使用Alembic的`Operations`对象的指令来实现的空`upgrade()`和`downgrade()`函数创建迁移框架脚本。另一方面，自动迁移生成的代码让`upgrade()`和`downgrade()`函数在模型定义和数据库当前状态中寻找差异。
+Alembic迁移可以分别使用`revision`和`migrate`命令手动或自动创建。手动迁移通过由开发人员使用Alembic的`Operations`对象指令实现的空`upgrade()`和`downgrade()`函数创建迁移框架脚本。另一方面，自动迁移通过寻找模型定义和数据库当前状态间的不同为`upgrade()`和`downgrade()`生成代码。
 
->警告：自动迁移并不总是准确的，可以忽略一些细节。应该经常审查一下自动生成的迁移脚本。
+>警告：自动迁移并不总是准确的，可以忽略一些细节。所以应该经常审查一下自动生成的迁移脚本。
 
 `migrate`子命令创建自动迁移脚本：
 
@@ -168,7 +164,7 @@ Alembic迁移可以手动或自动创建分别使用`revision`和`migrate`命令
 
 ##### 11.3、更新数据库
 
-一旦迁移脚本被审查且接受，就可以使用`db upgrade`命令实施到数据库中：
+一旦迁移脚本被审查且接受，就可以使用`db upgrade`命令更新到数据库中：
 
     (venv) $ python hello.py db upgrade
     INFO  [alembic.migration] Context impl SQLiteImpl.
@@ -177,5 +173,5 @@ Alembic迁移可以手动或自动创建分别使用`revision`和`migrate`命令
 
 第一次迁移实际上相当于调用`db.create_all()`，但在后续迁移中，`upgrade`命令对表实施更新操作但不影响表中的内容。
 
-主题数据库的设计和使用是非常重要的，事实上整本书都是围绕这个主题来写的。你应该把本章作为一个概述来研究；更高级的主题将在以后的章节中讨论。下一章致力于讲解发送电子邮件。
+数据库的设计和使用是非常重要的，事实上整本书都是围绕这个主题来写的。你应该把本章作为一个概述来研究；更高级的主题将在以后的章节中讨论。下一章致力于讲解发送电子邮件。
 
