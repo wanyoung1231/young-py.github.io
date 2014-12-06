@@ -142,7 +142,8 @@
     <span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SECRET_KEY&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s">&#39;hard to guess string&#39;</span> 
     <span class="n">SQLALCHEMY_COMMIT_ON_TEARDOWN</span> <span class="o">=</span> <span class="bp">True</span>
     <span class="n">FLASKY_MAIL_SUBJECT_PREFIX</span> <span class="o">=</span> <span class="s">&#39;[Flasky]&#39;</span>
-    <span class="n">FLASKY_MAIL_SENDER</span> <span class="o">=</span> <span class="s">&#39;Flasky Admin &lt;flasky@example.com&gt;&#39;</span> <span class="n">FLASKY_ADMIN</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;FLASKY_ADMIN&#39;</span><span class="p">)</span>
+    <span class="n">FLASKY_MAIL_SENDER</span> <span class="o">=</span> <span class="s">&#39;Flasky Admin &lt;flasky@example.com&gt;&#39;</span> 
+    <span class="n">FLASKY_ADMIN</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;FLASKY_ADMIN&#39;</span><span class="p">)</span>
     
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">):</span> 
