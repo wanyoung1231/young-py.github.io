@@ -6,7 +6,7 @@ categories: flask
 author: young
 ---
 
-许多类型的应用程序需要通知用户当某些事件发生的时候，常用的沟通方法就是电子邮件。尽管在Flask应用程序中，可以使用Python标准库中的`smtplib`包来发送电子邮件，不过Flask-Mail扩展封装了`smtplib`且与Flask整合的非常好。
+许多类型的应用程序都会在某些事件发生的时候通知用户，常用的沟通方法就是电子邮件。尽管在Flask应用程序中，可以使用Python标准库中的`smtplib`包来发送电子邮件，不过**Flask-Mail**扩展封装了`smtplib`且与Flask整合的非常好。
 
 ### **1、使用Flask-Mail作为邮件支持**
 
@@ -14,11 +14,13 @@ author: young
     
     (venv) $ pip install flask-mail
 
-扩展连接到一个简单邮件传输协议(SMTP)服务器并将邮件传递交付给它。如果没有给出配置，Flask-Mail连接到本地主机端口25并发送没有验证的电子邮件。表6-1所示的列表配置键可以用来配置SMTP服务器。
+扩展连接到一个简单邮件传输协议(SMTP)服务器并将邮件传递给它由它递送。如果没有给出配置，Flask-Mail则连接到**localhost**25端口并发送无验证的电子邮件。表6-1所示的配置键列表可以用来配置SMTP服务器。
 
 _表格6-1. Flask-Mail SMTP服务器配置键_
 
-在开发过程中可能连接到一个外部SMTP服务器会更方便。示例6-1展示了如何配置应用程序通过谷歌的Gmail帐户发送电子邮件。
+<img style="width:419px; height:198px;" src="http://young-py.github.io/imgs/flask6-01.png">
+
+在开发过程中如果能连接到一个外部SMTP服务器会更方便。示例6-1展示了如何配置应用程序通过谷歌的Gmail帐户发送电子邮件。
 
 _示例6-1. hello.py：Flask-Mail配置Gmail_
 
@@ -32,7 +34,7 @@ app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') app.config['MAIL_P
 
 {% endhighlight %}
 
->建议：永远不要将账户证书直接在您的脚本里面，尤其是如果你打算将你的的工作开源。为了保护你的帐户信息，必须让脚本从你的配置环境中导入敏感信息。
+>建议：永远不要将账户证书直接写在你的脚本里面，尤其是如果你打算将你的的工作开源。为了保护你的帐户信息，必须让脚本从你的配置环境中导入敏感信息。
 
 示例6-2展示了Flask-Mail的初始化。
 
@@ -45,7 +47,7 @@ Mail mail = Mail(app)
 
 {% endhighlight %}
 
-持有email服务器用户名和密码的两个变量需要定义在环境中。如果你是使用Linux或Mac OS X上的bash，您可以设置这些变量如下：
+持有email服务器用户名和密码的两个变量需要在环境中定义。如果你是使用Linux或Mac OS X上的bash，你可以设置这些变量如下：
 
     (venv) $ export MAIL_USERNAME=<Gmail username>
     (venv) $ export MAIL_PASSWORD=<Gmail password>
@@ -73,7 +75,7 @@ Mail mail = Mail(app)
 
 ##### **1.2、集成邮件到应用程序**
 
-为了避免每次都手动创建电子邮件消息，将应用电子邮件发送功能的共同部分抽象到一个函数中是非常不错的做法。另一个好处是，这个函数可以从Jinja2模板以最大的灵活性渲染。示例6-3展示了怎么实现。
+为了避免每次都手动创建电子邮件消息，将应用电子邮件发送功能的共同部分抽象到一个函数中是非常不错的做法。另一个好处是，这个函数可以用Jinja2模板尽情渲染。示例6-3展示了怎么实现。
 
 _示例6-3. hello.py：Email支持_
 
@@ -95,7 +97,7 @@ def send_email(to, subject, template, **kwargs):
 
 为发件人的主题和地址定义前缀字符串的函数依赖于两个特定于应用程序的配置键。`send_email`函数携带目的地址、主题、邮件体模板和一组关键字参数。模板名不能有扩展，这样两个版本的模板可以使用纯文本或富文本。调用者传递关键字参数给`render_template()`调用，这样模板就可以生成email体。
 
-`index()`视图函数可以非常容易的扩展发送一个email给管理员，每当从表单中收到一个新的名字的时候。示例6-4展示所做的改动。
+`index()`视图函数可以非常容易的扩充用来发送一个email给管理员，当从表单中收到一个新的名字的时候。示例6-4展示所做的改动。
 
 _示例6-4. hello.py：Email示例_
 
@@ -126,7 +128,7 @@ def index():
 
 {% endhighlight %}
 
-在启动的过程中，在`FLASKY_ADMIN`环境变量中给出的email的收件人会加载到同名的配置变量中。需要创建文本和HTML两个版本的email模板文件。这些文件都存储在`template`内的`mail`子目录中，让他们独立于普通模板。电子邮件模板需要给出用户作为该模板参数，因此`send_email()`调用包括用户来作为一个关键字参数。
+启动过程中，在`FLASKY_ADMIN`环境变量中给出的email收件人会加载到同名的配置变量中。需要创建文本和HTML两个版本的email模板文件。这些文件都存储在`template`内的`mail`子目录中，让他们独立于普通模板。电子邮件模板需要给出用户作为该模板参数，因此`send_email()`调用包括用户来作为一个关键字参数。
 
 >建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 6a`来切换到这个版本的应用程序。
 
@@ -164,11 +166,11 @@ def send_email(to, subject, template, **kwargs):
 
 {% endhighlight %}
 
-这个实现突出了一个有趣的问题。许多Flask扩展操作在假设有活动应用程序和请求上下文。Flask-Mail的`send()`函数使用`current_app`，所以它需要已激活的应用程序上下文。但是当`mail.send()`函数在一个不同的线程上执行，应用程序上下文需要人为地创建使用`app.app_context()`。
+这个实现突显了一个有趣的问题。许多Flask扩展操作是在假设有活动的应用程序和请求上下文的情况下进行的。Flask-Mail的`send()`函数使用`current_app`，所以它需要已激活的应用程序上下文。但是当`mail.send()`函数在一个不同的线程上执行，应用程序上下文需要人为地创建使用`app.app_context()`。
 
 >建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 6b`来切换到这个版本的应用程序。
 
-如果你现在运行应用程序，你会发现它更敏感，但请记住，发送大量的电子邮件的应用程序，其拥有一个致力于发送电子邮件的服务比开启一个新的线程更合适。例如，执行`send_async_email()`函数可以将邮件发送到[Celery](http://www.celeryproject.org/)的任务队列中。
+如果你现在运行应用程序，你会发现它响应更快了，但请记住，发送大量的电子邮件的应用程序，其拥有一个致力于发送电子邮件的服务比开启一个新的线程更合适。例如，执行`send_async_email()`函数可以将邮件发送到[Celery](http://www.celeryproject.org/)的任务队列中。
 
 本章完成的是大多数web应用程序必备的功能。现在的问题是，`hello.py`脚本开始大，这使得它变得更难管理。在下一章中，你将学习如何构建一个更大的应用程序。
 

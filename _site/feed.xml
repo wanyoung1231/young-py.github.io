@@ -7,8 +7,23 @@
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>Flask教程 —— 大型应用程序结构（下）</title>
+        <description>&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;4、启动脚本&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;5、所需文件&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;6、单元测试&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h3 id=&quot;section-3&quot;&gt;&lt;strong&gt;7、数据库启动&lt;/strong&gt;&lt;/h3&gt;
+</description>
+        <pubDate>Sat, 06 Dec 2014 05:34:27 +0800</pubDate>
+        <link>/flask/2014/12/06/flask-7-2.html</link>
+        <guid isPermaLink="true">/flask/2014/12/06/flask-7-2.html</guid>
+      </item>
+    
+      <item>
         <title>Flask教程 —— Email</title>
-        <description>&lt;p&gt;许多类型的应用程序需要通知用户当某些事件发生的时候，常用的沟通方法就是电子邮件。尽管在Flask应用程序中，可以使用Python标准库中的&lt;code&gt;smtplib&lt;/code&gt;包来发送电子邮件，不过Flask-Mail扩展封装了&lt;code&gt;smtplib&lt;/code&gt;且与Flask整合的非常好。&lt;/p&gt;
+        <description>&lt;p&gt;许多类型的应用程序都会在某些事件发生的时候通知用户，常用的沟通方法就是电子邮件。尽管在Flask应用程序中，可以使用Python标准库中的&lt;code&gt;smtplib&lt;/code&gt;包来发送电子邮件，不过&lt;strong&gt;Flask-Mail&lt;/strong&gt;扩展封装了&lt;code&gt;smtplib&lt;/code&gt;且与Flask整合的非常好。&lt;/p&gt;
 
 &lt;h3 id=&quot;flask-mail&quot;&gt;&lt;strong&gt;1、使用Flask-Mail作为邮件支持&lt;/strong&gt;&lt;/h3&gt;
 
@@ -17,11 +32,13 @@
 &lt;pre&gt;&lt;code&gt;(venv) $ pip install flask-mail
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;扩展连接到一个简单邮件传输协议(SMTP)服务器并将邮件传递交付给它。如果没有给出配置，Flask-Mail连接到本地主机端口25并发送没有验证的电子邮件。表6-1所示的列表配置键可以用来配置SMTP服务器。&lt;/p&gt;
+&lt;p&gt;扩展连接到一个简单邮件传输协议(SMTP)服务器并将邮件传递给它由它递送。如果没有给出配置，Flask-Mail则连接到&lt;strong&gt;localhost&lt;/strong&gt;25端口并发送无验证的电子邮件。表6-1所示的配置键列表可以用来配置SMTP服务器。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;表格6-1. Flask-Mail SMTP服务器配置键&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;在开发过程中可能连接到一个外部SMTP服务器会更方便。示例6-1展示了如何配置应用程序通过谷歌的Gmail帐户发送电子邮件。&lt;/p&gt;
+&lt;p&gt;&lt;img style=&quot;width:419px; height:198px;&quot; src=&quot;http://young-py.github.io/imgs/flask6-01.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在开发过程中如果能连接到一个外部SMTP服务器会更方便。示例6-1展示了如何配置应用程序通过谷歌的Gmail帐户发送电子邮件。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例6-1. hello.py：Flask-Mail配置Gmail&lt;/em&gt;&lt;/p&gt;
 
@@ -32,7 +49,7 @@
 &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_USERNAME&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_USERNAME&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PASSWORD&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PASSWORD&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;建议：永远不要将账户证书直接在您的脚本里面，尤其是如果你打算将你的的工作开源。为了保护你的帐户信息，必须让脚本从你的配置环境中导入敏感信息。&lt;/p&gt;
+  &lt;p&gt;建议：永远不要将账户证书直接写在你的脚本里面，尤其是如果你打算将你的的工作开源。为了保护你的帐户信息，必须让脚本从你的配置环境中导入敏感信息。&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;示例6-2展示了Flask-Mail的初始化。&lt;/p&gt;
@@ -42,7 +59,7 @@
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; 
 &lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;持有email服务器用户名和密码的两个变量需要定义在环境中。如果你是使用Linux或Mac OS X上的bash，您可以设置这些变量如下：&lt;/p&gt;
+&lt;p&gt;持有email服务器用户名和密码的两个变量需要在环境中定义。如果你是使用Linux或Mac OS X上的bash，你可以设置这些变量如下：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;(venv) $ export MAIL_USERNAME=&amp;lt;Gmail username&amp;gt;
 (venv) $ export MAIL_PASSWORD=&amp;lt;Gmail password&amp;gt;
@@ -73,7 +90,7 @@
 
 &lt;h5 id=&quot;section&quot;&gt;&lt;strong&gt;1.2、集成邮件到应用程序&lt;/strong&gt;&lt;/h5&gt;
 
-&lt;p&gt;为了避免每次都手动创建电子邮件消息，将应用电子邮件发送功能的共同部分抽象到一个函数中是非常不错的做法。另一个好处是，这个函数可以从Jinja2模板以最大的灵活性渲染。示例6-3展示了怎么实现。&lt;/p&gt;
+&lt;p&gt;为了避免每次都手动创建电子邮件消息，将应用电子邮件发送功能的共同部分抽象到一个函数中是非常不错的做法。另一个好处是，这个函数可以用Jinja2模板尽情渲染。示例6-3展示了怎么实现。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例6-3. hello.py：Email支持&lt;/em&gt;&lt;/p&gt;
 
@@ -91,7 +108,7 @@
 
 &lt;p&gt;为发件人的主题和地址定义前缀字符串的函数依赖于两个特定于应用程序的配置键。&lt;code&gt;send_email&lt;/code&gt;函数携带目的地址、主题、邮件体模板和一组关键字参数。模板名不能有扩展，这样两个版本的模板可以使用纯文本或富文本。调用者传递关键字参数给&lt;code&gt;render_template()&lt;/code&gt;调用，这样模板就可以生成email体。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;index()&lt;/code&gt;视图函数可以非常容易的扩展发送一个email给管理员，每当从表单中收到一个新的名字的时候。示例6-4展示所做的改动。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;index()&lt;/code&gt;视图函数可以非常容易的扩充用来发送一个email给管理员，当从表单中收到一个新的名字的时候。示例6-4展示所做的改动。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例6-4. hello.py：Email示例&lt;/em&gt;&lt;/p&gt;
 
@@ -118,7 +135,7 @@
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; 
                             &lt;span class=&quot;n&quot;&gt;known&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;known&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;在启动的过程中，在&lt;code&gt;FLASKY_ADMIN&lt;/code&gt;环境变量中给出的email的收件人会加载到同名的配置变量中。需要创建文本和HTML两个版本的email模板文件。这些文件都存储在&lt;code&gt;template&lt;/code&gt;内的&lt;code&gt;mail&lt;/code&gt;子目录中，让他们独立于普通模板。电子邮件模板需要给出用户作为该模板参数，因此&lt;code&gt;send_email()&lt;/code&gt;调用包括用户来作为一个关键字参数。&lt;/p&gt;
+&lt;p&gt;启动过程中，在&lt;code&gt;FLASKY_ADMIN&lt;/code&gt;环境变量中给出的email收件人会加载到同名的配置变量中。需要创建文本和HTML两个版本的email模板文件。这些文件都存储在&lt;code&gt;template&lt;/code&gt;内的&lt;code&gt;mail&lt;/code&gt;子目录中，让他们独立于普通模板。电子邮件模板需要给出用户作为该模板参数，因此&lt;code&gt;send_email()&lt;/code&gt;调用包括用户来作为一个关键字参数。&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 6a&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
@@ -156,13 +173,13 @@
     &lt;span class=&quot;n&quot;&gt;thr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;thr&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;这个实现突出了一个有趣的问题。许多Flask扩展操作在假设有活动应用程序和请求上下文。Flask-Mail的&lt;code&gt;send()&lt;/code&gt;函数使用&lt;code&gt;current_app&lt;/code&gt;，所以它需要已激活的应用程序上下文。但是当&lt;code&gt;mail.send()&lt;/code&gt;函数在一个不同的线程上执行，应用程序上下文需要人为地创建使用&lt;code&gt;app.app_context()&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;这个实现突显了一个有趣的问题。许多Flask扩展操作是在假设有活动的应用程序和请求上下文的情况下进行的。Flask-Mail的&lt;code&gt;send()&lt;/code&gt;函数使用&lt;code&gt;current_app&lt;/code&gt;，所以它需要已激活的应用程序上下文。但是当&lt;code&gt;mail.send()&lt;/code&gt;函数在一个不同的线程上执行，应用程序上下文需要人为地创建使用&lt;code&gt;app.app_context()&lt;/code&gt;。&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 6b&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;如果你现在运行应用程序，你会发现它更敏感，但请记住，发送大量的电子邮件的应用程序，其拥有一个致力于发送电子邮件的服务比开启一个新的线程更合适。例如，执行&lt;code&gt;send_async_email()&lt;/code&gt;函数可以将邮件发送到&lt;a href=&quot;http://www.celeryproject.org/&quot;&gt;Celery&lt;/a&gt;的任务队列中。&lt;/p&gt;
+&lt;p&gt;如果你现在运行应用程序，你会发现它响应更快了，但请记住，发送大量的电子邮件的应用程序，其拥有一个致力于发送电子邮件的服务比开启一个新的线程更合适。例如，执行&lt;code&gt;send_async_email()&lt;/code&gt;函数可以将邮件发送到&lt;a href=&quot;http://www.celeryproject.org/&quot;&gt;Celery&lt;/a&gt;的任务队列中。&lt;/p&gt;
 
 &lt;p&gt;本章完成的是大多数web应用程序必备的功能。现在的问题是，&lt;code&gt;hello.py&lt;/code&gt;脚本开始大，这使得它变得更难管理。在下一章中，你将学习如何构建一个更大的应用程序。&lt;/p&gt;
 
@@ -176,7 +193,7 @@
         <title>Flask教程 —— 大型应用程序结构（上）</title>
         <description>&lt;p&gt;虽然小型web应用程序存储在一个单一的脚本可以很方便，但这种方法不能很好地扩展。随着应用程序变得复杂，在单个大的源文件中处理会变得问题重重。&lt;/p&gt;
 
-&lt;p&gt;与大多数其他web框架不同，Flask不施加特定的大型项目组织；应用程序的结构完全交给开发人员。在这一章，一个可能的方式来组织一个大型应用程序包和模块。这种结构将用于书中其余的例子。&lt;/p&gt;
+&lt;p&gt;与大多数其他web框架不同，Flask对大型项目没有特定的组织方式；应用程序的结构完全交给开发人员自己决定。在这一章，提出一个可能的方式来组织管理一个大型应用程序的包和模块。这种结构将用于书中其余的示例中。&lt;/p&gt;
 
 &lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;1、项目结构&lt;/strong&gt;&lt;/h3&gt;
 
@@ -358,17 +375,63 @@
 
 &lt;p&gt;应用程序的路由都存储在&lt;code&gt;app/main/views.py&lt;/code&gt;模块内部，错误处理程序是&lt;code&gt;app/main/errors.py&lt;/code&gt;。导入这些模块使路由、错误处理程序与blueprint相关联。重要的是要注意，在&lt;code&gt;app/init.py&lt;/code&gt;脚本的底部导入的模块要避免循环依赖，因为&lt;code&gt;view.py&lt;/code&gt;和&lt;code&gt;errors.py&lt;/code&gt;需要导入&lt;code&gt;main&lt;/code&gt;蓝图。&lt;/p&gt;
 
-&lt;p&gt;The blueprint is registered with the application inside the create app() factory function, as shown in Example 7-5.&lt;/p&gt;
+&lt;p&gt;blueprint是和应用程序一起注册在&lt;code&gt;create_app()&lt;/code&gt;工厂函数，如示例7-5所示。&lt;/p&gt;
 
-&lt;p&gt;blueprint是注册到应用程序内创建应用程序()工厂函数,如示例7 - 5所示。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;示例7-5. app/_init&lt;/em&gt;.py：Blueprint注册_&lt;/p&gt;
 
-&lt;h3 id=&quot;section-4&quot;&gt;&lt;strong&gt;4、启动脚本&lt;/strong&gt;&lt;/h3&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
+    &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;main&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main_blueprint&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;register_blueprint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main_blueprint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 
-&lt;h3 id=&quot;section-5&quot;&gt;&lt;strong&gt;5、所需文件&lt;/strong&gt;&lt;/h3&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;h3 id=&quot;section-6&quot;&gt;&lt;strong&gt;6、单元测试&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;示例7-6展示了错误处理。&lt;/p&gt;
 
-&lt;h3 id=&quot;section-7&quot;&gt;&lt;strong&gt;7、数据库启动&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;em&gt;示例7-6. app/main/errors.py：Blueprint错误处理&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt; 
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@main.app_errorhandler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;404&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;page_not_found&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;404.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;404&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@main.app_errorhandler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;500&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;internal_server_error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;500.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;500&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;在blueprint中写错误处理的不同之处是，如果使用了&lt;code&gt;errorhandler&lt;/code&gt;装饰器，则只会调用在blueprint中引起的错误处理。应用程序范围内的错误处理则必须使用&lt;code&gt;app_errorhandler&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;示例7-7展示了在blueprint中被更新的应用程序路由。 &lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例7-7. app/main/views.py：带有blueprint的应用程序路由&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;datetime&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url_for&lt;/span&gt;
+
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;.forms&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NameForm&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;..&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;..models&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@main.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NameForm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;validate_on_submit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url_for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;.index&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;known&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;known&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;current_time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;utcnow&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;在blueprint中写视图函数有两大不同点。第一，正如之前的错误处理一样，路由装饰器来自于blueprint。第二个不同是&lt;code&gt;url_for()&lt;/code&gt;函数的使用。你可能会回想，该函数的第一个参数为路由节点名，也就是基于应用程序的视图函数的路由。例如，在单脚本应用程序中的&lt;code&gt;index()&lt;/code&gt;视图函数的URL可以通过&lt;code&gt;url_for(&#39;index&#39;)&lt;/code&gt;来获得&lt;/p&gt;
+
+&lt;p&gt;不同的是Flask名称空间适用来自blueprint的所有节点，这样多个blueprint可以使用相同节点定义多个视图函数而不会有冲突。名称空间是blueprint名（Blueprint构造函数的第一个参数），所以&lt;code&gt;index()&lt;/code&gt;视图函数注册为&lt;code&gt;name.index&lt;/code&gt;且它的URL可以通过&lt;code&gt;url_for(&#39;main.index&#39;)&lt;/code&gt;获得。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;url_for()&lt;/code&gt;函数同样支持更短格式的节点在blueprints中，省略blueprint名，例如&lt;code&gt;url_for(&#39;.index&#39;)&lt;/code&gt;。有了这个符号，就可以使用当前请求的blueprint了。这实际意味着相同blueprint内的重定向可以使用更短的形式，如果重定向跨blueprint则必须使用名称空间节点名。&lt;/p&gt;
+
+&lt;p&gt;完成了应用程序页面更改，表单对象也保存在blueprint里面的&lt;code&gt;app/main/forms.py&lt;/code&gt;模块中。&lt;/p&gt;
+
 </description>
         <pubDate>Fri, 28 Nov 2014 23:48:27 +0800</pubDate>
         <link>/flask/2014/11/28/flask-7-1.html</link>
@@ -1504,181 +1567,6 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
         <pubDate>Fri, 31 Oct 2014 17:27:05 +0800</pubDate>
         <link>/flask/2014/10/31/flask-3-2.html</link>
         <guid isPermaLink="true">/flask/2014/10/31/flask-3-2.html</guid>
-      </item>
-    
-      <item>
-        <title>Flask教程 —— 模板（上）</title>
-        <description>&lt;p&gt;写代码最关键的是要易于维护且结构清晰整洁。目前为止，你看到的例子都过于简单从而没有做这方面的要求。Flask视图函数希望将两个应该完全独立的任务一并处理，两个任务有两种代码，一并处理势必会引发问题。&lt;/p&gt;
-
-&lt;p&gt;明摆着的任务就是&lt;strong&gt;生成响应&lt;/strong&gt;，就像你在第二章看到的示例那样。对于最简单的请求确实已经足够，但是一般而言一个请求会触发应用程序的状态发生改变，而视图函数就是产生这个改变的地方。&lt;/p&gt;
-
-&lt;p&gt;例如，用户在网站上注册一个新的账户。用户输入邮箱地址和密码到表单并点击提交按钮。一个包含数据的请求从用户到服务器，Flask将其派发给视图函数去处理这个注册请求。这个视图函数需要告诉数据库添加新的用户并生成一个响应发回给浏览器。这两类任务通常被称作&lt;strong&gt;业务逻辑&lt;/strong&gt;和&lt;strong&gt;显示逻辑&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;混合业务逻辑和显示逻辑会导致代码非常的难以理解和维护。想象一下，将从数据库获取的数据和必要的HTML字符串文字进行连接，生成一堆的HTML代码是多么蛋疼的一件事情。而如果将显示逻辑移到模板中去，则势必极大提高应用程序的可维护性。&lt;/p&gt;
-
-&lt;p&gt;模板就是包含响应文本的文件，带有占位符变量的动态部分只在请求上下文中被知道。用真实的值替换变量并返回最终响应字符串，这个过程称为&lt;strong&gt;渲染&lt;/strong&gt;。对于渲染模板任务，Flask使用强大的模板引擎&lt;strong&gt;Jinja2&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;h3 id=&quot;jinja2&quot;&gt;&lt;strong&gt;1、Jinja2模板引擎&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;Jinja2模板最简单的形式就是一个包含响应文本的文件。示例3-1展示了Jinja2模板匹配示例2-1中&lt;code&gt;index()&lt;/code&gt;视图函数响应。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例3-1. templates/index.html：Jinja2模板&lt;/em&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;&amp;lt;h1&amp;gt;Hello World!&amp;lt;/h1&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;示例2-2中视图函数&lt;code&gt;user()&lt;/code&gt;返回的响应有一个动态部分，该部分由一个变量代表。示例3-2展示模板实现该响应。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例3-2. templates/user.html：Jinja2模板&lt;/em&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;&amp;lt;h1&amp;gt;Hello, !&amp;lt;/h1&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&quot;section&quot;&gt;&lt;strong&gt;1.1、渲染模板&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;Flask默认会在应用程序的&lt;strong&gt;templates&lt;/strong&gt;子目录中寻找模板。下个版本的&lt;code&gt;hello.py&lt;/code&gt;，你需要将之前定义的&lt;code&gt;index.html&lt;/code&gt;和&lt;code&gt;user.html&lt;/code&gt;模板存放到新的templates文件夹下。&lt;/p&gt;
-
-&lt;p&gt;应用程序中的视图函数需要修改来渲染这些模板。示例3-3中会展示这些变化。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例3-3. hello.py：渲染模板&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/index&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/user/&amp;lt;name&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;user.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;strong&gt;render_template&lt;/strong&gt;函数由集成Jinja2模板引擎的Flask提供。这个函数将模板的文件名作为它的第一个参数。任何附加的参数都是一个键/值对，分别对应被模板引用的变量和真实值。在这个示例中，第二个模板收到name变量。&lt;/p&gt;
-
-&lt;p&gt;类似于&lt;code&gt;name=name&lt;/code&gt;的关键字参数在前面的示例中是非常常见的，但如果你不使用就很容易混淆且非常难理解。左边的“name”代表参数名称，一般在模板中用于占位符。右边的“name”在当前范围内是一个变量，为同名的参数提供真实的值。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 3a&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h5 id=&quot;section-1&quot;&gt;&lt;strong&gt;1.2、变量&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;示例3-2的模板中的``结构引用一个变量，特殊的占位符告诉模板引擎，那个地方的值应该从模板被渲染时提供的数据中获取。&lt;/p&gt;
-
-&lt;p&gt;Jinja2识别任何类型的变量，包括复杂的列表、字典和对象。下面是一些模板中使用变量的示例：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;&amp;lt;p&amp;gt;A value from a dictionary: .&amp;lt;/p&amp;gt;
-&amp;lt;p&amp;gt;A value from a list: .&amp;lt;/p&amp;gt;
-&amp;lt;p&amp;gt;A value from a list, with a variable index: .&amp;lt;/p&amp;gt; 
-&amp;lt;p&amp;gt;A value from an object&#39;s method: .&amp;lt;/p&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;变量可以通过&lt;strong&gt;filters&lt;/strong&gt;来修改，以&lt;code&gt;|&lt;/code&gt;为分隔符添加在变量名后。例如，下面的模板展示变量大写：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;Hello, 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;表格3-1列出一些常用的Jinja2过滤器。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;表格3-1. Jinja2变量过滤器&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://young-py.github.io/imgs/flask3-01.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;safe是比较有趣的一个过滤器。出于安全考虑，默认情况下，Jinja2会&lt;strong&gt;转义&lt;/strong&gt;所有变量。例如，如果设置变量的值为&lt;code&gt;&#39;&amp;lt;h1&amp;gt;Hello&amp;lt;/h1&amp;gt;&#39;&lt;/code&gt;，Jinja2将渲染字符串为&lt;code&gt;&#39;&amp;amp;lt;h1&amp;amp;gt;Hello&amp;amp;lt;/h1&amp;amp;gt;&#39;&lt;/code&gt;，这将使得h1元素显示出来且不能被浏览器解释。很多时候有必要显示存储在变量中的HTML代码，对于这些情况就可以使用safe过滤器。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;警告：永远不要在不信任的值中使用safe过滤器，例如用户在web表单中输入的文本。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;完整的过滤器列表可以从Jinja2官方文档中获取。&lt;/p&gt;
-
-&lt;h5 id=&quot;section-2&quot;&gt;&lt;strong&gt;1.3、控制结构&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;Jinja2提供一些控制结构用于改变模板流。这一节用简单例子来介绍一些最有用的。&lt;/p&gt;
-
-&lt;p&gt;下面的示例展示条件语句是怎样在模板中使用的：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;{ % if user %}
-    Hello, !
-{ % else %}
-    Hello, Stranger!
-{ % endif %}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;渲染一列元素在模板中是经常用到的。这个示例展示如何使用&lt;code&gt;for&lt;/code&gt;循环做到这些：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;&amp;lt;ul&amp;gt;
-    { % for comment in comments %} 
-        &amp;lt;li&amp;gt;&amp;lt;/li&amp;gt;
-    { % endfor %}
-&amp;lt;/ul&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Jinja2同样支持&lt;strong&gt;宏&lt;/strong&gt;，这和Python代码中的函数很像。例如：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;{ % macro render_comment(comment) %} 
-    &amp;lt;li&amp;gt;&amp;lt;/li&amp;gt;
-{ % endmacro %}
-
-&amp;lt;ul&amp;gt;
-    
-&amp;lt;/ul&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;为了提高宏的复用性，可以将它们保存为单独的文件，然后在所有需要的地方&lt;strong&gt;导入&lt;/strong&gt;即可：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;{ % import &#39;macros.html&#39; as macros %}
-
-&amp;lt;ul&amp;gt;
-    { % for comment in comments %}
-        
-    { % endfor %}
-&amp;lt;/ul&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;需要在一些地方重复使用的模板代码可以保存为一个单独的文件，所有模板都可以&lt;strong&gt;include&lt;/strong&gt;它来避免重复：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;{ % include &#39;common.html&#39; %}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;另一个强大的复用方式是通过模板继承，这类似于Python代码中类的继承。首先创建一个名为&lt;code&gt;base.html&lt;/code&gt;的基础模板：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;&amp;lt;html&amp;gt;
-&amp;lt;head&amp;gt;
-    { % block head %}
-    &amp;lt;title&amp;gt;{ % block title %}{ % endblock %} - My Application&amp;lt;/title&amp;gt; 
-    { % endblock %}
-&amp;lt;/head&amp;gt;
-&amp;lt;body&amp;gt;
-    { % block body %}
-    { % endblock %}
-&amp;lt;/body&amp;gt;
-&amp;lt;/html&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;这里&lt;code&gt;block&lt;/code&gt;标签定义的派生模板是可变的。在这个示例中，有&lt;code&gt;head&lt;/code&gt;、&lt;code&gt;title&lt;/code&gt;、&lt;code&gt;body&lt;/code&gt;块；注意&lt;code&gt;title&lt;/code&gt;包含在&lt;code&gt;head&lt;/code&gt;中。下面的示例是一个基础模块的派生模块：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;{ % extends &quot;base.html&quot; %}
-{ % block title %}Index{ % endblock %}
-{ % block head %}
-    { { super() }}
-    &amp;lt;style&amp;gt;
-    &amp;lt;/style&amp;gt;
-{ % endblock %}
-{ % block body %} 
-&amp;lt;h1&amp;gt;Hello, World!&amp;lt;/h1&amp;gt;
-{ % endblock %}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;extends&lt;/strong&gt;指令定义这个模板由&lt;code&gt;base.html&lt;/code&gt;派生。紧随这个指令之后的是三个在基础模板中定义的块，它们将在合适的位置插入。注意在基础模板中新定义的&lt;code&gt;head&lt;/code&gt;块是不为空的，所以使用&lt;code&gt;super()&lt;/code&gt; 保留原来的内容。&lt;/p&gt;
-
-&lt;p&gt;本节呈现的所有控制结构的实际运用将在后面展示，你会有机会看到它们是怎样工作的。&lt;/p&gt;
-
-</description>
-        <pubDate>Fri, 24 Oct 2014 04:19:30 +0800</pubDate>
-        <link>/flask/2014/10/24/flask-3-1.html</link>
-        <guid isPermaLink="true">/flask/2014/10/24/flask-3-1.html</guid>
       </item>
     
   </channel>

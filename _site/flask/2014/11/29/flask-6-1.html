@@ -62,7 +62,7 @@
   </header>
 
   <article class="post-content">
-  <p>许多类型的应用程序需要通知用户当某些事件发生的时候，常用的沟通方法就是电子邮件。尽管在Flask应用程序中，可以使用Python标准库中的<code>smtplib</code>包来发送电子邮件，不过Flask-Mail扩展封装了<code>smtplib</code>且与Flask整合的非常好。</p>
+  <p>许多类型的应用程序都会在某些事件发生的时候通知用户，常用的沟通方法就是电子邮件。尽管在Flask应用程序中，可以使用Python标准库中的<code>smtplib</code>包来发送电子邮件，不过<strong>Flask-Mail</strong>扩展封装了<code>smtplib</code>且与Flask整合的非常好。</p>
 
 <h3 id="flask-mail"><strong>1、使用Flask-Mail作为邮件支持</strong></h3>
 
@@ -71,11 +71,13 @@
 <pre><code>(venv) $ pip install flask-mail
 </code></pre>
 
-<p>扩展连接到一个简单邮件传输协议(SMTP)服务器并将邮件传递交付给它。如果没有给出配置，Flask-Mail连接到本地主机端口25并发送没有验证的电子邮件。表6-1所示的列表配置键可以用来配置SMTP服务器。</p>
+<p>扩展连接到一个简单邮件传输协议(SMTP)服务器并将邮件传递给它由它递送。如果没有给出配置，Flask-Mail则连接到<strong>localhost</strong>25端口并发送无验证的电子邮件。表6-1所示的配置键列表可以用来配置SMTP服务器。</p>
 
 <p><em>表格6-1. Flask-Mail SMTP服务器配置键</em></p>
 
-<p>在开发过程中可能连接到一个外部SMTP服务器会更方便。示例6-1展示了如何配置应用程序通过谷歌的Gmail帐户发送电子邮件。</p>
+<p><img style="width:419px; height:198px;" src="http://young-py.github.io/imgs/flask6-01.png" /></p>
+
+<p>在开发过程中如果能连接到一个外部SMTP服务器会更方便。示例6-1展示了如何配置应用程序通过谷歌的Gmail帐户发送电子邮件。</p>
 
 <p><em>示例6-1. hello.py：Flask-Mail配置Gmail</em></p>
 
@@ -86,7 +88,7 @@
 <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;MAIL_USERNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MAIL_USERNAME&#39;</span><span class="p">)</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;MAIL_PASSWORD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MAIL_PASSWORD&#39;</span><span class="p">)</span></code></pre></div>
 
 <blockquote>
-  <p>建议：永远不要将账户证书直接在您的脚本里面，尤其是如果你打算将你的的工作开源。为了保护你的帐户信息，必须让脚本从你的配置环境中导入敏感信息。</p>
+  <p>建议：永远不要将账户证书直接写在你的脚本里面，尤其是如果你打算将你的的工作开源。为了保护你的帐户信息，必须让脚本从你的配置环境中导入敏感信息。</p>
 </blockquote>
 
 <p>示例6-2展示了Flask-Mail的初始化。</p>
@@ -96,7 +98,7 @@
 <div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask.ext.mail</span> <span class="kn">import</span> 
 <span class="n">Mail</span> <span class="n">mail</span> <span class="o">=</span> <span class="n">Mail</span><span class="p">(</span><span class="n">app</span><span class="p">)</span></code></pre></div>
 
-<p>持有email服务器用户名和密码的两个变量需要定义在环境中。如果你是使用Linux或Mac OS X上的bash，您可以设置这些变量如下：</p>
+<p>持有email服务器用户名和密码的两个变量需要在环境中定义。如果你是使用Linux或Mac OS X上的bash，你可以设置这些变量如下：</p>
 
 <pre><code>(venv) $ export MAIL_USERNAME=&lt;Gmail username&gt;
 (venv) $ export MAIL_PASSWORD=&lt;Gmail password&gt;
@@ -127,7 +129,7 @@
 
 <h5 id="section"><strong>1.2、集成邮件到应用程序</strong></h5>
 
-<p>为了避免每次都手动创建电子邮件消息，将应用电子邮件发送功能的共同部分抽象到一个函数中是非常不错的做法。另一个好处是，这个函数可以从Jinja2模板以最大的灵活性渲染。示例6-3展示了怎么实现。</p>
+<p>为了避免每次都手动创建电子邮件消息，将应用电子邮件发送功能的共同部分抽象到一个函数中是非常不错的做法。另一个好处是，这个函数可以用Jinja2模板尽情渲染。示例6-3展示了怎么实现。</p>
 
 <p><em>示例6-3. hello.py：Email支持</em></p>
 
@@ -145,7 +147,7 @@
 
 <p>为发件人的主题和地址定义前缀字符串的函数依赖于两个特定于应用程序的配置键。<code>send_email</code>函数携带目的地址、主题、邮件体模板和一组关键字参数。模板名不能有扩展，这样两个版本的模板可以使用纯文本或富文本。调用者传递关键字参数给<code>render_template()</code>调用，这样模板就可以生成email体。</p>
 
-<p><code>index()</code>视图函数可以非常容易的扩展发送一个email给管理员，每当从表单中收到一个新的名字的时候。示例6-4展示所做的改动。</p>
+<p><code>index()</code>视图函数可以非常容易的扩充用来发送一个email给管理员，当从表单中收到一个新的名字的时候。示例6-4展示所做的改动。</p>
 
 <p><em>示例6-4. hello.py：Email示例</em></p>
 
@@ -172,7 +174,7 @@
     <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">),</span> 
                             <span class="n">known</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;known&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span></code></pre></div>
 
-<p>在启动的过程中，在<code>FLASKY_ADMIN</code>环境变量中给出的email的收件人会加载到同名的配置变量中。需要创建文本和HTML两个版本的email模板文件。这些文件都存储在<code>template</code>内的<code>mail</code>子目录中，让他们独立于普通模板。电子邮件模板需要给出用户作为该模板参数，因此<code>send_email()</code>调用包括用户来作为一个关键字参数。</p>
+<p>启动过程中，在<code>FLASKY_ADMIN</code>环境变量中给出的email收件人会加载到同名的配置变量中。需要创建文本和HTML两个版本的email模板文件。这些文件都存储在<code>template</code>内的<code>mail</code>子目录中，让他们独立于普通模板。电子邮件模板需要给出用户作为该模板参数，因此<code>send_email()</code>调用包括用户来作为一个关键字参数。</p>
 
 <blockquote>
   <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 6a</code>来切换到这个版本的应用程序。</p>
@@ -210,13 +212,13 @@
     <span class="n">thr</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">thr</span></code></pre></div>
 
-<p>这个实现突出了一个有趣的问题。许多Flask扩展操作在假设有活动应用程序和请求上下文。Flask-Mail的<code>send()</code>函数使用<code>current_app</code>，所以它需要已激活的应用程序上下文。但是当<code>mail.send()</code>函数在一个不同的线程上执行，应用程序上下文需要人为地创建使用<code>app.app_context()</code>。</p>
+<p>这个实现突显了一个有趣的问题。许多Flask扩展操作是在假设有活动的应用程序和请求上下文的情况下进行的。Flask-Mail的<code>send()</code>函数使用<code>current_app</code>，所以它需要已激活的应用程序上下文。但是当<code>mail.send()</code>函数在一个不同的线程上执行，应用程序上下文需要人为地创建使用<code>app.app_context()</code>。</p>
 
 <blockquote>
   <p>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行<code>git checkout 6b</code>来切换到这个版本的应用程序。</p>
 </blockquote>
 
-<p>如果你现在运行应用程序，你会发现它更敏感，但请记住，发送大量的电子邮件的应用程序，其拥有一个致力于发送电子邮件的服务比开启一个新的线程更合适。例如，执行<code>send_async_email()</code>函数可以将邮件发送到<a href="http://www.celeryproject.org/">Celery</a>的任务队列中。</p>
+<p>如果你现在运行应用程序，你会发现它响应更快了，但请记住，发送大量的电子邮件的应用程序，其拥有一个致力于发送电子邮件的服务比开启一个新的线程更合适。例如，执行<code>send_async_email()</code>函数可以将邮件发送到<a href="http://www.celeryproject.org/">Celery</a>的任务队列中。</p>
 
 <p>本章完成的是大多数web应用程序必备的功能。现在的问题是，<code>hello.py</code>脚本开始大，这使得它变得更难管理。在下一章中，你将学习如何构建一个更大的应用程序。</p>
 

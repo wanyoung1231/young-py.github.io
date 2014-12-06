@@ -64,7 +64,7 @@
   <article class="post-content">
   <p>虽然小型web应用程序存储在一个单一的脚本可以很方便，但这种方法不能很好地扩展。随着应用程序变得复杂，在单个大的源文件中处理会变得问题重重。</p>
 
-<p>与大多数其他web框架不同，Flask不施加特定的大型项目组织；应用程序的结构完全交给开发人员。在这一章，一个可能的方式来组织一个大型应用程序包和模块。这种结构将用于书中其余的例子。</p>
+<p>与大多数其他web框架不同，Flask对大型项目没有特定的组织方式；应用程序的结构完全交给开发人员自己决定。在这一章，提出一个可能的方式来组织管理一个大型应用程序的包和模块。这种结构将用于书中其余的示例中。</p>
 
 <h3 id="section"><strong>1、项目结构</strong></h3>
 
@@ -246,17 +246,63 @@
 
 <p>应用程序的路由都存储在<code>app/main/views.py</code>模块内部，错误处理程序是<code>app/main/errors.py</code>。导入这些模块使路由、错误处理程序与blueprint相关联。重要的是要注意，在<code>app/init.py</code>脚本的底部导入的模块要避免循环依赖，因为<code>view.py</code>和<code>errors.py</code>需要导入<code>main</code>蓝图。</p>
 
-<p>The blueprint is registered with the application inside the create app() factory function, as shown in Example 7-5.</p>
+<p>blueprint是和应用程序一起注册在<code>create_app()</code>工厂函数，如示例7-5所示。</p>
 
-<p>blueprint是注册到应用程序内创建应用程序()工厂函数,如示例7 - 5所示。</p>
+<p><em>示例7-5. app/_init</em>.py：Blueprint注册_</p>
 
-<h3 id="section-4"><strong>4、启动脚本</strong></h3>
+<div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">create_app</span><span class="p">(</span><span class="n">config_name</span><span class="p">):</span> 
+    <span class="c"># ...</span>
+    <span class="kn">from</span> <span class="nn">main</span> <span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">main_blueprint</span> 
+    <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">main_blueprint</span><span class="p">)</span>
 
-<h3 id="section-5"><strong>5、所需文件</strong></h3>
+    <span class="k">return</span> <span class="n">app</span></code></pre></div>
 
-<h3 id="section-6"><strong>6、单元测试</strong></h3>
+<p>示例7-6展示了错误处理。</p>
 
-<h3 id="section-7"><strong>7、数据库启动</strong></h3>
+<p><em>示例7-6. app/main/errors.py：Blueprint错误处理</em></p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span> 
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">main</span>
+
+<span class="nd">@main.app_errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span> 
+<span class="k">def</span> <span class="nf">page_not_found</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;404.html&#39;</span><span class="p">),</span> <span class="mi">404</span>
+
+<span class="nd">@main.app_errorhandler</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span> 
+<span class="k">def</span> <span class="nf">internal_server_error</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;500.html&#39;</span><span class="p">),</span> <span class="mi">500</span></code></pre></div>
+
+<p>在blueprint中写错误处理的不同之处是，如果使用了<code>errorhandler</code>装饰器，则只会调用在blueprint中引起的错误处理。应用程序范围内的错误处理则必须使用<code>app_errorhandler</code>。</p>
+
+<p>示例7-7展示了在blueprint中被更新的应用程序路由。 </p>
+
+<p><em>示例7-7. app/main/views.py：带有blueprint的应用程序路由</em></p>
+
+<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">main</span>
+<span class="kn">from</span> <span class="nn">.forms</span> <span class="kn">import</span> <span class="n">NameForm</span> <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">db</span>
+<span class="kn">from</span> <span class="nn">..models</span> <span class="kn">import</span> <span class="n">User</span>
+
+<span class="nd">@main.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span> 
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">NameForm</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">validate_on_submit</span><span class="p">():</span>
+    <span class="c"># ...</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;.index&#39;</span><span class="p">))</span> <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">,</span>
+                    <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">),</span>
+                    <span class="n">known</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;known&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+                    <span class="n">current_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span></code></pre></div>
+
+<p>在blueprint中写视图函数有两大不同点。第一，正如之前的错误处理一样，路由装饰器来自于blueprint。第二个不同是<code>url_for()</code>函数的使用。你可能会回想，该函数的第一个参数为路由节点名，也就是基于应用程序的视图函数的路由。例如，在单脚本应用程序中的<code>index()</code>视图函数的URL可以通过<code>url_for('index')</code>来获得</p>
+
+<p>不同的是Flask名称空间适用来自blueprint的所有节点，这样多个blueprint可以使用相同节点定义多个视图函数而不会有冲突。名称空间是blueprint名（Blueprint构造函数的第一个参数），所以<code>index()</code>视图函数注册为<code>name.index</code>且它的URL可以通过<code>url_for('main.index')</code>获得。</p>
+
+<p><code>url_for()</code>函数同样支持更短格式的节点在blueprints中，省略blueprint名，例如<code>url_for('.index')</code>。有了这个符号，就可以使用当前请求的blueprint了。这实际意味着相同blueprint内的重定向可以使用更短的形式，如果重定向跨blueprint则必须使用名称空间节点名。</p>
+
+<p>完成了应用程序页面更改，表单对象也保存在blueprint里面的<code>app/main/forms.py</code>模块中。</p>
+
 
   </article>
 

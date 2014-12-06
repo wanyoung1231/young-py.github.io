@@ -8,7 +8,7 @@ author: young
 
 虽然小型web应用程序存储在一个单一的脚本可以很方便，但这种方法不能很好地扩展。随着应用程序变得复杂，在单个大的源文件中处理会变得问题重重。
 
-与大多数其他web框架不同，Flask不施加特定的大型项目组织；应用程序的结构完全交给开发人员。在这一章，一个可能的方式来组织一个大型应用程序包和模块。这种结构将用于书中其余的例子。
+与大多数其他web框架不同，Flask对大型项目没有特定的组织方式；应用程序的结构完全交给开发人员自己决定。在这一章，提出一个可能的方式来组织管理一个大型应用程序的包和模块。这种结构将用于书中其余的示例中。
 
 ### **1、项目结构**
 
@@ -188,14 +188,72 @@ blueprint是通过实例化`Blueprint`类对象来创建。这个类的构造函
 
 应用程序的路由都存储在`app/main/views.py`模块内部，错误处理程序是`app/main/errors.py`。导入这些模块使路由、错误处理程序与blueprint相关联。重要的是要注意，在`app/init.py`脚本的底部导入的模块要避免循环依赖，因为`view.py`和`errors.py`需要导入`main`蓝图。
 
-The blueprint is registered with the application inside the create app() factory function, as shown in Example 7-5.
+blueprint是和应用程序一起注册在`create_app()`工厂函数，如示例7-5所示。
 
-blueprint是注册到应用程序内创建应用程序()工厂函数,如示例7 - 5所示。
+_示例7-5. app/_init_.py：Blueprint注册_
 
-### **4、启动脚本**
+{% highlight python %}
 
-### **5、所需文件**
+def create_app(config_name): 
+    # ...
+    from main import main as main_blueprint 
+    app.register_blueprint(main_blueprint)
 
-### **6、单元测试**
+    return app
 
-### **7、数据库启动**
+{% endhighlight %}
+
+示例7-6展示了错误处理。
+
+_示例7-6. app/main/errors.py：Blueprint错误处理_
+
+{% highlight python %}
+
+from flask import render_template 
+from . import main
+
+@main.app_errorhandler(404) 
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@main.app_errorhandler(500) 
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
+{% endhighlight %}
+
+在blueprint中写错误处理的不同之处是，如果使用了`errorhandler`装饰器，则只会调用在blueprint中引起的错误处理。应用程序范围内的错误处理则必须使用`app_errorhandler`。
+
+示例7-7展示了在blueprint中被更新的应用程序路由。 
+
+_示例7-7. app/main/views.py：带有blueprint的应用程序路由_
+
+{% highlight python %}
+
+from datetime import datetime
+from flask import render_template, session, redirect, url_for
+
+from . import main
+from .forms import NameForm from .. import db
+from ..models import User
+
+@main.route('/', methods=['GET', 'POST']) 
+def index():
+    form = NameForm()
+    if form.validate_on_submit():
+    # ...
+    return redirect(url_for('.index')) return render_template('index.html',
+                    form=form, name=session.get('name'),
+                    known=session.get('known', False),
+                    current_time=datetime.utcnow())
+
+{% endhighlight %}
+
+在blueprint中写视图函数有两大不同点。第一，正如之前的错误处理一样，路由装饰器来自于blueprint。第二个不同是`url_for()`函数的使用。你可能会回想，该函数的第一个参数为路由节点名，也就是基于应用程序的视图函数的路由。例如，在单脚本应用程序中的`index()`视图函数的URL可以通过`url_for('index')`来获得
+
+不同的是Flask名称空间适用来自blueprint的所有节点，这样多个blueprint可以使用相同节点定义多个视图函数而不会有冲突。名称空间是blueprint名（Blueprint构造函数的第一个参数），所以`index()`视图函数注册为`name.index`且它的URL可以通过`url_for('main.index')`获得。
+
+`url_for()`函数同样支持更短格式的节点在blueprints中，省略blueprint名，例如`url_for('.index')`。有了这个符号，就可以使用当前请求的blueprint了。这实际意味着相同blueprint内的重定向可以使用更短的形式，如果重定向跨blueprint则必须使用名称空间节点名。
+
+完成了应用程序页面更改，表单对象也保存在blueprint里面的`app/main/forms.py`模块中。
+
