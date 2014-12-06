@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Flask教程 —— 大型应用程序结构（上）"
-date:   2014-11-28 15:48:27
+date:   2014-11-30 15:48:27
 categories: flask
 author: young
 ---
@@ -87,12 +87,14 @@ class DevelopmentConfig(Config):
     MAIL_PORT = 587
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') 
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
 class TestingConfig(Config): 
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \ 'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
@@ -149,7 +151,8 @@ db = SQLAlchemy()
 
 def create_app(config_name):
     app = Flask(__name__) 
-    app.config.from_object(config[config_name]) config[config_name].init_app(app)
+    app.config.from_object(config[config_name]) 
+    config[config_name].init_app(app)
     
     bootstrap.init_app(app)
     mail.init_app(app)
@@ -234,18 +237,20 @@ from datetime import datetime
 from flask import render_template, session, redirect, url_for
 
 from . import main
-from .forms import NameForm from .. import db
+from .forms import NameForm 
+from .. import db
 from ..models import User
 
 @main.route('/', methods=['GET', 'POST']) 
 def index():
     form = NameForm()
     if form.validate_on_submit():
-    # ...
-    return redirect(url_for('.index')) return render_template('index.html',
-                    form=form, name=session.get('name'),
-                    known=session.get('known', False),
-                    current_time=datetime.utcnow())
+        # ...
+        return redirect(url_for('.index')) 
+    return render_template('index.html',
+                            form=form, name=session.get('name'),
+                            known=session.get('known', False),
+                            current_time=datetime.utcnow())
 
 {% endhighlight %}
 

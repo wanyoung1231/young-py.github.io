@@ -7,7 +7,7 @@
     <title>Flask教程 —— 大型应用程序结构（上）</title>
     <meta name="viewport" content="width=device-width">
     <meta name="description" content="关于Python及生活随记">
-    <link rel="canonical" href="/flask/2014/11/28/flask-7-1.html">
+    <link rel="canonical" href="/flask/2014/11/30/flask-7-1.html">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/main.css">
@@ -58,7 +58,7 @@
   <header class="post-header">
     <h1>Flask教程 —— 大型应用程序结构（上）</h1>
     <br />
-    <p class="meta">Nov 28, 2014 by young</p>
+    <p class="meta">Nov 30, 2014 by young</p>
   </header>
 
   <article class="post-content">
@@ -155,12 +155,14 @@
     <span class="n">MAIL_PORT</span> <span class="o">=</span> <span class="mi">587</span>
     <span class="n">MAIL_USE_TLS</span> <span class="o">=</span> <span class="bp">True</span>
     <span class="n">MAIL_USERNAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MAIL_USERNAME&#39;</span><span class="p">)</span>
-    <span class="n">MAIL_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MAIL_PASSWORD&#39;</span><span class="p">)</span> <span class="n">SQLALCHEMY_DATABASE_URI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;DEV_DATABASE_URL&#39;</span><span class="p">)</span> <span class="ow">or</span> \
+    <span class="n">MAIL_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;MAIL_PASSWORD&#39;</span><span class="p">)</span> 
+    <span class="n">SQLALCHEMY_DATABASE_URI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;DEV_DATABASE_URL&#39;</span><span class="p">)</span> <span class="ow">or</span> \
         <span class="s">&#39;sqlite:///&#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basedir</span><span class="p">,</span> <span class="s">&#39;data-dev.sqlite&#39;</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">TestingConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span> 
     <span class="n">TESTING</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">SQLALCHEMY_DATABASE_URI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;TEST_DATABASE_URL&#39;</span><span class="p">)</span> <span class="ow">or</span> \ <span class="s">&#39;sqlite:///&#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basedir</span><span class="p">,</span> <span class="s">&#39;data-test.sqlite&#39;</span><span class="p">)</span>
+    <span class="n">SQLALCHEMY_DATABASE_URI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;TEST_DATABASE_URL&#39;</span><span class="p">)</span> <span class="ow">or</span> \
+        <span class="s">&#39;sqlite:///&#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basedir</span><span class="p">,</span> <span class="s">&#39;data-test.sqlite&#39;</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">ProductionConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
     <span class="n">SQLALCHEMY_DATABASE_URI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;DATABASE_URL&#39;</span><span class="p">)</span> <span class="ow">or</span> \
@@ -213,7 +215,8 @@
 
 <span class="k">def</span> <span class="nf">create_app</span><span class="p">(</span><span class="n">config_name</span><span class="p">):</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span> 
-    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="n">config_name</span><span class="p">])</span> <span class="n">config</span><span class="p">[</span><span class="n">config_name</span><span class="p">]</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="n">config_name</span><span class="p">])</span> 
+    <span class="n">config</span><span class="p">[</span><span class="n">config_name</span><span class="p">]</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
     
     <span class="n">bootstrap</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
     <span class="n">mail</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
@@ -282,18 +285,20 @@
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">main</span>
-<span class="kn">from</span> <span class="nn">.forms</span> <span class="kn">import</span> <span class="n">NameForm</span> <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">db</span>
+<span class="kn">from</span> <span class="nn">.forms</span> <span class="kn">import</span> <span class="n">NameForm</span> 
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">db</span>
 <span class="kn">from</span> <span class="nn">..models</span> <span class="kn">import</span> <span class="n">User</span>
 
 <span class="nd">@main.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span> 
 <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
     <span class="n">form</span> <span class="o">=</span> <span class="n">NameForm</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">validate_on_submit</span><span class="p">():</span>
-    <span class="c"># ...</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;.index&#39;</span><span class="p">))</span> <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">,</span>
-                    <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">),</span>
-                    <span class="n">known</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;known&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
-                    <span class="n">current_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span></code></pre></div>
+        <span class="c"># ...</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s">&#39;.index&#39;</span><span class="p">))</span> 
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;index.html&#39;</span><span class="p">,</span>
+                            <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">),</span>
+                            <span class="n">known</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;known&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+                            <span class="n">current_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span></code></pre></div>
 
 <p>在blueprint中写视图函数有两大不同点。第一，正如之前的错误处理一样，路由装饰器来自于blueprint。第二个不同是<code>url_for()</code>函数的使用。你可能会回想，该函数的第一个参数为路由节点名，也就是基于应用程序的视图函数的路由。例如，在单脚本应用程序中的<code>index()</code>视图函数的URL可以通过<code>url_for('index')</code>来获得</p>
 
