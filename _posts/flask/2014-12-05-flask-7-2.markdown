@@ -8,8 +8,155 @@ author: young
 
 ### **4、启动脚本**
 
+在顶层目录中的`manage.py`文件用于启动应用。这个脚本会在示例7-8中展示。
+
+_示例7-8. manage.py：启动脚本_
+
+{% highlight python %}
+
+#!/usr/bin/env python
+import os
+from app import create_app, db
+from app.models import User, Role
+from flask.ext.script import Manager, Shell
+from flask.ext.migrate import Migrate, MigrateCommand
+
+app = create_app(os.getenv('FLASK_CONFIG') or 'default') 
+manager = Manager(app)
+migrate = Migrate(app, db)
+
+def make_shell_context():
+    return dict(app=app, db=db, User=User, Role=Role)
+    manager.add_command("shell", Shell(make_context=make_shell_context))
+    manager.add_command('db', MigrateCommand)
+
+if __name__ == '__main__': 
+    manager.run()
+
+{% endhighlight %}
+
+这个脚本通过创建应用程序来开始。使用环境变量`FLASK_CONFIG`已经定义了则从中获取配置；如果没有，则是用默认配置。然后用于Python shell的Flask-Script、Flask-Migrate以及自定义上下文会被初始化。
+
+为了方便，会增加一行执行环境，这样在基于Unix的操作系统上可以通过`./manage.py`来执行脚本来替代冗长的`python manage.py`。
+
 ### **5、所需文件**
+
+应用程序必须包含`requirements.txt`文件来记录所有依赖包，包括精确的版本号。这很重要，可以在不同的机器上重新生成虚拟环境，例如在生产环境的机器上部署应用程序。这个文件可以通过下面的pip命令自动生成：
+
+    (venv) $ pip freeze >requirements.txt
+
+最好在安装或更新一个包之后更新一下这个文件。一下展示了一个要求文件示例：
+
+    Flask==0.10.1
+    Flask-Bootstrap==3.0.3.1
+    Flask-Mail==0.9.0
+    Flask-Migrate==1.1.0
+    Flask-Moment==0.2.0
+    Flask-SQLAlchemy==1.0
+    Flask-Script==0.6.6
+    Flask-WTF==0.9.4
+    Jinja2==2.7.1
+    Mako==0.9.1
+    MarkupSafe==0.18
+    SQLAlchemy==0.8.4
+    WTForms==1.0.5
+    Werkzeug==0.9.4
+    alembic==0.6.2
+    blinker==1.3
+    itsdangerous==0.23
+
+当你需要创建一个虚拟环境的完美复制，你可以创建一个新的虚拟环境并运行以下命令：
+
+    (venv) $ pip install -r requirements.txt
+
+当你读到这时，示例`requirements.txt`文件中的版本号可能已经过时了。如果你喜欢你可以尝试用最近发布的包。如果您遇到任何问题，你可以随时回退到需求文件中已知与应用兼容的指定版本。
 
 ### **6、单元测试**
 
+这个应用非常小以至于不需要太多的测试，但是作为示例会展示两个简单的测试定义在示例7-9中。
+
+_示例7-9. tests/test_basics.py：单元测试_
+
+{% highlight python %}
+
+import unittest
+from flask import current_app 
+from app import create_app, db
+
+class BasicsTestCase(unittest.TestCase): 
+    def setUp(self):
+        self.app = create_app('testing')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self): 
+        db.session.remove() 
+        db.drop_all() 
+        self.app_context.pop()
+
+    def test_app_exists(self): 
+        self.assertFalse(current_app is None)
+
+    def test_app_is_testing(self): 
+        self.assertTrue(current_app.config['TESTING'])
+
+{% endhighlight %}
+
+编写的测试使用的是来自于Python标准库中标准的`unittest`包。`setUp()`和`tearDown()`方法在每个测试之前和之后运行，且任何一个方法必须以`test_`开头作为测试来执行。
+
+>建议：如果你想要学习更多使用Python的`unittest`包写单元测试的内容，参阅[官方文档](https://docs.python.org/2/library/unittest.html)。
+
+`setUp()`方法尝试创建一个测试环境，类似于运行应用程序。首先它创建应用程序配置用于测试并激活上下文。这一步确保测试访问`current_app`，和常规请求一样。然后创建一个测试可以使用的全新数据库当有需要的时候。数据库和应用程序上下文会在`tearDown()`方法中被移除。
+
+第一个测试确保应用程序实例存在。第二个测试确保应用程序在测试配置下运行。为了确保`tests`目录有效，需要在`tests`目录下增加`__init__.py`文件，不过该文件可以为空，这样`unittest`包可以扫描所有模块并定位测试。
+
+>建议：如果你有克隆在GitHub上的应用程序，你现在可以运行`git checkout 7a`来切换到这个版本的应用程序。为了确保你已经安装了所有依赖集，需要运行`pip install -r requirements.txt`。
+
+为了运行单元测试，可以在`manage.py`脚本中增加一个自定义的命令。
+
+示例7-10展示如何添加测试命令。
+
+_示例7-10. manage.pyt：单元测试启动脚本_
+
+{% highlight python %}
+
+@manager.command
+def test():
+    """Run the unit tests."""
+    import unittest
+    tests = unittest.TestLoader().discover('tests') 
+    unittest.TextTestRunner(verbosity=2).run(tests)
+
+{% endhighlight %}
+
+`manager.command`装饰器使得它可以很容易的实现自定义命令。被装饰的函数名可以被当做命令名使用，且函数的文档字符会显示帮助信息。`test()`函数的执行会调用`unittest`包中的测试运行器。
+
+单元测试可以像下面这样执行：
+
+    (venv) $ python manage.py test
+    test_app_exists (test_basics.BasicsTestCase) ... ok
+    test_app_is_testing (test_basics.BasicsTestCase) ... ok
+    
+    .----------------------------------------------------------------------
+    Ran 2 tests in 0.001s
+    
+    OK
+
 ### **7、数据库启动**
+
+与单脚本版本的应用相比，重构后的应用使用不同数据库。
+
+从环境变量中获取的数据库URL作为首选，默认SQLite数据库作为可选。在三个配置中得环境变量和SQLite数据库文件名是不一样的。例如，开发配置的URL是从`DEV_DATABASE_URL`环境变量中获取，如果没有定义则会使用名为`data-dev.sqlite`的SQLite数据库。
+
+无论数据库URL的数据源，必须为新的数据库创建数据库表。当使用Flask-Migrate来保持迁移跟踪，数据库表可以创建或更新到最近的版本通过下面的命令：
+
+    (venv) $ python manage.py db upgrade
+
+相信与否，你已经到了第一部分结束的地方。你现在已经学到了Flask必要的基本元素，但是你不确定如何将这些零散的知识组合在一起形成一个真正的应用程序。第二部分的目的是通过开发一个完整的应用程序带领你前行。
+
+>注：前段时间才知道这本书已经由图灵社区出版翻译，已经开始预售了，并于12月19日到货。喜欢的朋友也可以去[购买](http://product.china-pub.com/3770763)一本。所以这里也就不会去更新后面的章节了。也不知道自己的翻译有没有误导其他人，自己肯定也会去支持这本书的。
+
+
+
+
