@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Python —— __init__()方法</title>
+    <title>Python学习 —— __init__()方法</title>
     <meta name="viewport" content="width=device-width">
     <meta name="description" content="关于Python及生活随记">
     <link rel="canonical" href="/python/2014/12/09/python-1-01.html">
@@ -56,7 +56,7 @@
       <div class="post">
 
   <header class="post-header">
-    <h1>Python —— __init__()方法</h1>
+    <h1>Python学习 —— __init__()方法</h1>
     <br />
     <p class="meta">Dec 9, 2014 by young</p>
   </header>
@@ -90,15 +90,100 @@
 
 <p>我们可以看到类是<code>type</code>类的一个对象，且我们新类的基类为<code>object</code>。</p>
 
-<p>我们看看每个方法，我们也看看从<code>object</code>继承的默认行。在某些情况下，超类特殊方法行为将是我们所想要的。在其他情况下，我们需要覆盖这个特殊方法。</p>
+<p>就像在每个方法中看到的那样，我们也看看从<code>object</code>继承的默认行为。在某些情况下，超类特殊方法行为将是我们所想要的。在其他情况下，我们需要覆盖这个特殊方法。</p>
 
 <h3 id="init"><strong>基类对象的__init__()方法</strong></h3>
 
 <p>对象生命周期的基础是创建、初始化和销毁。我们将创建和销毁的更高级的特殊方法推迟到后面的章节，目前只关注初始化。</p>
 
-<p>所有类的超类、<code>object</code>，有一个<code>__init__()</code>默认实现。我们不需要去实现<code>__init__()</code>。如果我们不实现它，则在对象创建后就不会创建实例变量。在某些情况下，这个默认行为是可以接受的。</p>
+<p>所有类的超类<code>object</code>，有一个默认的<code>__init__()</code>实现。我们不需要去实现<code>__init__()</code>。如果不实现它，则在对象创建后就不会创建实例变量。在某些情况下，这个默认行为是可以接受的。</p>
 
-<p>我们通常增加给对象添加属性</p>
+<p>我们通常增加给对象添加属性，该对象为基类<code>object</code>的子类。思考以下类，需要两个实例变量但不初始化它们：</p>
+
+<div class="highlight"><pre><code class="python"><span class="k">class</span> <span class="nc">Rectangle</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span></code></pre></div>
+
+<p><code>Rectangle</code>类有一个使用两个属性来返回一个值的方法。这些属性没有初始化。这是合法的Python代码。它可以有效的避免专门设置属性，虽然有点奇怪，但是有效。</p>
+
+<p>下面是于Rectangle类的交互：</p>
+
+<pre><code>&gt;&gt;&gt; r= Rectangle()
+&gt;&gt;&gt; r.length, r.width = 13, 8
+&gt;&gt;&gt; r.area()
+104
+</code></pre>
+
+<p>显然这是合法的，但也是容易混淆的根源，所以需要避免。</p>
+
+<p>无论如何，这个设计给予了很大的灵活性，这样有时候我们不用在<code>__init__()</code>方法中设置所有属性。至此我们走的很顺利。一个可选属性其实就是一个没有正式声明为一个合适的子类。我们创建多态的方式可能会引起混乱和复杂的<code>if</code>语句的不当使用。虽然未初始化的属性可能是有用的，但很有可能是糟糕设计的前兆。</p>
+
+<p>《Python之禅》中的建议：</p>
+
+<blockquote>
+  <p>“显式比隐式更好。”</p>
+</blockquote>
+
+<p><code>__init__()</code>方法应该使实例变量显式。</p>
+
+<p><strong>可怜的多态性</strong></p>
+
+<p>灵活和愚蠢就在一念之间。</p>
+
+<p>当我们觉得需要像下面这样写的时候，我们正从灵活的边缘走向愚蠢：</p>
+
+<pre><code>if 'x' in self.__dict__:
+</code></pre>
+
+<p>或者：</p>
+
+<pre><code>try:
+    self.x
+except AttributeError:
+</code></pre>
+
+<p>是时候重新考虑API并添加一个常见的方法或属性。重构比添加<code>if</code>语句更明智。</p>
+
+<h3 id="init-1"><strong>在超类中实现__init__()</strong></h3>
+
+<p>我们通过实现<code>__init__()</code>方法来初始化对象。当一个对象被创建，Python首先创建一个空对象，然后为那个新对象调用<code>__init__()</code>方法。这个方法函数通常用来创建对象的实例变量和执行任何其他一次性处理。</p>
+
+<p>下面是<code>Card</code>类示例定义的层次结构。我们将定义<code>Card</code>超类和三个子类，这三个子类是<code>Card</code>的变种。两个实例变量直接由参数值设置，两个变量通过初始化方法计算：</p>
+
+<div class="highlight"><pre><code class="python"><span class="k">class</span> <span class="nc">Card</span><span class="p">:</span>
+    <span class="k">def</span>  <span class="nf">__init__</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">suit</span> <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suit</span><span class="o">=</span> <span class="n">suit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="o">=</span> <span class="n">rank</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hard</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">soft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">NumberCard</span><span class="p">(</span> <span class="n">Card</span> <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_points</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">AceCard</span><span class="p">(</span> <span class="n">Card</span> <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_points</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">11</span>
+
+<span class="k">class</span> <span class="nc">FaceCard</span><span class="p">(</span> <span class="n">Card</span> <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_points</span><span class="p">(</span> <span class="bp">self</span> <span class="p">):</span>
+        <span class="k">return</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span></code></pre></div>
+
+<p>在这个示例中，我们提取出<code>__init__()</code>方法到超类，这样在<code>Card</code>超类中的通用初始化可以适用于三个子类<code>NumberCard</code>、<code>AceCard</code>和<code>FaceCard</code>。</p>
+
+<p>这是一种常见的多态设计。每一个子类都提供一个唯一的<code>_points()</code>方法。所有子类都有相同的签名：有相同的方法和属性。这三个子类的对象在一个应用程序中可以交替使用。</p>
+
+<p>如果我们为花色简单的使用字符，我们可以创建<code>Card</code>实例，如下所示：</p>
+
+<pre><code>cards = [ AceCard('A', '♠'), NumberCard('2','♠'), NumberCard('3','♠'),]
+</code></pre>
+
+<p>我们为一些牌枚举出类、牌值和花色到列表中。从长远来说，我们需要更智能的工厂函数来创建<code>Card</code>实例；用这个方法枚举52张牌无聊且容易出错。在我们接触工厂函数之前，我们看看一些其他问题。</p>
+
+<h3 id="init-2"><strong>使用__init__()创建显示常量</strong></h3>
+
+<p>可以给我们的牌定义花色类。在二十一点中，花色无关紧要，简单的字符串就可以。</p>
+
+<p>我们使用花色构造函数作为创建常量对象的示例。在许多情况下，我们应用中小部分领域的对象可以通过常量集合来定义。小部分的静态对象可能是实现<strong>Strategy</strong>或<strong>State</strong>设计模式的一部分。</p>
 
 
   </article>
@@ -114,7 +199,7 @@
     <div class="footer-col-1 column">
       <ul>
         <li>iPython</li>
-        <li><a href="mailto:xiaowugui244345021@163.com">xiaowugui244345021@163.com</a></li>
+        <li><a href="mailto:yipython@163.com">yipython@163.com</a></li>
       </ul>
     </div>
 
