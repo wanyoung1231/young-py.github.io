@@ -81,7 +81,7 @@
 
 <p><em>示例6-1. hello.py：Flask-Mail配置Gmail</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">os</span>
 <span class="c"># ...</span>
 <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;MAIL_SERVER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;smtp.googlemail.com&#39;</span> 
 <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;MAIL_PORT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">587</span>
@@ -97,7 +97,7 @@
 
 <p><em>示例6-2. hello.py：Flask-Mail初始化</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask.ext.mail</span> <span class="kn">import</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask.ext.mail</span> <span class="kn">import</span> 
 <span class="n">Mail</span> <span class="n">mail</span> <span class="o">=</span> <span class="n">Mail</span><span class="p">(</span><span class="n">app</span><span class="p">)</span></code></pre></div>
 
 <p>持有email服务器用户名和密码的两个变量需要在环境中定义。如果你是使用Linux或Mac OS X上的bash，你可以设置这些变量如下：</p>
@@ -136,7 +136,7 @@
 
 <p><em>示例6-3. hello.py：Email支持</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask.ext.mail</span> <span class="kn">import</span> <span class="n">Message</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask.ext.mail</span> <span class="kn">import</span> <span class="n">Message</span> 
 
 <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;FLASKY_MAIL_SUBJECT_PREFIX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;[Flasky]&#39;</span>
 <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;FLASKY_MAIL_SENDER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;Flasky Admin &lt;flasky@example.com&gt;&#39;</span>
@@ -154,7 +154,7 @@
 
 <p><em>示例6-4. hello.py：Email示例</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="c"># ...</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># ...</span>
 <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;FLASKY_ADMIN&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;FLASKY_ADMIN&#39;</span><span class="p">)</span> 
 <span class="c"># ...</span>
 <span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">])</span>
@@ -201,7 +201,7 @@
 
 <p><em>示例6-5. hello.py：异步邮件支持</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span> 
 
 <span class="k">def</span> <span class="nf">send_async_email</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">app_context</span><span class="p">():</span>

@@ -98,7 +98,7 @@
 
 <h3 id="section-1"><strong>源码初探</strong></h3>
 
-<div class="highlight"><pre><code class="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_greenlet</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_greenlet</span> <span class="p">{</span>
     <span class="n">PyObject_HEAD</span>
     <span class="kt">char</span><span class="o">*</span> <span class="n">stack_start</span><span class="p">;</span>
     <span class="kt">char</span><span class="o">*</span> <span class="n">stack_stop</span><span class="p">;</span>

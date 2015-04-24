@@ -70,7 +70,7 @@
 
 <p><em>示例5-3. hello.py：关系</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="k">class</span> <span class="nc">Role</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Role</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span> 
     <span class="c"># ...</span>
     <span class="n">users</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">relationship</span><span class="p">(</span><span class="s">&#39;User&#39;</span><span class="p">,</span> <span class="n">backref</span><span class="o">=</span><span class="s">&#39;role&#39;</span><span class="p">)</span>
 
@@ -256,11 +256,11 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id'
 &lt;Role u'User'&gt;
 </code></pre>
 
-<p>此处的<code>user_role.users</code>查询有点小问题。当<code>user_role.users</code>表达式在内部调用<code>all()</code>时通过隐式查询执行来返回用户的列表。因为查询对象是隐藏的，是不可能通过附加查询过滤器进一步提取出来。在这个特定的例子中，它可能是用于按字母排列顺序返回用户列表。在示例5-4中，被<code>lazy = 'dynamic'</code>参数修改过的关系配置的查询是不会自动执行的。 </p>
+<p>此处的<code>user_role.users</code>查询有点小问题。当<code>user_role.users</code>表达式在内部调用<code>all()</code>时通过隐式查询执行来返回用户的列表。因为查询对象是隐藏的，是不可能通过附加查询过滤器进一步提取出来。在这个特定的例子中，它可能是用于按字母排列顺序返回用户列表。在示例5-4中，被<code>lazy = 'dynamic'</code>参数修改过的关系配置的查询是不会自动执行的。</p>
 
 <p><em>示例5-4. app/models.py：动态关系</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="k">class</span> <span class="nc">Role</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Role</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span> 
     <span class="c"># ...</span>
     <span class="n">users</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">relationship</span><span class="p">(</span><span class="s">&#39;User&#39;</span><span class="p">,</span> <span class="n">backref</span><span class="o">=</span><span class="s">&#39;role&#39;</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="s">&#39;dynamic&#39;</span><span class="p">)</span> 
     <span class="c"># ...</span></code></pre></div>

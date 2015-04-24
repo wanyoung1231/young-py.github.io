@@ -135,7 +135,7 @@
 
 <p><em>示例7-2. config.py：应用程序配置</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">os</span>
 <span class="n">basedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
 
 <span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
@@ -202,7 +202,7 @@
 
 <p><em>示例7-3. app/__ init__.py：应用程序包构造函数</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">render_template</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">render_template</span> 
 <span class="kn">from</span> <span class="nn">flask.ext.bootstrap</span> <span class="kn">import</span> <span class="n">Bootstrap</span> 
 <span class="kn">from</span> <span class="nn">flask.ext.mail</span> <span class="kn">import</span> <span class="n">Mail</span>
 <span class="kn">from</span> <span class="nn">flask.ext.moment</span> <span class="kn">import</span> <span class="n">Moment</span>
@@ -240,7 +240,7 @@
 
 <p><em>示例7-4. app/main/__ init__.py：创建蓝图</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span>
 
 <span class="n">main</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s">&#39;main&#39;</span><span class="p">,</span> <span class="n">__name__</span><span class="p">)</span> 
 
@@ -254,7 +254,7 @@
 
 <p><em>示例7-5. app/__ init__.py：蓝图注册</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="k">def</span> <span class="nf">create_app</span><span class="p">(</span><span class="n">config_name</span><span class="p">):</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">create_app</span><span class="p">(</span><span class="n">config_name</span><span class="p">):</span> 
     <span class="c"># ...</span>
     <span class="kn">from</span> <span class="nn">main</span> <span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">main_blueprint</span> 
     <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">main_blueprint</span><span class="p">)</span>
@@ -265,7 +265,7 @@
 
 <p><em>示例7-6. app/main/errors.py：蓝图的错误处理</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span> 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">main</span>
 
 <span class="nd">@main.app_errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span> 
@@ -278,11 +278,11 @@
 
 <p>在蓝图中写错误处理的不同之处是，如果使用了<code>errorhandler</code>装饰器，则只会调用在蓝图中引起的错误处理。而应用程序范围内的错误处理则必须使用<code>app_errorhandler</code>。</p>
 
-<p>示例7-7展示了被更新在蓝图中的应用程序路由。 </p>
+<p>示例7-7展示了被更新在蓝图中的应用程序路由。</p>
 
 <p><em>示例7-7. app/main/views.py：带有蓝图的应用程序路由</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">main</span>

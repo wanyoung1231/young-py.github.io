@@ -92,7 +92,7 @@
 
 <p><em>示例3-10. templates/base.html：favicon定义</em></p>
 
-<div class="highlight"><pre><code class="html">{ % block head %}
+<div class="highlight"><pre><code class="language-html" data-lang="html">{ % block head %}
 { { super() }}
 <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;shortcut icon&quot;</span> <span class="na">href=</span><span class="s">&quot;{ { url_for(&#39;static&#39;, filename = &#39;favicon.ico&#39;) }}&quot;</span>
 <span class="na">type=</span><span class="s">&quot;image/x-icon&quot;</span><span class="nt">&gt;</span>
@@ -123,14 +123,14 @@
 
 <p><em>示例3-11. hello.py：初始化Flask-Moment</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask.ext.moment</span> <span class="kn">import</span> <span class="n">Moment</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask.ext.moment</span> <span class="kn">import</span> <span class="n">Moment</span>
 <span class="n">moment</span> <span class="o">=</span> <span class="n">Moment</span><span class="p">(</span><span class="n">app</span><span class="p">)</span></code></pre></div>
 
 <p>Flask-Moment除了依赖<code>moment.js</code>外，还依赖<code>jquery.js</code>。这两个库需要直接包含在HTML文档，这种情况下你可以选择使用什么版本，或通过扩展提供的帮助函数来引用内容分发网络（CDN）的测试版本库。因为Bootstrap已经包含了<code>jquery.js</code>，所以只需要将<code>moment.js</code>增加到这个示例中。示例3-12展示这个库是如何被加载到基础模板<code>scripts</code>中的。</p>
 
 <p><em>示例3-12. templates/base.html：导入moment.js库</em></p>
 
-<div class="highlight"><pre><code class="html">{ % block scripts %}
+<div class="highlight"><pre><code class="language-html" data-lang="html">{ % block scripts %}
 { { super() }}
 { { moment.include_moment() }}
 { % endblock %}</code></pre></div>
@@ -139,7 +139,7 @@
 
 <p><em>示例3-13. hello.py：增加datetime变量</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> 
 <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
@@ -149,7 +149,7 @@
 
 <p><em>示例3-14. templates/index.html：使用Flask-Moment渲染时间戳</em></p>
 
-<div class="highlight"><pre><code class="html"><span class="nt">&lt;p&gt;</span>The local date and time is { { moment(current_time).format(&#39;LLL&#39;) }}.<span class="nt">&lt;/p&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;p&gt;</span>The local date and time is { { moment(current_time).format(&#39;LLL&#39;) }}.<span class="nt">&lt;/p&gt;</span>
 <span class="nt">&lt;p&gt;</span>That was { { moment(current_time).fromNow(refresh=True) }}<span class="nt">&lt;/p&gt;</span></code></pre></div>
 
 <p><code>format('LLL')</code>根据客户端电脑的时区和地区设置来格式化显示日期和时间。参数决定了渲染的样式，从<code>L</code>到<code>LLL</code>对应不同的详细级别。<code>format()</code>函数还可以接受自定义的格式说明符。</p>

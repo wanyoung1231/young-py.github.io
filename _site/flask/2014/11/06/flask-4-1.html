@@ -81,7 +81,7 @@
 
 <p><em>示例4-1. hello.py：Flask-WTF配置</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;SECRET_KEY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;hard to guess string&#39;</span></code></pre></div>
 
 <p><code>app.config</code>字典通常是框架、扩展或应用程序自身存放配置变量的地方，可以使用标准字典语法添加配置值到<code>app.config</code>中。配置对象提供方法来从文件或环境导入配置值。</p>
@@ -100,7 +100,7 @@
 
 <p><em>示例4-2. hello.py：表单类定义</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask.ext.wtf</span> <span class="kn">import</span> <span class="n">Form</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask.ext.wtf</span> <span class="kn">import</span> <span class="n">Form</span>
 <span class="kn">from</span> <span class="nn">wtforms</span> <span class="kn">import</span> <span class="n">StringField</span><span class="p">,</span> <span class="n">SubmitField</span> 
 <span class="kn">from</span> <span class="nn">wtforms.validators</span> <span class="kn">import</span> <span class="n">Required</span>
 
@@ -132,28 +132,28 @@
 
 <p>表单域是可调用的，调用时从模板渲染它们到HTML。假设视图函数传递一个参数名为<code>form</code>的<code>NameForm</code>实例给模板，模板就会生成一个简单的HTML表单，如下所示：</p>
 
-<div class="highlight"><pre><code class="html"><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;POST&quot;</span><span class="nt">&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;POST&quot;</span><span class="nt">&gt;</span>
     { { form.name.label }} { { form.name() }} 
     { { form.submit() }}
 <span class="nt">&lt;/form&gt;</span></code></pre></div>
 
 <p>当然，结果是什么都没有。为了改变表单的外观显示，任何发送给该表单域的参数会被转换为HTML表单域属性；例如，你可以给定表单域<code>id</code>或<code>class</code>属性，然后定义CSS样式：</p>
 
-<div class="highlight"><pre><code class="html"><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;POST&quot;</span><span class="nt">&gt;</span>
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;POST&quot;</span><span class="nt">&gt;</span>
     { { form.name.label }} { { form.name(id=&#39;my-text-field&#39;) }} 
     { { form.submit() }}
 <span class="nt">&lt;/form&gt;</span></code></pre></div>
 
 <p>即使有HTML属性，努力用这种方式渲染表单是非常重要的，所以最好是尽可能的使用Bootstrap自带的一系列表单样式。Flask-Bootstrap使用Bootstrap的预定义表单样式来提供高级的帮助函数来渲染整个Flask-WTF表单，这些操作都只需要一个调用即可完成。使用Flask-Bootstrap，上一个表单可以像下面这样来渲染：</p>
 
-<div class="highlight"><pre><code class="html">{ % import &quot;bootstrap/wtf.html&quot; as wtf %}
+<div class="highlight"><pre><code class="language-html" data-lang="html">{ % import &quot;bootstrap/wtf.html&quot; as wtf %}
     { { wtf.quick_form(form) }}</code></pre></div>
 
 <p><code>import</code>指令和常规的Python脚本一样的作用并且允许模板元素被导入并在许多模板中使用。被导入的<code>bootstrap/wtf.html</code>文件，定义了帮助函数使用Bootstrap来渲染Flask-WTF表单。<code>wtf.quick_form()</code>函数传入Flask-WTF表单对象并使用默认Bootstrap样式渲染它。示例4-3展示了完整的<code>hello.py</code>模板。</p>
 
 <p><em>示例4-3. templates/index.html：使用Flask-WTF和Flask-Bootstrap渲染表单</em></p>
 
-<div class="highlight"><pre><code class="html">{ % extends &quot;base.html&quot; %}
+<div class="highlight"><pre><code class="language-html" data-lang="html">{ % extends &quot;base.html&quot; %}
 { % import &quot;bootstrap/wtf.html&quot; as wtf %}
 
 { % block title %}Flasky{ % endblock %}

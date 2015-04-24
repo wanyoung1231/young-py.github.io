@@ -77,7 +77,7 @@
 
 <p><em>示例3-4. hello.py：Flask-Bootstrap初始化</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask.ext.bootstrap</span> <span class="kn">import</span> <span class="n">Bootstrap</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask.ext.bootstrap</span> <span class="kn">import</span> <span class="n">Bootstrap</span>
 <span class="c"># ...</span>
 <span class="n">bootstrap</span> <span class="o">=</span> <span class="n">Bootstrap</span><span class="p">(</span><span class="n">app</span><span class="p">)</span></code></pre></div>
 
@@ -87,7 +87,7 @@
 
 <p>_示例3-5. templates/user.html： 使用Flask-Bootstrap的模板</p>
 
-<div class="highlight"><pre><code class="html">{ % extends &quot;bootstrap/base.html&quot; %}
+<div class="highlight"><pre><code class="language-html" data-lang="html">{ % extends &quot;bootstrap/base.html&quot; %}
 { % block title %}Flasky{ % endblock %}
 { % block navbar %}
 <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar navbar-inverse&quot;</span> <span class="na">role=</span><span class="s">&quot;navigation&quot;</span><span class="nt">&gt;</span> 
@@ -143,7 +143,7 @@
 
 <p>表格3-2中的许多块用于Flask-Bootstrap自身，所以直接重写它们会引发问题。例如，<code>styles</code>和<code>scripts</code>块是Bootstrap定义文件的地方。如果应用程序需要新增自己的内容到已经有一些内容的块中，则必须使用Jinja2的<code>super()</code>。例如，如何在派生模板中写<code>scripts</code>块，来给文档增加新的JavaScript文件：</p>
 
-<div class="highlight"><pre><code class="html">{ % block scripts %}
+<div class="highlight"><pre><code class="language-html" data-lang="html">{ % block scripts %}
 { { super() }}
 <span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;my-script.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span> 
 { % endblock %}</code></pre></div>
@@ -156,7 +156,7 @@
 
 <p><em>示例3-6. hello.py：自定义错误页面</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="nd">@app.errorhandler</span><span class="p">(</span><span class="mi">404</span><span class="p">)</span> 
 <span class="k">def</span> <span class="nf">page_not_found</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s">&#39;404.html&#39;</span><span class="p">),</span> <span class="mi">404</span>
 
@@ -174,7 +174,7 @@
 
 <p>_示例3-7. templates/base.html：带有导航栏的基础应用程序模板</p>
 
-<div class="highlight"><pre><code class="html">{ % extends &quot;bootstrap/base.html&quot; %}
+<div class="highlight"><pre><code class="language-html" data-lang="html">{ % extends &quot;bootstrap/base.html&quot; %}
 { % block title %}Flasky{ % endblock %}
 { % block navbar %}
 <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;navbar navbar-inverse&quot;</span> <span class="na">role=</span><span class="s">&quot;navigation&quot;</span><span class="nt">&gt;</span> 
@@ -210,7 +210,7 @@
 
 <p><em>示例3-8. <code>templates/404.html</code>：使用模板继承自定义404错误页面</em></p>
 
-<div class="highlight"><pre><code class="html">{ % extends &quot;base.html&quot; %}
+<div class="highlight"><pre><code class="language-html" data-lang="html">{ % extends &quot;base.html&quot; %}
 { % block title %}Flasky - Page Not Found{ % endblock %}
 { % block page_content %}
 <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;page-header&quot;</span><span class="nt">&gt;</span> 
@@ -228,7 +228,7 @@
 
 <p><em>示例3-9. templates/user.html：使用模板继承简化页面模板</em></p>
 
-<div class="highlight"><pre><code class="html">{ % extends &quot;base.html&quot; %}
+<div class="highlight"><pre><code class="language-html" data-lang="html">{ % extends &quot;base.html&quot; %}
 { % block title %}Flasky{ % endblock %}
 { % block page_content %}
 <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;page-header&quot;</span><span class="nt">&gt;</span> 

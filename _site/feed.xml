@@ -7,117 +7,26 @@
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
-        <title>Flask教程 —— 用户身份验证（上）</title>
-        <description>&lt;p&gt;大部分的应用程序需要知道用户谁。当用户连接到应用程序，它会对用户进行身份验证。一旦应用程序知道谁是用户，它可以提供定制的体验。&lt;/p&gt;
-
-&lt;p&gt;大部分常用的身份验证方法需要用户提供身份标识（邮箱或用户名）和密码。在这一章节，会为Flasky创建一个完整的身份验证系统。&lt;/p&gt;
-
-&lt;h3 id=&quot;flask&quot;&gt;&lt;strong&gt;1、Flask的身份验证扩展&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;事实上有许多非常不错的Python身份验证包，但没有一个能做完所有工作。在这章中使用的用户身份验证解决方案使用几个包并提供“粘合剂”使得它们能够很好的协调工作。下面是一些需要用到的包：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;Flask-Login：登录用户的用户会话管理&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Werkzeug：密码哈希和验证&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;itsdangerous：密钥安全令牌生成和验证&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;除了指定身份验证包，下面是一些通用的扩展包：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;Flask-Mail：发送身份验证相关的邮件&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Flask-Bootstrap：HTML模板&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Flask-WTF：Web表单&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;2、密码安全&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;在设计web应用程序的过程中，存储在数据库中的用户信息的安全经常被忽略。如果攻击者能够攻入你的服务器并且访问你的用户数据库，你的用户安全就存在风险，且风险比你想象的还要大。大多数的用户会在多个网站中使用相同的密码是已知的事实，所以即使你不存储任何敏感信息，访问存储在你的数据库中的密码可以让攻击者访问你的用户在其他网站的账户。&lt;/p&gt;
-
-&lt;p&gt;安全存储用户密码到数据库的关键主要是不要存储明文密码，而是密码的哈希值。密码哈希函数将密码作为输入并生成一个或多个密钥转换。结果是一个和原始密码不相似的新的字符串序列。密码哈希值可以替代真实密码验证，因为哈希函数是可复验的：给相同的输入，结果就一直一样。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;注：密码哈希过程是一个复杂的任务，且难以得到正确的值。所以推荐你不要自己去实现解决方案，而是使用社区提供的可信库来替代之。如果你对生成安全密码哈希感兴趣，文章《Salted Password Hashing - Doing it Right》值得一读。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h5 id=&quot;wekzeug&quot;&gt;&lt;strong&gt;2.1、Wekzeug散列密码&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;Werkzeug的&lt;strong&gt;security&lt;/strong&gt;模块很方便的实现了安全密码散列过程。这个功能有两个函数提供，各自用于注册和验证解释：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code&gt;generate_password_hash(password, method=pbkdf2:sha1, salt_length=8)&lt;/code&gt;：&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;这个函数携带未加密密码并将密码散列为字符串返回，可以保存在用户的数据库中。对于大多数用例，默认的&lt;code&gt;method&lt;/code&gt;值和&lt;code&gt;salt_length&lt;/code&gt;就已经足够了。&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code&gt;check_password_hash(hash, password)&lt;/code&gt;：&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;这个函数携带从数据库中取回的密码散列值和用户输入的密码。如果指示密码正确则返回&lt;code&gt;True&lt;/code&gt;。&lt;/p&gt;
-
-&lt;p&gt;示例8-1展示了在第五章节中创建的&lt;code&gt;User&lt;/code&gt;模型的变化，容纳了密码散列的过程。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例8-1. app/models.py：在User模型中散列密码&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;werkzeug.security&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;generate_password_hash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;check_password_hash&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
-    &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;password_hash&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;128&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-
-    &lt;span class=&quot;nd&quot;&gt;@property&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;raise&lt;/span&gt; &lt;span class=&quot;ne&quot;&gt;AttributeError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;password is not a readable attribute&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    
-    &lt;span class=&quot;nd&quot;&gt;@password.setter&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;password_hash&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;generate_password_hash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;verify_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;check_password_hash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;password_hash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;密码散列函数是通过一个只读属性&lt;code&gt;password&lt;/code&gt;来实现的。当这个属性被设置，&lt;code&gt;setter&lt;/code&gt;方法会调用Werkzeug的&lt;code&gt;generate_password_hash()&lt;/code&gt;函数并将结果写入到&lt;code&gt;password_hash&lt;/code&gt;字段。企图读取&lt;code&gt;password&lt;/code&gt;属性将返回错误，&lt;/p&gt;
-
-</description>
-        <pubDate>Thu, 25 Dec 2014 03:46:35 +0800</pubDate>
-        <link>/flask/2014/12/25/flask-8-1.html</link>
-        <guid isPermaLink="true">/flask/2014/12/25/flask-8-1.html</guid>
-      </item>
-    
-      <item>
         <title>Python学习 —— __init__()方法</title>
-        <description>&lt;p&gt;&lt;code&gt;__init__()&lt;/code&gt;方法深奥有两个原因。初始化是对象的生命周期最重要的一步；每个对象必须正确初始化后才能正常工作。第二个原因是&lt;code&gt;__init()__&lt;/code&gt;参数值可以多种形式。&lt;/p&gt;
+        <description>&lt;p&gt;&lt;code&gt;__init__()&lt;/code&gt;方法意义重大的原因有两个。第一个原因是在对象生命周期中初始化是最重要的一步；每个对象必须正确初始化后才能正常工作。第二个原因是&lt;code&gt;__init__()&lt;/code&gt;参数值可以有多种形式。&lt;/p&gt;
 
-&lt;p&gt;因为有很多种方式为&lt;code&gt;__init__()&lt;/code&gt;提供参数值，有大量的用例用于对象创建。我们可以看看其中的几个。我们想尽可能的弄清楚，因此我们需要定义一个初始化来正确的表示问题区域。&lt;/p&gt;
+&lt;p&gt;因为有很多种方式为&lt;code&gt;__init__()&lt;/code&gt;提供参数值，对于对象创建有大量的用例，我们可以看看其中的几个。我们想尽可能的弄清楚，因此我们需要定义一个初始化来正确的描述问题区域。&lt;/p&gt;
 
 &lt;p&gt;在我们接触&lt;code&gt;__init__()&lt;/code&gt;方法之前，无论如何，我们都需要粗略、简单地看看在Python中隐含的&lt;code&gt;object&lt;/code&gt;类的层次结构。&lt;/p&gt;
 
-&lt;p&gt;在这一章，我们看看不同形式的简单对象的初始化（例如，打牌）。在这之后，我们可以看看更复杂的对象，就像手潜心于收集和玩家潜心于策略和状态。&lt;/p&gt;
+&lt;p&gt;在这一章，我们看看不同形式的简单对象的初始化（例如：打牌）。在这之后，我们还可以看看更复杂的对象，就像包含集合的&lt;code&gt;hands&lt;/code&gt;对象以及包含策略和状态的&lt;code&gt;players&lt;/code&gt;。&lt;/p&gt;
 
 &lt;h3 id=&quot;object&quot;&gt;&lt;strong&gt;隐含的超类——object&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;每一个Python类都隐含了一个超类：&lt;strong&gt;object&lt;/strong&gt;。它是一个非常简单的类定义，几乎不做任何事情。我们可以创建&lt;code&gt;object&lt;/code&gt;的实例，但是我们不能用它做太多，因为许多特殊的方法容易抛出异常。&lt;/p&gt;
 
-&lt;p&gt;当我们定义一个自己的类，&lt;code&gt;object&lt;/code&gt;则为超类。下面是一个类定义示例，它使用新的名称简单的继承了&lt;code&gt;object&lt;/code&gt;：&lt;/p&gt;
+&lt;p&gt;当我们自定义一个类，&lt;code&gt;object&lt;/code&gt;则为超类。下面是一个类定义示例，它使用新的名称简单的继承了&lt;code&gt;object&lt;/code&gt;：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;class X:
     pass
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;下面是和我们的类的一些交互：&lt;/p&gt;
+&lt;p&gt;下面是和自定义类的一些交互：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; X.__class__
 &amp;lt;class &#39;type&#39;&amp;gt;
@@ -125,35 +34,35 @@
 &amp;lt;class &#39;object&#39;&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;我们可以看到类是&lt;code&gt;type&lt;/code&gt;类的一个对象，且我们新类的基类为&lt;code&gt;object&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;我们可以看到该类是&lt;code&gt;type&lt;/code&gt;类的一个对象，且它的基类为&lt;code&gt;object&lt;/code&gt;。&lt;/p&gt;
 
-&lt;p&gt;就像在每个方法中看到的那样，我们也看看从&lt;code&gt;object&lt;/code&gt;继承的默认行为。在某些情况下，超类特殊方法行为将是我们所想要的。在其他情况下，我们需要覆盖这个特殊方法。&lt;/p&gt;
+&lt;p&gt;就像在每个方法中看到的那样，我们也看看从&lt;code&gt;object&lt;/code&gt;继承的默认行为。在某些情况下，超类特殊方法的行为是我们所想要的。在其他情况下，我们需要覆盖这个特殊方法。&lt;/p&gt;
 
 &lt;h3 id=&quot;init&quot;&gt;&lt;strong&gt;基类对象的__init__()方法&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;对象生命周期的基础是创建、初始化和销毁。我们将创建和销毁的更高级的特殊方法推迟到后面的章节，目前只关注初始化。&lt;/p&gt;
+&lt;p&gt;对象生命周期的基础是创建、初始化和销毁。我们将创建和销毁的高级特殊方法推迟到后面的章节中，目前只关注初始化。&lt;/p&gt;
 
-&lt;p&gt;所有类的超类&lt;code&gt;object&lt;/code&gt;，有一个默认的&lt;code&gt;__init__()&lt;/code&gt;实现。我们不需要去实现&lt;code&gt;__init__()&lt;/code&gt;。如果不实现它，则在对象创建后就不会创建实例变量。在某些情况下，这个默认行为是可以接受的。&lt;/p&gt;
+&lt;p&gt;所有类的超类&lt;code&gt;object&lt;/code&gt;，有一个默认包含&lt;code&gt;pass&lt;/code&gt;的&lt;code&gt;__init__()&lt;/code&gt;实现，我们不需要去实现&lt;code&gt;__init__()&lt;/code&gt;。如果不实现它，则在对象创建后就不会创建实例变量。在某些情况下，这种默认行为是可以接受的。&lt;/p&gt;
 
-&lt;p&gt;我们通常增加给对象添加属性，该对象为基类&lt;code&gt;object&lt;/code&gt;的子类。思考以下类，需要两个实例变量但不初始化它们：&lt;/p&gt;
+&lt;p&gt;我们总是给对象添加属性，该对象为基类&lt;code&gt;object&lt;/code&gt;的子类。思考以下类，需要两个实例变量但不初始化它们：&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Rectangle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;area&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Rectangle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;area&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;width&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;&lt;code&gt;Rectangle&lt;/code&gt;类有一个使用两个属性来返回一个值的方法。这些属性没有初始化。这是合法的Python代码。它可以有效的避免专门设置属性，虽然有点奇怪，但是有效。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Rectangle&lt;/code&gt;类有一个使用两个属性来返回一个值的方法。这些属性没有初始化。这是合法的Python代码。它可以有效的避免专门设置属性，虽然感觉有点奇怪，但是有效。&lt;/p&gt;
 
 &lt;p&gt;下面是于Rectangle类的交互：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; r= Rectangle()
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; r = Rectangle()
 &amp;gt;&amp;gt;&amp;gt; r.length, r.width = 13, 8
 &amp;gt;&amp;gt;&amp;gt; r.area()
 104
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;显然这是合法的，但也是容易混淆的根源，所以需要避免。&lt;/p&gt;
+&lt;p&gt;显然这是合法的，但也是容易混淆的根源，所以也是我们需要避免的原因。&lt;/p&gt;
 
-&lt;p&gt;无论如何，这个设计给予了很大的灵活性，这样有时候我们不用在&lt;code&gt;__init__()&lt;/code&gt;方法中设置所有属性。至此我们走的很顺利。一个可选属性其实就是一个没有正式声明为一个合适的子类。我们创建多态的方式可能会引起混乱和复杂的&lt;code&gt;if&lt;/code&gt;语句的不当使用。虽然未初始化的属性可能是有用的，但很有可能是糟糕设计的前兆。&lt;/p&gt;
+&lt;p&gt;无论如何，这个设计给予了很大的灵活性，这样有时候我们不用在&lt;code&gt;__init__()&lt;/code&gt;方法中设置所有属性。至此我们走的很顺利。一个可选属性其实就是一个子类，只是没有真正的正式声明为子类。我们创建多态在某种程度上可能会引起混乱以及&lt;code&gt;if&lt;/code&gt;语句的不恰当使用所造成的盘绕。虽然未初始化的属性可能是有用的，但很有可能是糟糕设计的前兆。&lt;/p&gt;
 
 &lt;p&gt;《Python之禅》中的建议：&lt;/p&gt;
 
@@ -161,9 +70,9 @@
   &lt;p&gt;“显式比隐式更好。”&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;&lt;code&gt;__init__()&lt;/code&gt;方法应该使实例变量显式。&lt;/p&gt;
+&lt;p&gt;一个&lt;code&gt;__init__()&lt;/code&gt;方法应该让实例变量显式。&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;可怜的多态性&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;可怜的多态&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;灵活和愚蠢就在一念之间。&lt;/p&gt;
 
@@ -179,48 +88,78 @@
 except AttributeError:
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;是时候重新考虑API并添加一个常见的方法或属性。重构比添加&lt;code&gt;if&lt;/code&gt;语句更明智。&lt;/p&gt;
+&lt;p&gt;是时候重新考虑API并添加一个通用的方法或属性。重构比添加&lt;code&gt;if&lt;/code&gt;语句更明智。&lt;/p&gt;
 
 &lt;h3 id=&quot;init-1&quot;&gt;&lt;strong&gt;在超类中实现__init__()&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;我们通过实现&lt;code&gt;__init__()&lt;/code&gt;方法来初始化对象。当一个对象被创建，Python首先创建一个空对象，然后为那个新对象调用&lt;code&gt;__init__()&lt;/code&gt;方法。这个方法函数通常用来创建对象的实例变量和执行任何其他一次性处理。&lt;/p&gt;
+&lt;p&gt;我们通过实现&lt;code&gt;__init__()&lt;/code&gt;方法来初始化对象。当一个对象被创建，Python首先创建一个空对象，然后为那个新对象调用&lt;code&gt;__init__()&lt;/code&gt;方法。这个方法函数通常用来创建对象的实例变量并执行任何其他一次性处理。&lt;/p&gt;
 
 &lt;p&gt;下面是&lt;code&gt;Card&lt;/code&gt;类示例定义的层次结构。我们将定义&lt;code&gt;Card&lt;/code&gt;超类和三个子类，这三个子类是&lt;code&gt;Card&lt;/code&gt;的变种。两个实例变量直接由参数值设置，两个变量通过初始化方法计算：&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt;  &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;
-        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt;  &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;
         &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_points&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
 
-&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;NumberCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Card&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_points&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;NumberCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_points&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 
-&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AceCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Card&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_points&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AceCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_points&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;11&lt;/span&gt;
 
-&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FaceCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Card&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_points&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FaceCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_points&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;在这个示例中，我们提取出&lt;code&gt;__init__()&lt;/code&gt;方法到超类，这样在&lt;code&gt;Card&lt;/code&gt;超类中的通用初始化可以适用于三个子类&lt;code&gt;NumberCard&lt;/code&gt;、&lt;code&gt;AceCard&lt;/code&gt;和&lt;code&gt;FaceCard&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;在这个示例中，我们提取&lt;code&gt;__init__()&lt;/code&gt;方法到超类，这样在&lt;code&gt;Card&lt;/code&gt;超类中的通用初始化可以适用于三个子类&lt;code&gt;NumberCard&lt;/code&gt;、&lt;code&gt;AceCard&lt;/code&gt;和&lt;code&gt;FaceCard&lt;/code&gt;。&lt;/p&gt;
 
-&lt;p&gt;这是一种常见的多态设计。每一个子类都提供一个唯一的&lt;code&gt;_points()&lt;/code&gt;方法。所有子类都有相同的签名：有相同的方法和属性。这三个子类的对象在一个应用程序中可以交替使用。&lt;/p&gt;
+&lt;p&gt;这是一种常见的多态设计。每一个子类都提供一个唯一的&lt;code&gt;_points()&lt;/code&gt;方法实现。所有子类都有相同的签名：有相同的方法和属性。这三个子类的对象在一个应用程序中可以交替使用。&lt;/p&gt;
 
-&lt;p&gt;如果我们为花色简单的使用字符，我们可以创建&lt;code&gt;Card&lt;/code&gt;实例，如下所示：&lt;/p&gt;
+&lt;p&gt;如果我们为花色使用简单的字符，我们可以创建&lt;code&gt;Card&lt;/code&gt;实例，如下所示：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;cards = [ AceCard(&#39;A&#39;, &#39;♠&#39;), NumberCard(&#39;2&#39;,&#39;♠&#39;), NumberCard(&#39;3&#39;,&#39;♠&#39;),]
+&lt;pre&gt;&lt;code&gt;cards = [AceCard(&#39;A&#39;, &#39;♠&#39;), NumberCard(&#39;2&#39;,&#39;♠&#39;), NumberCard(&#39;3&#39;,&#39;♠&#39;),]
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;我们为一些牌枚举出类、牌值和花色到列表中。从长远来说，我们需要更智能的工厂函数来创建&lt;code&gt;Card&lt;/code&gt;实例；用这个方法枚举52张牌无聊且容易出错。在我们接触工厂函数之前，我们看看一些其他问题。&lt;/p&gt;
+&lt;p&gt;我们在列表中枚举出一些牌的类、牌值和花色。从长远来说，我们需要更智能的工厂函数来创建&lt;code&gt;Card&lt;/code&gt;实例；用这个方法枚举52张牌无聊且容易出错。在我们接触工厂函数之前，我们看一些其他问题。&lt;/p&gt;
 
-&lt;h3 id=&quot;init-2&quot;&gt;&lt;strong&gt;使用__init__()创建显示常量&lt;/strong&gt;&lt;/h3&gt;
+&lt;h3 id=&quot;init-2&quot;&gt;&lt;strong&gt;使用__init__()创建显式常量&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;可以给我们的牌定义花色类。在二十一点中，花色无关紧要，简单的字符串就可以。&lt;/p&gt;
+&lt;p&gt;可以给牌定义花色类。在二十一点中，花色无关紧要，简单的字符串就可以。&lt;/p&gt;
 
-&lt;p&gt;我们使用花色构造函数作为创建常量对象的示例。在许多情况下，我们应用中小部分领域的对象可以通过常量集合来定义。小部分的静态对象可能是实现&lt;strong&gt;Strategy&lt;/strong&gt;或&lt;strong&gt;State&lt;/strong&gt;设计模式的一部分。&lt;/p&gt;
+&lt;p&gt;我们使用花色构造函数作为创建常量对象的示例。在许多情况下，我们应用中小部分对象可以通过常量集合来定义。小部分的静态对象可能是实现策略模式或状态模式的一部分。&lt;/p&gt;
+
+&lt;p&gt;在某些情况下，我们会有一个在初始化或配置文件中创建的常量对象池，或者我们可以基于命令行参数创建常量对象。我们会在第十六章《通过命令进行复制》中获取初始化设计和启动设计的详细信息。&lt;/p&gt;
+
+&lt;p&gt;Python没有简单正式的机制来定义一个不可变对象，我们将在第三章《属性访问、方法属性和描述符》看看保证不可变性的相关技术。在本示例中，花色不可变是有道理的。&lt;/p&gt;
+
+&lt;p&gt;下面这个类，我们将用于创建四个显式常量：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;symbol&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;symbol&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;symbol&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;下面是通过这个类创建的常量：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;Club&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Diamond&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Heart&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Spade&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;Club&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;♣&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;Diamond&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;♦&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;Heart&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;♥&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;Spade&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;♠&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;现在我们可以通过下面展示的代码片段创建&lt;code&gt;cards&lt;/code&gt;：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AceCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;A&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Spade&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NumberCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;2&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Spade&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NumberCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;3&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Spade&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这个小示例，这种方法对于单个特性的花色代码来说并不是一个巨大的进步。在更复杂的情况下，会有一些策略或状态对象通过这个方式创建。通过从小的、静态的常量对象中复用可以使策略或状态设计模式更有效率。&lt;/p&gt;
+
+&lt;p&gt;我们必须承认，在Python中这些对象并不是技术上一成不变的，它是可变的。进行额外的编码使得这些对象真正不变可能会有一些好处。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;无关紧要的不变性&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;不变性很有吸引力但却容易带来麻烦。有时候被神话般的“恶意程序员”在他们的应用程序中通过修改常量值进行调整。从设计上考虑，这是非常愚蠢的。这些神话般的、恶意的程序员不会停止这样做，因为已经没有更好的方法去更简洁简单的在Python中编码。恶意程序员访问到源码并且修改它仅仅是希望尽可能轻松地编写代码来修改一个常数。&lt;/p&gt;
+
+&lt;p&gt;在定义不可变对象的类的时候最好不要挣扎太久。在第三章《属性访问、方法属性和描述符》中，我们将通过在有bug的程序中提供合适的诊断信息来展示如何实现不变性。&lt;/p&gt;
 
 </description>
         <pubDate>Tue, 09 Dec 2014 01:52:40 +0800</pubDate>
@@ -236,7 +175,7 @@ except AttributeError:
 
 &lt;p&gt;&lt;em&gt;示例7-8. manage.py：启动脚本&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/env python&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/env python&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;create_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;app.models&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Role&lt;/span&gt;
@@ -300,7 +239,7 @@ itsdangerous==0.23
 
 &lt;p&gt;&lt;em&gt;示例7-9. tests/test_basics.py：单元测试&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;unittest&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;unittest&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_app&lt;/span&gt; 
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;create_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;
 
@@ -342,7 +281,7 @@ itsdangerous==0.23
 
 &lt;p&gt;&lt;em&gt;示例7-10. manage.pyt：单元测试启动脚本&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@manager.command&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@manager.command&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
     &lt;span class=&quot;sd&quot;&gt;&amp;quot;&amp;quot;&amp;quot;Run the unit tests.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
     &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;unittest&lt;/span&gt;
@@ -461,7 +400,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例7-2. config.py：应用程序配置&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;basedir&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;abspath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__file__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
@@ -528,7 +467,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例7-3. app/__ init__.py：应用程序包构造函数&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt; 
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.bootstrap&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Bootstrap&lt;/span&gt; 
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.moment&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Moment&lt;/span&gt;
@@ -566,7 +505,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例7-4. app/main/__ init__.py：创建蓝图&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Blueprint&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Blueprint&lt;/span&gt;
 
 &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Blueprint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;main&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
 
@@ -580,7 +519,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例7-5. app/__ init__.py：蓝图注册&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create_app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
     &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
     &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;main&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main_blueprint&lt;/span&gt; 
     &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;register_blueprint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main_blueprint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -591,7 +530,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例7-6. app/main/errors.py：蓝图的错误处理&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt; 
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;
 
 &lt;span class=&quot;nd&quot;&gt;@main.app_errorhandler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;404&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
@@ -604,11 +543,11 @@ OK
 
 &lt;p&gt;在蓝图中写错误处理的不同之处是，如果使用了&lt;code&gt;errorhandler&lt;/code&gt;装饰器，则只会调用在蓝图中引起的错误处理。而应用程序范围内的错误处理则必须使用&lt;code&gt;app_errorhandler&lt;/code&gt;。&lt;/p&gt;
 
-&lt;p&gt;示例7-7展示了被更新在蓝图中的应用程序路由。 &lt;/p&gt;
+&lt;p&gt;示例7-7展示了被更新在蓝图中的应用程序路由。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例7-7. app/main/views.py：带有蓝图的应用程序路由&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;datetime&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;datetime&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url_for&lt;/span&gt;
 
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;
@@ -662,7 +601,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例6-1. hello.py：Flask-Mail配置Gmail&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_SERVER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;smtp.googlemail.com&amp;#39;&lt;/span&gt; 
 &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PORT&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;587&lt;/span&gt;
@@ -678,7 +617,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例6-2. hello.py：Flask-Mail初始化&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; 
 &lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;持有email服务器用户名和密码的两个变量需要在环境中定义。如果你是使用Linux或Mac OS X上的bash，你可以设置这些变量如下：&lt;/p&gt;
@@ -717,7 +656,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例6-3. hello.py：Email支持&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt; 
 
 &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SUBJECT_PREFIX&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;[Flasky]&amp;#39;&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SENDER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;Flasky Admin &amp;lt;flasky@example.com&amp;gt;&amp;#39;&lt;/span&gt;
@@ -735,7 +674,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例6-4. hello.py：Email示例&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
 &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
 &lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
@@ -782,7 +721,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例6-5. hello.py：异步邮件支持&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;threading&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;threading&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt; 
 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;send_async_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
@@ -821,7 +760,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例5-5. hello.py：数据库在视图函数中的使用&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NameForm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;validate_on_submit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
@@ -842,7 +781,7 @@ OK
 
 &lt;p&gt;新版本的相关模板在示例5-6中展示。这个模板使用&lt;code&gt;known&lt;/code&gt;参数用于区分是已知用户还是新用户的问候。&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;{ % extends &amp;quot;base.html&amp;quot; %}
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;{ % extends &amp;quot;base.html&amp;quot; %}
 { % import &amp;quot;bootstrap/wtf.html&amp;quot; as wtf %}
 
 { % block title %}Flasky{ % endblock %}
@@ -871,7 +810,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例5-7. hello.py：增加shell上下文&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.script&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Shell&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.script&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Shell&lt;/span&gt; 
 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;make_shell_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -913,7 +852,7 @@ OK
 
 &lt;p&gt;&lt;em&gt;示例5-8. hello.py：Flask-Migrate配置&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.migrate&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Migrate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MigrateCommand&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.migrate&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Migrate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MigrateCommand&lt;/span&gt; 
 
 &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
 
@@ -999,7 +938,7 @@ INFO  [alembic.migration] Running upgrade None -&amp;gt; 1bc594146bb5, initial m
 
 &lt;p&gt;&lt;em&gt;示例5-3. hello.py：关系&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
     &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;relationship&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;User&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;backref&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;role&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 
@@ -1185,11 +1124,11 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 &amp;lt;Role u&#39;User&#39;&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;此处的&lt;code&gt;user_role.users&lt;/code&gt;查询有点小问题。当&lt;code&gt;user_role.users&lt;/code&gt;表达式在内部调用&lt;code&gt;all()&lt;/code&gt;时通过隐式查询执行来返回用户的列表。因为查询对象是隐藏的，是不可能通过附加查询过滤器进一步提取出来。在这个特定的例子中，它可能是用于按字母排列顺序返回用户列表。在示例5-4中，被&lt;code&gt;lazy = &#39;dynamic&#39;&lt;/code&gt;参数修改过的关系配置的查询是不会自动执行的。 &lt;/p&gt;
+&lt;p&gt;此处的&lt;code&gt;user_role.users&lt;/code&gt;查询有点小问题。当&lt;code&gt;user_role.users&lt;/code&gt;表达式在内部调用&lt;code&gt;all()&lt;/code&gt;时通过隐式查询执行来返回用户的列表。因为查询对象是隐藏的，是不可能通过附加查询过滤器进一步提取出来。在这个特定的例子中，它可能是用于按字母排列顺序返回用户列表。在示例5-4中，被&lt;code&gt;lazy = &#39;dynamic&#39;&lt;/code&gt;参数修改过的关系配置的查询是不会自动执行的。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例5-4. app/models.py：动态关系&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; 
     &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;users&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;relationship&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;User&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;backref&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;role&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lazy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;dynamic&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
     &lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
@@ -1310,7 +1249,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;&lt;em&gt;示例5-1. hello.py：数据库配置&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.sqlalchemy&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLAlchemy&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.sqlalchemy&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLAlchemy&lt;/span&gt;
 
 &lt;span class=&quot;n&quot;&gt;basedir&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;abspath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__file__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
 
@@ -1329,7 +1268,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;&lt;em&gt;示例5-2.hello.py：Role模型和User模型定义&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;__tablename__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;roles&amp;#39;&lt;/span&gt;
     &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Integer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;primary_key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
     &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unique&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -1379,7 +1318,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;&lt;em&gt;示例4-4. hello.py：路由方法&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; 
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NameForm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
@@ -1438,7 +1377,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;&lt;em&gt;示例4-5. hello.py：重定向和用户会话&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url_for&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url_for&lt;/span&gt;
 
 &lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
@@ -1470,7 +1409,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;&lt;em&gt;示例4-6. hello.py：消息提示&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url_for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;flash&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url_for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;flash&lt;/span&gt;
 
 &lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
@@ -1491,7 +1430,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;&lt;em&gt;示例4-7. templates/base.html：消息渲染&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;{ % block content %}
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;{ % block content %}
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;container&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
   { % for message in get_flashed_messages() %} 
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;alert alert-warning&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
@@ -1547,7 +1486,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;&lt;em&gt;示例4-1. hello.py：Flask-WTF配置&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Flask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;SECRET_KEY&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;hard to guess string&amp;#39;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;code&gt;app.config&lt;/code&gt;字典通常是框架、扩展或应用程序自身存放配置变量的地方，可以使用标准字典语法添加配置值到&lt;code&gt;app.config&lt;/code&gt;中。配置对象提供方法来从文件或环境导入配置值。&lt;/p&gt;
@@ -1566,7 +1505,7 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;&lt;em&gt;示例4-2. hello.py：表单类定义&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.wtf&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Form&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.wtf&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Form&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;wtforms&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;StringField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SubmitField&lt;/span&gt; 
 &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;wtforms.validators&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Required&lt;/span&gt;
 
@@ -1598,28 +1537,28 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
 
 &lt;p&gt;表单域是可调用的，调用时从模板渲染它们到HTML。假设视图函数传递一个参数名为&lt;code&gt;form&lt;/code&gt;的&lt;code&gt;NameForm&lt;/code&gt;实例给模板，模板就会生成一个简单的HTML表单，如下所示：&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;form&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;method=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;POST&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;form&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;method=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;POST&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
     { { form.name.label }} { { form.name() }} 
     { { form.submit() }}
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/form&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;当然，结果是什么都没有。为了改变表单的外观显示，任何发送给该表单域的参数会被转换为HTML表单域属性；例如，你可以给定表单域&lt;code&gt;id&lt;/code&gt;或&lt;code&gt;class&lt;/code&gt;属性，然后定义CSS样式：&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;form&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;method=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;POST&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;form&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;method=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;POST&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
     { { form.name.label }} { { form.name(id=&amp;#39;my-text-field&amp;#39;) }} 
     { { form.submit() }}
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/form&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;即使有HTML属性，努力用这种方式渲染表单是非常重要的，所以最好是尽可能的使用Bootstrap自带的一系列表单样式。Flask-Bootstrap使用Bootstrap的预定义表单样式来提供高级的帮助函数来渲染整个Flask-WTF表单，这些操作都只需要一个调用即可完成。使用Flask-Bootstrap，上一个表单可以像下面这样来渲染：&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;{ % import &amp;quot;bootstrap/wtf.html&amp;quot; as wtf %}
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;{ % import &amp;quot;bootstrap/wtf.html&amp;quot; as wtf %}
     { { wtf.quick_form(form) }}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;&lt;code&gt;import&lt;/code&gt;指令和常规的Python脚本一样的作用并且允许模板元素被导入并在许多模板中使用。被导入的&lt;code&gt;bootstrap/wtf.html&lt;/code&gt;文件，定义了帮助函数使用Bootstrap来渲染Flask-WTF表单。&lt;code&gt;wtf.quick_form()&lt;/code&gt;函数传入Flask-WTF表单对象并使用默认Bootstrap样式渲染它。示例4-3展示了完整的&lt;code&gt;hello.py&lt;/code&gt;模板。&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;示例4-3. templates/index.html：使用Flask-WTF和Flask-Bootstrap渲染表单&lt;/em&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;{ % extends &amp;quot;base.html&amp;quot; %}
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;{ % extends &amp;quot;base.html&amp;quot; %}
 { % import &amp;quot;bootstrap/wtf.html&amp;quot; as wtf %}
 
 { % block title %}Flasky{ % endblock %}
@@ -1637,6 +1576,125 @@ users.role_id AS users_role_id FROM users WHERE :param_1 = users.role_id&#39;
         <pubDate>Thu, 06 Nov 2014 07:00:10 +0800</pubDate>
         <link>/flask/2014/11/06/flask-4-1.html</link>
         <guid isPermaLink="true">/flask/2014/11/06/flask-4-1.html</guid>
+      </item>
+    
+      <item>
+        <title>Flask教程 —— 模板（下）</title>
+        <description>&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;4、链接&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;任何应用程序都有多个路由，必然需要包含链接来连接不同的页面，例如导航栏。&lt;/p&gt;
+
+&lt;p&gt;在模板中，对于简单的路由直接写URLs做链接是非常琐碎麻烦的，而给带有变量部分的动态路由建立正确的URLs会变得更加复杂。此外，在代码中显式的写URLs会在路由上造成不必要的依赖。如果路由重组，模板中的链接将被打断而变得无法访问。&lt;/p&gt;
+
+&lt;p&gt;为了避免这些问题，Flask提供&lt;code&gt;url_for()&lt;/code&gt;函数，它会根据存放在应用程序中的URL映射信息来生成URLs。&lt;/p&gt;
+
+&lt;p&gt;其最简单的用法，这个函数传入视图函数名（或通过&lt;code&gt;app.add_url_route()&lt;/code&gt;定义的路由&lt;code&gt;endpoint&lt;/code&gt;名）作为它的参数，然后返回它的URL。例如，在当前版本的&lt;code&gt;hello.py&lt;/code&gt;调用&lt;code&gt;url_for(&#39;index&#39;)&lt;/code&gt;将返回&lt;code&gt;/&lt;/code&gt;。调用&lt;code&gt;url_for(&#39;index&#39;, _external=True)&lt;/code&gt;将返回一个绝对URL，在该示例中为&lt;code&gt;http://localhost:5000/&lt;/code&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;注：相对URLs足以满足生成链接来连接应用程序不同的路由。绝对URLs只有在链接被用于web浏览器的外部才是必须的，例如通过邮件发送链接。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;可以使用&lt;code&gt;url_for()&lt;/code&gt;并传递动态部分作为关键字参数来生成动态URLs。例如，&lt;code&gt;url_for(&#39;user&#39;, name=&#39;join&#39;, external=True)&lt;/code&gt;会返回http://localhost:5000/user/john。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;url_for()&lt;/code&gt;可以不限参数的使用动态路由。函数会增加扩展参数给查询字符串。例如&lt;code&gt;url_for(&#39;index&#39;, page=2)&lt;/code&gt;会返回&lt;code&gt;/?page=2&lt;/code&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;5、静态文件&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;Web应用程序不仅仅是由Python代码和模板组成。大部分的应用程序会使用静态文件，例如从HTML代码中引用的图片、JavaScript源文件和CSS。&lt;/p&gt;
+
+&lt;p&gt;你可能需要回忆一下，在第二章中检查&lt;code&gt;hello.py&lt;/code&gt;应用程序的URL映射时，有一个&lt;strong&gt;static&lt;/strong&gt;入口在里面。这也是为什么引用定义成&lt;code&gt;/static/&amp;lt;filename&amp;gt;&lt;/code&gt;的静态文件会被当作特殊路由来对待。例如，一个&lt;code&gt;url_for(&#39;static&#39;, filename=&#39;css/style.css&#39;, _external=True)&lt;/code&gt;调用会返回http://localhost:5000/static/css/styles.css。&lt;/p&gt;
+
+&lt;p&gt;在它的默认配置中，Flask会在位于应用程序根目录下名为&lt;code&gt;static&lt;/code&gt;的子目录中寻找静态文件。可以在这个目录下的子目录组织管理文件。当服务器收到来自之前示例的URL，它会产生一个响应包含&lt;code&gt;static/css/styles.css&lt;/code&gt;的文件内容。&lt;/p&gt;
+
+&lt;p&gt;示例3-10展示应用程序如何在基础模板中包含&lt;code&gt;favicon.icon&lt;/code&gt;图标并让浏览器将其显示在地址栏。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例3-10. templates/base.html：favicon定义&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;{ % block head %}
+{ { super() }}
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;shortcut icon&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;{ { url_for(&amp;#39;static&amp;#39;, filename = &amp;#39;favicon.ico&amp;#39;) }}&amp;quot;&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;image/x-icon&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;link&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;icon&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;{ { url_for(&amp;#39;static&amp;#39;, filename = &amp;#39;favicon.ico&amp;#39;) }}&amp;quot;&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;image/x-icon&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt; 
+{ % endblock %}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;图标定义被插入在&lt;code&gt;head&lt;/code&gt;块里的最下面。注意&lt;code&gt;super()&lt;/code&gt;是如何保留定义在基础模板中块的原始内容的。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 3d&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;flask-moment&quot;&gt;&lt;strong&gt;6、Flask-Moment中的本地化日期和时间&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;当用户工作在世界各个不同的地方，在web应用程序中处理日期和时间就变成了一个比较重要的问题。&lt;/p&gt;
+
+&lt;p&gt;服务器使用统一的时间单位，和每个用户的位置无关，所以使用世界标准时间（UTC）。对于用户，看到UTC格式的时间肯定会感到困惑，用户总是希望看到根据当地习惯显示的日期和时间。&lt;/p&gt;
+
+&lt;p&gt;一个优雅的解决方案是允许服务器只发送UTC时间给web浏览器，由浏览器转为当地时间并渲染。Web浏览器在这个问题上做的更好，因为他们可以访问用户电脑的所在的时区和地区设置。&lt;/p&gt;
+
+&lt;p&gt;有一个优秀的客户端开源库&lt;strong&gt;moment.js&lt;/strong&gt;，用JavaScript编写的，用于在浏览器上渲染日期和时间。Flask-Moment是一个集成&lt;code&gt;moment.js&lt;/code&gt;到Jinja2模板的Flask扩展。可以通过pip来安装：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(venv) $ pip install flask-moment
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;示例3-11展示扩展初始化。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例3-11. hello.py：初始化Flask-Moment&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.moment&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Moment&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;moment&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Moment&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Flask-Moment除了依赖&lt;code&gt;moment.js&lt;/code&gt;外，还依赖&lt;code&gt;jquery.js&lt;/code&gt;。这两个库需要直接包含在HTML文档，这种情况下你可以选择使用什么版本，或通过扩展提供的帮助函数来引用内容分发网络（CDN）的测试版本库。因为Bootstrap已经包含了&lt;code&gt;jquery.js&lt;/code&gt;，所以只需要将&lt;code&gt;moment.js&lt;/code&gt;增加到这个示例中。示例3-12展示这个库是如何被加载到基础模板&lt;code&gt;scripts&lt;/code&gt;中的。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例3-12. templates/base.html：导入moment.js库&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;{ % block scripts %}
+{ { super() }}
+{ { moment.include_moment() }}
+{ % endblock %}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;为了可以使用时间戳，Flask-Moment创建moment类给模板使用。示例3-13传递&lt;code&gt;current_time&lt;/code&gt;变量给模板去渲染。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例3-13. hello.py：增加datetime变量&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;datetime&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;utcnow&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;示例3-14展示如何在模板中渲染&lt;code&gt;current_time&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;示例3-14. templates/index.html：使用Flask-Moment渲染时间戳&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;The local date and time is { { moment(current_time).format(&amp;#39;LLL&amp;#39;) }}.&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;That was { { moment(current_time).fromNow(refresh=True) }}&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;code&gt;format(&#39;LLL&#39;)&lt;/code&gt;根据客户端电脑的时区和地区设置来格式化显示日期和时间。参数决定了渲染的样式，从&lt;code&gt;L&lt;/code&gt;到&lt;code&gt;LLL&lt;/code&gt;对应不同的详细级别。&lt;code&gt;format()&lt;/code&gt;函数还可以接受自定义的格式说明符。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;fromNow()&lt;/code&gt;渲染样式显示在第二行，渲染一个相对时间戳并随着时间的推移自动刷新它。最初这个时间戳将显示为“几秒钟前”，但随着时间的流逝刷新选项将保持更新，所以如果你离开已打开几分钟的页面你会看到文本变为“一分钟前”，然后“两分钟前”，等等。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 3e&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Flask-Moment通过&lt;code&gt;moment.js&lt;/code&gt;实现了&lt;code&gt;format()&lt;/code&gt;，&lt;code&gt;fromNow()&lt;/code&gt;，&lt;code&gt;fromTime()&lt;/code&gt;， &lt;code&gt;calendar()&lt;/code&gt;，&lt;code&gt;valueOf()&lt;/code&gt;和&lt;code&gt;unix()&lt;/code&gt;方法。查阅文档，了解提供的所有格式化选项。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;注：Flask-Moment假定时间戳由服务端应用程序中表示成UTC格式的“naive”&lt;code&gt;datetime&lt;/code&gt;对象来处理。参阅标准库&lt;code&gt;datetime&lt;/code&gt;包文档关于&lt;code&gt;date&lt;/code&gt;和&lt;code&gt;time&lt;/code&gt;对象的&lt;code&gt;navie&lt;/code&gt;和&lt;code&gt;aware&lt;/code&gt;信息。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Flask-Moment渲染的时间戳可以本地化成多种语言。在模板中通过传递语言代码到&lt;code&gt;lang()&lt;/code&gt;函数来选择语言：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{ { moment.lang(&#39;es&#39;) }}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;学完本章中讨论的所有技术，您应该能够为您的应用程序构建现代、用户友好的网页。下一章涉及模板没有讨论的一个方面：如何通过web表单与用户进行交互。&lt;/p&gt;
+
+</description>
+        <pubDate>Mon, 03 Nov 2014 21:21:35 +0800</pubDate>
+        <link>/flask/2014/11/03/flask-3-3.html</link>
+        <guid isPermaLink="true">/flask/2014/11/03/flask-3-3.html</guid>
       </item>
     
   </channel>

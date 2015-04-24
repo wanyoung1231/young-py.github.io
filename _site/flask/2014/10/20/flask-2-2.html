@@ -74,7 +74,7 @@
 
 <p>为了避免弄乱视图函数那些可能需要或不需要的参数，Flask使用<strong>context</strong>来临时确定可访问的全局对象。也多亏了context，视图函数可以写成下面这样：</p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
 
 <span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
@@ -155,7 +155,7 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
 
 <p>当视图函数需要用不同的状态码响应，可以在响应文本后添加数字码作为第二个返回值。例如，下面的视图函数返回400错误状态码的请求：</p>
 
-<div class="highlight"><pre><code class="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
     <span class="k">return</span> <span class="s">&#39;&lt;h1&gt;Bad Request&lt;/h1&gt;&#39;</span><span class="p">,</span> <span class="mi">400</span></code></pre></div>
 
@@ -163,7 +163,7 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
 
 <p>除了返回一个、两个或三个值的元组，Flask视图函数可以选择返回<strong>response对象</strong>。<code>make_response()</code>函数可携带一个、两个或三个参数，和视图函数返回的值一样，并返回一个response对象。有时候在视图函数中执行这个转换是非常有用的，然后使用response对象中的方法进一步配置响应。下面的示例创建response对象并设置cookie：</p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">make_response</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">make_response</span>
 
 <span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
@@ -175,7 +175,7 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
 
 <p>重定向通常由302响应状态码注明并且重定向的URL由头部的<code>Location</code>给出。重定向响应可以使用三个值的返回生成，也可通过响应对象生成，但是鉴于它频繁的使用，Flask提供<code>redirect()</code>函数来创建这样的响应：</p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">redirect</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">redirect</span>
 
 <span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
@@ -183,7 +183,7 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
 
 <p>另一个具有中断功能的特殊响应用来错误处理。下面的示例，当URL给出的id动态参数不是一个合法的用户时返回状态码404：</p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span>
 
 <span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/user/&lt;id&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
@@ -213,9 +213,9 @@ Map([&lt;Rule '/' (HEAD, OPTIONS, GET) -&gt; index&gt;,
 
 <p>示例2-3展示了在 <em>hello.py</em> 应用程序中添加命令行解释的变化。</p>
 
-<p><em>示例2-3. hello.py：使用Flask-Script</em> </p>
+<p><em>示例2-3. hello.py：使用Flask-Script</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask.ext.script</span> <span class="kn">import</span> <span class="n">Manager</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask.ext.script</span> <span class="kn">import</span> <span class="n">Manager</span>
 
 <span class="n">manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 

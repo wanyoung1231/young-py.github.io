@@ -75,7 +75,7 @@
 
 <p>greenlet是用C编写的一个扩展模块，即用Python去调用C程序。像下面这段代码，内部都是怎样的一个过程呢？</p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">greenlet</span> <span class="kn">import</span> <span class="n">greenlet</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">greenlet</span> <span class="kn">import</span> <span class="n">greenlet</span>
 
 <span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
     <span class="k">print</span> <span class="mi">12</span>
@@ -97,7 +97,7 @@
 
 <p>所以对于greenlet，我们就能找到<code>initgreenlet(void)</code>函数。</p>
 
-<div class="highlight"><pre><code class="c"><span class="cp">#define INITERROR return</span>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#define INITERROR return</span>
 <span class="c1">// 第一次导入greenlet模块时调用</span>
 <span class="n">PyMODINIT_FUNC</span> <span class="nf">initgreenlet</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> 
 <span class="p">{</span>
@@ -121,7 +121,7 @@
 
 <p>官方文档描述：All function, type and macro definitions needed to use the Python/C API are included in your code by the following line:</p>
 
-<div class="highlight"><pre><code class="c"><span class="cp">#include &quot;Python.h&quot;</span></code></pre></div>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#include &quot;Python.h&quot;</span></code></pre></div>
 
 <hr />
 
@@ -133,7 +133,7 @@
 
 <p>当Python程序第一次导入greenlet模块的时候，调用<code>initgreenlet()</code>函数。接着<code>Py_InitModule()</code>会创建一个“模块对象”（它将被插入到<code>sys.modules</code>字典下的“greenlet”键下），并且将方法列表（PyMethodDef结构数组）构成的内建函数对象作为它的第二个参数传到刚被创建的模块中。<code>Py_InitModule()</code>返回一个指向它创建的模块对象的指针。方法列表代码：</p>
 
-<div class="highlight"><pre><code class="c"><span class="k">static</span> <span class="n">PyMethodDef</span> <span class="n">GreenMethods</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">static</span> <span class="n">PyMethodDef</span> <span class="n">GreenMethods</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="p">{</span><span class="s">&quot;getcurrent&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">PyCFunction</span><span class="p">)</span><span class="n">mod_getcurrent</span><span class="p">,</span> <span class="n">METH_NOARGS</span><span class="p">,</span> <span class="cm">/*XXX*/</span> <span class="nb">NULL</span><span class="p">},</span>
     <span class="p">...</span>
 <span class="p">};</span></code></pre></div>
@@ -143,7 +143,7 @@
 
 <p><code>(PyCFunction)mod_getcurrent</code>函数如下：</p>
 
-<div class="highlight"><pre><code class="c"><span class="k">static</span> <span class="n">PyObject</span><span class="o">*</span> <span class="nf">mod_getcurrent</span><span class="p">(</span><span class="n">PyObject</span><span class="o">*</span> <span class="n">self</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">static</span> <span class="n">PyObject</span><span class="o">*</span> <span class="nf">mod_getcurrent</span><span class="p">(</span><span class="n">PyObject</span><span class="o">*</span> <span class="n">self</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">STATE_OK</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>

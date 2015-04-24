@@ -70,7 +70,7 @@
 
 <p>所有的Flask应用程序都必须创建一个 <em>应用程序实例</em> 。使用web服务器网关接口协议将所有从客户端接收的请求传递给这个对象处理。这个应用程序实例就是<strong>Flask</strong>类的一个对象，通常使用下面的方式创建：</p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span></code></pre></div>
 
 <p>Flask类构造函数唯一需要的参数就是应用程序的主模块或包。对于大多数应用程序，Python的<code>__name__</code>变量就是那个正确的、你需要传递的值。</p>
@@ -87,7 +87,7 @@
 
 <p>在Flask应程序中定义路由的最便捷的方式是通过显示定义在应用程序实例之上的<code>app.route</code>装饰器，注册被装饰的函数来作为一个路由。下面的例子会演示怎样使用装饰器来申明一个路由：</p>
 
-<div class="highlight"><pre><code class="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
     <span class="k">return</span> <span class="s">&#39;&lt;h1&gt;Hello World!&lt;/h1&gt;&#39;</span></code></pre></div>
 
@@ -105,7 +105,7 @@
 
 <p>如果你注意到你每天使用的一些网站URLs如何形成的，你将会发现很多都有变量。例如，你的Facebook个人信息页的URL是 <em>http://www.facebook.com/&lt;username&gt;</em> ，所以你的用户名是它的一部分。Flask在路由装饰器中使用特殊的语法支持这些类型的URLs。下面的示例定义了一个拥有动态名称组件的路由：</p>
 
-<div class="highlight"><pre><code class="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/user/&lt;name&gt;&#39;</span><span class="p">)</span> 
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/user/&lt;name&gt;&#39;</span><span class="p">)</span> 
 <span class="k">def</span> <span class="nf">user</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
     <span class="k">return</span> <span class="s">&#39;&lt;h1&gt;Hello, </span><span class="si">%s</span><span class="s">!&lt;/h1&gt;&#39;</span> <span class="o">%</span> <span class="n">name</span></code></pre></div>
 
@@ -117,7 +117,7 @@
 
 <p>应用程序实例有一个<code>run</code>方法用于启动Flask集成的web服务：</p>
 
-<div class="highlight"><pre><code class="python"><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre></div>
 
 <p><code>__name__ == '__main__'</code>在此处使用是用于确保web服务已经启动当脚本被立即执行。当脚本被另一个脚本导入，它被看做父脚本将启动不同的服务，所以<code>app.run()</code>调用会被跳过。</p>
@@ -136,7 +136,7 @@
 
 <p><em>示例2-1 hello.py：一个完整的Flask应用程序</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 <span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
@@ -167,7 +167,7 @@
 
 <p><em>示例2-2 hello.py：带有动态路由的Flask应用程序</em></p>
 
-<div class="highlight"><pre><code class="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 <span class="nd">@app.route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
