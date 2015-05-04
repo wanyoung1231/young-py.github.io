@@ -1,0 +1,282 @@
+---
+layout: post
+title:  "Python学习 —— __init__()方法 2"
+date:   2015-04-24 17:52:40
+categories: python
+author: young
+---
+
+### **通过工厂函数对__init__()加以利用**
+
+我们可以通过工厂函数来构建一副完整的扑克牌。这会比枚举所有52张扑克牌要好得多，在Python中，我们有如下两种常见的工厂方法：
+
+* 定义一个函数，该函数会创建所需类的对象。
+
+* 定义一个类，该类有创建对象的方法。这是一个完整的工厂设计模式，正如设计模式书所描述的那样。在诸如Java这样的语言中，工厂类层次结构是必须的，因为该语言不支持独立的函数。
+
+在Python中，类并不是*必须*的。只是当有相关的工厂非常复杂的时候才会显现出优势。Python的优势就是当一个简单的函数可以做的更好的时候我们决不强迫使用类层次结构。
+
+> 虽然这是一本关于面向对象编程的书，但函数真是一个好东西。这在Python中是常见的也是最地道的。
+
+如果需要的话，我们总是可以将一个函数重写为适当的可调用对象。我们可以将一个可调用对象重构到我们的工厂类层次结构中。我们将在第五章《使用可调用对象和上下文》中学习可调用对象。
+
+一般，类定义的优点是通过继承实现代码重用。工厂类的函数就是包装一些目标类层次结构和复杂对象的构造。如果我们有一个工厂类，当扩展目标类层次结构的时候，我们可以添加子类到工厂类中。这给我们提供了多态性工厂类；不同的工厂类定义具有相同的方法签名，可以交替使用。
+
+这类水平的多态性对于静态编译语言如Java或C++非常有用。编译器可以解决类和方法生成代码的细节。
+
+如果选择的工厂定义不能重用任何代码，则在Python中类层次结构不会有任何帮助。我们可以简单的使用具有相同签名的函数。
+
+以下是我们各种`Card`子类的工厂函数：
+
+{% highlight python %}
+
+def card(rank, suit):
+    if rank == 1:
+        return AceCard('A', suit)
+    elif 2 <= rank < 11: 
+        return NumberCard(str(rank), suit)
+
+    elif 11 <= rank < 14:
+        name = {11: 'J', 12: 'Q', 13: 'K' }[rank]
+        return FaceCard(name, suit)
+    else:
+        raise Exception("Rank out of range")
+
+{% endhighlight %}
+
+这个函数通过数值类型的`rank`和`suit`对象构建`Card`类。我们现在可以非常简单的构建牌了。我们已经封装构造问题到一个单一的工厂函数中，允许应用程序在不知道精确的类层次结构和多态设计是如何工作的情况下进行构建。
+
+下面是一个如何通过这个工厂函数构建一副牌的示例：
+
+{% highlight python %}
+
+deck = [card(rank, suit) for rank in range(1,14) for suit in (Club, Diamond, Heart, 
+        Spade)]
+
+{% endhighlight %}
+
+它枚举了所有的牌值和花色来创建完整的52张牌。
+
+### **错误的工厂设计和模糊的else子句**
+
+注意`card()`函数里面的`if`语句结构。我们没有使用“包罗万象”的`else`子句来做任何处理；我们只是抛出异常。使用“包罗万象”的`else`子句会引出一个小小的辩论。
+
+一方面，从属于`else`子句的条件不能不言而喻，因为它可能隐藏着微妙的设计错误。另一方面，一些`else`子句确实是显而易见的。
+
+重要的是要避免含糊的`else`子句。
+
+考虑下面工厂函数定义的变体：
+
+{% highlight python %}
+
+def card2(rank, suit):
+    if rank == 1: 
+        return AceCard('A', suit)
+    elif 2 <= rank < 11: 
+        return NumberCard(str(rank), suit)
+    else:
+        name = {11: 'J', 12: 'Q', 13: 'K'}[rank]
+        return FaceCard(name, suit)
+
+{% endhighlight %}
+
+以下是当我们尝试创建整副牌将会发生的事情：
+
+{% highlight python %}
+
+deck2 = [card2(rank, suit) for rank in range(13) for suit in (Club, Diamond, Heart, 
+        Spade)]
+
+{% endhighlight %}
+
+它起作用了吗？如果`if`条件更复杂了呢？
+
+一些程序员扫视的时候可以理解这个`if`语句。其他人将难以确定是否所有情况都正确执行了。
+
+对于高级Python编程，我们不应该把它留给读者去演绎条件是否适用于`else`子句。对于菜鸟条件应该是显而易见的，至少也应该是显示的。
+
+**何时使用“包罗万象”的else**
+
+尽量的少使用。使用它只有当条件是显而易见的时候。当有疑问时，显式的并抛出异常。
+
+避免含糊的`else`子句。
+
+### **简单一致的使用elif序列**
+
+我们的工厂函数`card()`是两种常见工厂设计模式的混合物:
+
+* `if-elif`序列
+
+* 映射
+
+为了简单起见，最好是专注于这些技术的一个而不是两个。
+
+我们总是可以用映射来代替`elif`条件。（是的，总是。但相反是不正确的；改变`elif`条件为映射将是具有挑战性的。）
+
+以下是没有映射的`Card`工厂：
+
+{% highlight python %}
+
+def card3(rank, suit):
+    if rank == 1: 
+        return AceCard('A', suit)
+    elif 2 <= rank < 11: 
+        return NumberCard(str(rank), suit)
+    elif rank == 11:
+        return FaceCard('J', suit)
+    elif rank == 12:
+        return FaceCard('Q', suit)
+    elif rank == 13:
+        return FaceCard('K', suit)
+    else:
+        raise Exception("Rank out of range")
+
+{% endhighlight %}
+
+我们重写了`card()`工厂函数。映射已经转化为额外的`elif`子句。这个函数有个优点就是它比之前的版本更加一致。
+
+### **简单的使用映射和类对象**
+
+在一些示例中，我们可以使用映射来代替一连串的`elif`条件。很可能发现条件太复杂，这个时候或许只有使用一连串的`elif`条件来表达才是明智的选择。对于简单示例，无论如何，映射可以做的更好且可读性更强。
+
+因为`class`是最好的对象，我们可以很容易的映射`rank`参数到已经构造好的类中。
+
+以下是仅使用映射的`Card`工厂：
+
+{% highlight python %}
+
+ def card4(rank, suit):
+    class_= {1: AceCard, 11: FaceCard, 12: FaceCard, 13: FaceCard}.get(rank, 
+        NumberCard)
+    return class_(rank, suit)
+
+{% endhighlight %}
+
+我们已经映射`rank`对象到类中。然后，我们传递`rank`值和`suit`值到类来创建最终的`Card`实例。
+
+最好我们使用`defaultdict`类。无论如何，对于微不足道的静态映射不会比这更简单了。看起来像下面代码片段那样：
+
+{% highlight python %}
+
+defaultdict(lambda: NumberCard, {1: AceCard, 11: FaceCard, 12: FaceCard, 12: FaceCard})
+
+{% endhighlight %}
+
+注意：`defaultdict`类*默认*必须是零参数的函数。我们已经使用了`lambda`创建必要的函数来封装常量。这个函数，无论如何，都有一些缺陷。对于我们之前版本中缺少`1`到`A`和`13`到`K`的转换。当我们试图增加这些特性时，一定会出现问题的。
+
+我们需要修改映射来提供可以和字符串版本的`rank`对象一样的`Card`子类。对于这两部分的映射我们还可以做什么？有四种常见解决方案：
+
+* 可以做两个并行的映射。我们不建议这样，但是会强调展示不可取的地方。
+
+* 可以映射个二元组。这个同样也会有一些缺点。
+
+* 可以映射到`partial()`函数。`partial()`函数是`functools`模块的一个特性。
+
+* 可以考虑修改我们的类定义，这种映射更容易。可以在下一节将`__init__()`置入子类定义中看到。
+
+我们来看看每一个具体的例子。
+
+### **两个并行映射**
+
+以下是两个并行映射解决方案的关键代码：
+
+{% highlight python %}
+
+class_= {1: AceCard, 11: FaceCard, 12: FaceCard, 13: FaceCard}.get(rank, NumberCard)
+rank_str= {1:'A', 11:'J', 12:'Q', 13:'K'}.get(rank, str(rank))
+return class_(rank_str, suit)
+
+{% endhighlight %}
+
+这并不可取的。它涉及到重复映射键`1`、`11`、`12`和`13`序列。重复是糟糕的，因为在软件更新后并行结构依然保持这种方式。
+
+**不要使用并行结构**
+
+并行结构必须使用元组或一些其他合适的集合来替代。
+
+### **映射到元组的值**
+
+以下是二元组映射的关键代码：
+
+{% highlight python %}
+
+class_, rank_str= {
+    1: (AceCard,'A'),
+    11: (FaceCard,'J'),
+    12: (FaceCard,'Q'),
+    13: (FaceCard,'K'),
+}.get(rank, (NumberCard, str(rank)))
+return class_(rank_str, suit)
+
+{% endhighlight %}
+
+这是相当不错的。不需要过多的代码来分类打牌中的特殊情况。当我们需要改变`Card`类层次结构来添加额外的`Card`子类时，我们将看到它如何被修改或被扩展。
+
+将`rank`值映射到一个类对象的确让人感觉奇怪，且只有类初始化所需两个参数中的其中之一。将牌值映射到一个简单的类或没有提供一些混乱参数(但不是所有)的函数对象似乎会更合理。
+
+### **partial函数的解决方案**
+
+相比映射到二元组函数和参数之一，我们可以创建一个`partial()`函数。这是一个已经提供一些(但不是所有)参数的函数。我们将从`functools`库中使用`partial()`函数来创建一个带有`rank`参数的partial类。
+
+以下是一个映射`rank`到`partial()`函数，可用于对象创建：
+
+{% highlight python %}
+
+from functools import partial
+part_class= {
+   1: partial(AceCard, 'A'),
+   11: partial(FaceCard, 'J'),
+   12: partial(FaceCard, 'Q'),
+   13: partial(FaceCard, 'K'),
+}.get(rank, partial(NumberCard, str(rank)))
+return part_class(suit)
+
+{% endhighlight %}
+
+映射将`rank`对象与`partial()`函数联系在一起，并分配给`part_class`。这个`partial`()函数可以被应用到`suit`对象来创建最终的对象。`partial()`函数是一种常见的函数式编程技术。它在我们有一个函数来替代对象方法这一特定的情况下使用。
+
+不过总体而言，`partial()`函数对于大多数面向对象编程并没有什么帮助。相比创建`partial()`函数，我们可以简单地更新类的方法来接受不同组合的参数。`partial()`函数类似于给对象构造创建一个连贯的接口。
+
+### **连贯的工厂类接口**
+
+在某些情况下，我们设计的类为方法的使用定义了顺序，衡量方法的顺序很像`partial()`函数。
+
+在一个对象表示法中我们可能会有`x.a() .b()`。我们可以把它当成`x(a, b)`。`x.a()`函数是等待`b()`的一类`partial()`函数。我们可以认为它就像`x(a)(b)`那样。
+
+这里的想法是，Python给我们提供两种选择来管理状态。我们既可以更新对象又可以创建有状态性的（在某种程度上）`partial()`函数。由于这种等价，我们可以重写`partial()`函数到一个连贯的工厂对象中。我们使得`rank`对象的设置为一个连贯的方法来返回`self`。设置`suit`对象将真实的创建`Card`实例。
+
+以下是一个连贯的`Card`工厂类，有两个方法函数，必须在特定顺序中使用：
+
+{% highlight python %}
+
+class CardFactory:
+    def rank(self, rank):
+        self.class_, self.rank_str= {
+                1: (AceCard, 'A'),
+                11: (FaceCard,'J'),
+                12: (FaceCard,'Q'),
+                13: (FaceCard,'K'),
+        }.get(rank, (NumberCard, str(rank)))
+        return self
+    def suit(self, suit):
+        return self.class_(self.rank_str, suit)
+
+{% endhighlight %}
+
+`rank()`方法更新构造函数的状态，`suit()`方法真实的创建了最终的`Card`对象。
+
+这个工厂类可以像下面这样使用：
+
+{% highlight python %}
+
+
+card8 = CardFactory()
+deck8 = [card8.rank(r+1).suit(s) for r in range(13) for s in (Club, Diamond, Heart, 
+        Spade)]
+
+{% endhighlight %}
+
+首先，我们创建一个工厂实例，然后我们使用那个实例创建`Card`实例。这并没有实质性改变`__init__()`本身在`Card`类层次结构中如何运作的。然而，它确实改变了我们客户端应用程序创建对象的方式。
+
+
+

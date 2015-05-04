@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Python学习 —— __init__()方法"
+title:  "Python学习 —— __init__()方法 1"
 date:   2014-12-08 17:52:40
 categories: python
 author: young
