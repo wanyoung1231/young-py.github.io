@@ -1,0 +1,294 @@
+---
+layout: post
+title:  "Python学习 —— __init__()方法 3"
+date:   2015-05-04 21:56:10
+categories: python
+author: young
+---
+
+### **在各个子类中实现__init__()**
+
+当我们看到创建`Card`对象的工厂函数，再看看`Card`类设计。我想我们可能要重构牌值转换功能，因为这是`Card`类自身应该负责的内容。这会将初始化向下延伸到每个子类。
+
+这需要共用的超类初始化以及特定的子类初始化。我们要谨遵**Don't Repeat Yourself(DRY)**原则来保持代码可以被克隆到每一个子类中。
+
+下面的示例展示了每个子类初始化的职责：
+
+{% highlight python %}
+
+class Card:
+    pass
+
+class NumberCard(Card):
+    def  __init__(self, rank, suit):
+        self.suit = suit
+        self.rank = str(rank)
+        self.hard = self.soft = rank
+
+class AceCard(Card):
+    def  __init__(self, rank, suit):
+        self.suit = suit
+        self.rank = "A"
+        self.hard, self.soft =  1, 11
+
+class FaceCard(Card):
+    def  __init__(self, rank, suit):
+        self.suit = suit
+        self.rank = {11: 'J', 12: 'Q', 13: 'K'}[rank]
+        self.hard = self.soft = 10
+
+{% endhighlight %}
+
+这仍是清晰的多态。然而，缺乏一个真正的共用初始化，会导致一些冗余。缺点在于重复初始化`suit`，所以必须将其**抽象**到超类中。各子类的`__init__()`会对超类的`__init__()`做显式的引用。
+
+该版本的`Card`类有一个超类级别的初始化函数用于各子类，如下面代码片段所示：
+
+{% highlight python %}
+
+class Card:
+    def __init__(self, rank, suit, hard, soft):
+        self.rank = rank
+        self.suit = suit
+        self.hard = hard
+        self.soft = soft
+
+class NumberCard(Card):
+    def  __init__(self, rank, suit):
+        super().__init__(str(rank), suit, rank, rank)
+
+class AceCard(Card):
+    def  __init__(self, rank, suit):
+        super().__init__("A", suit, 1, 11)
+
+class FaceCard(Card):
+    def  __init__(self, rank, suit):
+        super().__init__({11: 'J', 12: 'Q', 13: 'K' }[rank], suit, 10, 10)
+
+{% endhighlight %}
+
+我们在子类和父类都提供了`__init__()`函数。好处是简化了我们的工厂函数，如下面代码片段所示：
+
+{% highlight python %}
+
+def card10(rank, suit):
+    if rank == 1: 
+        return AceCard(rank, suit)
+    elif 2 <= rank < 11: 
+        return NumberCard(rank, suit)
+    elif 11 <= rank < 14: 
+        return FaceCard(rank, suit)
+    else:
+       raise Exception("Rank out of range")
+
+{% endhighlight %}
+
+简化工厂函数不应该是我们关注的焦点。不过我们从这可以看到一些变化，我们创建了比较复杂的`__init__()`函数，而对工厂函数却有一些较小的改进。这是比较常见的权衡。
+
+**工厂函数封装复杂性**
+
+在复杂的`__init__()`方法和工厂函数之间有个权衡。最好就是坚持更直接，更少程序员友好的`__init__()`方法，并将复杂性推给工厂函数。如果你想封装复杂结构，工厂函数可以做的很好。
+
+### **简单复合对象**
+
+复合对象也可被称为**容器**。我们来看一个简单的复合对象：一副单独的牌。这是一个基本的集合。事实上它是如此基本，以至于我们不用过多的花费心思，直接使用简单的`list`做为一副牌。
+
+在设计一个新类之前，我们需要问这个问题：使用一个简单的`list`是否合适？
+
+我们可以使用`random.shuffle()`来洗牌和使用`deck.pop()`发牌到玩家手里。
+
+一些程序员急于定义新类就像使用内置类一样草率，这很容易违反面向对象的设计原则。我们要避免一个新类像如下代码片段所示：
+
+{% highlight python %}
+
+d = [card6(r+1, s) for r in range(13) for s in (Club, Diamond, Heart, Spade)]
+random.shuffle(d)
+hand = [d.pop(), d.pop()]
+
+{% endhighlight %}
+
+如果就这么简单，为什么要写一个新类？
+
+答案并不完全清楚。一个好处是，提供一个简化的、未实现接口的对象。正如我们前面提到的工厂函数一样，但在Python中类并不是一个硬性要求。
+
+在前面的代码中，一副牌只有两个简单的用例和一个似乎并不够简化的类定义。它的优势在于隐藏实现的细节，但细节是如此微不足道，揭露它们几乎没有任何意义。在本章中，我们的关注主要放在`__init__()`方法上，我们将看一些创建并初始化集合的设计。
+
+设计一个对象集合，有以下三个总体设计策略:
+
+* 封装：该设计模式是现有的集合的定义。这可能是**Facade**设计模式的一个例子。
+
+* 继承：该设计模式是现有的集合类，是普通子类的定义。
+
+* 多态：从头开始设计。我们将在第六章看看《创建容器和集合》。
+
+这三个概念是面向对象设计的核心。在设计一个类的时候我们必须总是这样做选择。
+
+#### **1. 封装集合类**
+
+以下是封装设计，其中包含一个内部集合：
+
+{% highlight python %}
+
+class Deck:
+    def __init__(self):
+        self._cards = [card6(r+1, s) for r in range(13) for s in (Club, Diamond, 
+                        Heart, Spade)]
+        random.shuffle(self._cards)
+    
+    def pop(self):
+        return self._cards.pop()
+
+{% endhighlight %}
+
+我们已经定义了`Deck`，内部集合是一个`list`对象。`Deck`的`pop()`方法简单的委托给封装好的`list`对象。
+
+然后我们可以通过下面这样的代码创建一个`Hand`实例：
+
+{% highlight python %}
+
+d = Deck()
+hand = [d.pop(), d.pop()]
+
+{% endhighlight %}
+
+一般来说，Facade设计模式或封装好方法的类是简单的被委托给底层实现类的。这个委托会变得冗长。对于一个复杂的集合，我们可以委托大量方法给封装的对象。
+
+#### **2. 继承集合类**
+
+封装的另一种方法是继承内置类。这样做的优势是没有重新实现`pop()`方法，因为我们可以简单地继承它。
+
+`pop()`的优点就是不用写过多的代码就能创建类。在这个例子中，继承`list`类的缺点是提供了一些我们不需要的函数。
+
+下面是继承内置`list`的`Deck`定义:
+
+{% highlight python %}
+
+class Deck2(list):
+    def __init__(self):
+        super().__init__(card6(r+1, s) for r in range(13) for s in (Club, Diamond, 
+                        Heart, Spade))
+        random.shuffle(self)
+
+{% endhighlight %}
+
+在某些情况下，为了拥有合适的类行为，我们的方法将必须显式地使用超类。在下面的章节中我们将会看到其他相关示例。
+
+我们利用超类的`__init__()`方法填充我们的`list`对象来初始化单副扑克牌，然后我们洗牌。`pop()`方法只是简单从`list`继承过来且工作完美。从`list`继承的其他方法也能一起工作。
+
+#### **3. 更多的需求和另一种设计**
+
+在赌场中，牌通常从牌盒发出，里面有半打喜忧参半的扑克牌。这个原因使得我们有必要建立自己版本的`Deck`，而不是简单、纯粹的使用`list`对象。
+
+此外，牌盒里的牌并不完全发完。相反，会插入标记牌。因为有标记牌，有些牌会被保留，而不是用来玩。
+
+下面是包含多组52张牌的`Deck`定义：
+
+{% highlight python %}
+
+class Deck3(list):
+    def __init__(self, decks=1):
+        super().__init__()
+        for i in range(decks):
+            self.extend(card6(r+1, s) for r in range(13) for s in (Club, Diamond, 
+                        Heart, Spade))
+        random.shuffle(self)
+        burn = random.randint(1, 52)
+        for i in range(burn): 
+            self.pop()
+
+{% endhighlight %}
+
+在这里，我们使用`super().__init__()`来构建一个空集合。然后，我们使用`self.extend()`添加多次52张牌。由于我们在这个类中没有使用覆写，所以我们可以使用`super().extend()`。
+
+我们还可以通过`super().__init__()`，使用更深层嵌套的生成器表达式执行整个任务。如下面代码片段所示：
+
+{% highlight python %}
+
+(card6(r+1, s) for r in range(13) for s in (Club, Diamond, Heart, Spade) 
+    for d in range(decks))
+
+{% endhighlight %}
+
+这个类为我们提供了一个`Card`实例的集合，我们可以使用它来模仿赌场21点发牌的盒子。
+
+在赌场有一个奇怪的仪式，他们会翻开废弃的牌。如果我们要设计一个记牌玩家策略，我们可能需要效仿这种细微差别。
+
+### **复杂复合对象**
+
+以下是21点`Hand`类描述的一个例子，很适合模拟玩家策略：
+
+{% highlight python %}
+
+class Hand:
+    def __init__(self, dealer_card):
+        self.dealer_card = dealer_card
+        self.cards = []
+    def hard_total(self):
+        return sum(c.hard for c in self.cards)
+    def soft_total(self):
+        return sum(c.soft for c in self.cards)
+
+{% endhighlight %}
+
+在这个例子中，我们有一个基于`__init__()`方法参数的`self.dealer_card`实例变量。`self.cards`实例变量是不基于任何参数的。这个初始化创建了一个空集合。
+
+我们可以使用下面的代码去创建一个`Hand`实例
+
+{% highlight python %}
+
+d = Deck()
+h = Hand(d.pop())
+h.cards.append(d.pop())
+h.cards.append(d.pop())
+
+{% endhighlight %}
+
+缺点就是有一个冗长的语句序列被用来构建一个`Hand`的实例对象。它难以序列化`Hand`对象并像这样初始化来重建。尽管我们在这个类中创建一个显式的`append()`方法，它仍将采取多个步骤来初始化集合。
+
+我们可以尝试创建一个接口，但这并不是一件简单的事情，对于`Hand`对象它只是在语法上发生了变化。接口仍然会导致多种方法计算。当我们看到第2部分中的《序列化和持久化》，我们倾向于使用接口，一个类级别的函数，理想情况下，应该是类的构造函数。我们将在第9章的《序列化和存储——JSON、YAML、Pickle、CSV和XML》深入研究。
+
+还要注意一些不完全遵循21点规则的方法功能。在第二章《通过Python无缝地集成——基本的特殊方法》中我们会回到这个问题。
+
+#### **1. 复杂复合对象初始化**
+
+理想情况下，`__init__()`方法会创建一个对象的完整实例。这是一个更复杂的容器，当你在创建一个包含内部其他对象集合的完整实例的时候。如果我们可以一步就能构建这个复合对象，它将是非常有帮助的。
+
+逐步增加项目的方法和一步加载所有项目的方法是一样的。
+
+例如，我们可能有如下面的代码片段所示的类：
+
+{% highlight python %}
+
+class Hand2:
+   def __init__(self, dealer_card, *cards):
+       self.dealer_card = dealer_card
+       self.cards = list(cards)
+   def hard_total(self):
+       return sum(c.hard for c in self.cards)
+   def soft_total(self):
+       return sum(c.soft for c in self.cards)
+
+{% endhighlight %}
+
+这个初始化一步就设置了所有实例变量。另一个方法就是之前那样的类定义。我们可以有两种方式构建一个`Hand2`对象。第一个示例一次加载一张牌到`Hand2`对象：
+
+{% highlight python %}
+
+d = Deck()
+P = Hand2(d.pop())
+p.cards.append(d.pop())
+p.cards.append(d.pop())
+
+{% endhighlight %}
+
+第二个示例使用`*cards`参数一步加载一序列的`Card`类：
+
+{% highlight python %}
+
+d = Deck()
+h = Hand2(d.pop(), d.pop(), d.pop())
+
+{% endhighlight %}
+
+对于单元测试，在一个声明中使用这种方式通常有助于构建复合对象。更重要的是，这种简单、一步的计算来构建复合对象有利于下一部分的序列化技术。
+
+

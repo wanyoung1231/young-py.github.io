@@ -85,7 +85,7 @@
 
 <p>一般，类定义的优点是通过继承实现代码重用。工厂类的函数就是包装一些目标类层次结构和复杂对象的构造。如果我们有一个工厂类，当扩展目标类层次结构的时候，我们可以添加子类到工厂类中。这给我们提供了多态性工厂类；不同的工厂类定义具有相同的方法签名，可以交替使用。</p>
 
-<p>这类水平的多态性对于静态编译语言如Java或C++非常有用。编译器可以解决类和方法生成代码的细节。</p>
+<p>这类级别的多态性对于静态编译语言如Java或C++非常有用。编译器可以解决类和方法生成代码的细节。</p>
 
 <p>如果选择的工厂定义不能重用任何代码，则在Python中类层次结构不会有任何帮助。我们可以简单的使用具有相同签名的函数。</p>
 
@@ -96,25 +96,24 @@
         <span class="k">return</span> <span class="n">AceCard</span><span class="p">(</span><span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="n">suit</span><span class="p">)</span>
     <span class="k">elif</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">11</span><span class="p">:</span> 
         <span class="k">return</span> <span class="n">NumberCard</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">rank</span><span class="p">),</span> <span class="n">suit</span><span class="p">)</span>
-
     <span class="k">elif</span> <span class="mi">11</span> <span class="o">&lt;=</span> <span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">14</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="mi">11</span><span class="p">:</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="s">&#39;Q&#39;</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="s">&#39;K&#39;</span> <span class="p">}[</span><span class="n">rank</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">FaceCard</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">suit</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Rank out of range&quot;</span><span class="p">)</span></code></pre></div>
 
-<p>这个函数通过数值类型的<code>rank</code>和<code>suit</code>对象构建<code>Card</code>类。我们现在可以非常简单的构建牌了。我们已经封装构造问题到一个单一的工厂函数中，允许应用程序在不知道精确的类层次结构和多态设计是如何工作的情况下进行构建。</p>
+<p>这个函数通过数值类型的<code>rank</code>和<code>suit</code>对象构建<code>Card</code>类。现在我们可以更简单的构建牌了。我们已经将构造过程封装到一个单一的工厂函数中处理，允许应用程序在不知道精确的类层次结构和多态设计是如何工作的情况下进行构建。</p>
 
-<p>下面是一个如何通过这个工厂函数构建一副牌的示例：</p>
+<p>下面是如何通过这个工厂函数构建一副牌的示例：</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">deck</span> <span class="o">=</span> <span class="p">[</span><span class="n">card</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">suit</span><span class="p">)</span> <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">14</span><span class="p">)</span> <span class="k">for</span> <span class="n">suit</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Club</span><span class="p">,</span> <span class="n">Diamond</span><span class="p">,</span> <span class="n">Heart</span><span class="p">,</span> 
         <span class="n">Spade</span><span class="p">)]</span></code></pre></div>
 
 <p>它枚举了所有的牌值和花色来创建完整的52张牌。</p>
 
-<h3 id="else"><strong>错误的工厂设计和模糊的else子句</strong></h3>
+<h4 id="else"><strong>1. 错误的工厂设计和模糊的else子句</strong></h4>
 
-<p>注意<code>card()</code>函数里面的<code>if</code>语句结构。我们没有使用“包罗万象”的<code>else</code>子句来做任何处理；我们只是抛出异常。使用“包罗万象”的<code>else</code>子句会引出一个小小的辩论。</p>
+<p>注意<code>card()</code>函数里面的<code>if</code>语句结构。我们没有使用“包罗万象”的<code>else</code>子句来做任何处理；我们只是抛出异常。使用“包罗万象”的<code>else</code>子句会引出相关的小争论。</p>
 
 <p>一方面，从属于<code>else</code>子句的条件不能不言而喻，因为它可能隐藏着微妙的设计错误。另一方面，一些<code>else</code>子句确实是显而易见的。</p>
 
@@ -140,7 +139,7 @@
 
 <p>一些程序员扫视的时候可以理解这个<code>if</code>语句。其他人将难以确定是否所有情况都正确执行了。</p>
 
-<p>对于高级Python编程，我们不应该把它留给读者去演绎条件是否适用于<code>else</code>子句。对于菜鸟条件应该是显而易见的，至少也应该是显示的。</p>
+<p>对于高级Python编程，我们不应该把它留给读者去演绎条件是否适用于<code>else</code>子句。对于菜鸟来说条件应该是显而易见的，至少也应该是显式的。</p>
 
 <p><strong>何时使用“包罗万象”的else</strong></p>
 
@@ -148,7 +147,7 @@
 
 <p>避免含糊的<code>else</code>子句。</p>
 
-<h3 id="elif"><strong>简单一致的使用elif序列</strong></h3>
+<h4 id="elif"><strong>2. 简单一致的使用elif序列</strong></h4>
 
 <p>我们的工厂函数<code>card()</code>是两种常见工厂设计模式的混合物:</p>
 
@@ -183,7 +182,7 @@
 
 <p>我们重写了<code>card()</code>工厂函数。映射已经转化为额外的<code>elif</code>子句。这个函数有个优点就是它比之前的版本更加一致。</p>
 
-<h3 id="section"><strong>简单的使用映射和类对象</strong></h3>
+<h4 id="section"><strong>3. 简单的使用映射和类对象</strong></h4>
 
 <p>在一些示例中，我们可以使用映射来代替一连串的<code>elif</code>条件。很可能发现条件太复杂，这个时候或许只有使用一连串的<code>elif</code>条件来表达才是明智的选择。对于简单示例，无论如何，映射可以做的更好且可读性更强。</p>
 
@@ -223,7 +222,7 @@
 
 <p>我们来看看每一个具体的例子。</p>
 
-<h3 id="section-1"><strong>两个并行映射</strong></h3>
+<h5 id="section-1"><strong>3.1. 两个并行映射</strong></h5>
 
 <p>以下是两个并行映射解决方案的关键代码：</p>
 
@@ -237,7 +236,7 @@
 
 <p>并行结构必须使用元组或一些其他合适的集合来替代。</p>
 
-<h3 id="section-2"><strong>映射到元组的值</strong></h3>
+<h5 id="section-2"><strong>3.2. 映射到元组的值</strong></h5>
 
 <p>以下是二元组映射的关键代码：</p>
 
@@ -249,11 +248,11 @@
 <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="p">(</span><span class="n">NumberCard</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">rank</span><span class="p">)))</span>
 <span class="k">return</span> <span class="n">class_</span><span class="p">(</span><span class="n">rank_str</span><span class="p">,</span> <span class="n">suit</span><span class="p">)</span></code></pre></div>
 
-<p>这是相当不错的。不需要过多的代码来分类打牌中的特殊情况。当我们需要改变<code>Card</code>类层次结构来添加额外的<code>Card</code>子类时，我们将看到它如何被修改或被扩展。</p>
+<p>这是相当不错的。不需要过多的代码来分类打牌中的特殊情况。当我们需要改变<code>Card</code>类层次结构来添加额外的<code>Card</code>子类时，我们可以看到它是如何被修改或被扩展。</p>
 
 <p>将<code>rank</code>值映射到一个类对象的确让人感觉奇怪，且只有类初始化所需两个参数中的其中之一。将牌值映射到一个简单的类或没有提供一些混乱参数(但不是所有)的函数对象似乎会更合理。</p>
 
-<h3 id="partial"><strong>partial函数的解决方案</strong></h3>
+<h5 id="partial"><strong>3.3. partial函数解决方案</strong></h5>
 
 <p>相比映射到二元组函数和参数之一，我们可以创建一个<code>partial()</code>函数。这是一个已经提供一些(但不是所有)参数的函数。我们将从<code>functools</code>库中使用<code>partial()</code>函数来创建一个带有<code>rank</code>参数的partial类。</p>
 
@@ -272,7 +271,7 @@
 
 <p>不过总体而言，<code>partial()</code>函数对于大多数面向对象编程并没有什么帮助。相比创建<code>partial()</code>函数，我们可以简单地更新类的方法来接受不同组合的参数。<code>partial()</code>函数类似于给对象构造创建一个连贯的接口。</p>
 
-<h3 id="section-3"><strong>连贯的工厂类接口</strong></h3>
+<h5 id="section-3"><strong>3.4. 连贯的工厂类接口</strong></h5>
 
 <p>在某些情况下，我们设计的类为方法的使用定义了顺序，衡量方法的顺序很像<code>partial()</code>函数。</p>
 

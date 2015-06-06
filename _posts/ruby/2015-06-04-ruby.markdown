@@ -1,0 +1,380 @@
+---
+layout: post
+title:  "在Ruby on Rails中使用 PostgreSQL jsonb"
+date:   2015-06-04 21:56:10
+categories: ruby
+author: young
+---
+
+**PostgreSQL 9.4 引入了`jsonb`，一个新的列类型用于存储文档到你的关系数据库中。`jsonb`和`json`在更高的层面上看起来几乎是一样的，但在存储实现上是不同的。**
+
+使用`jsonb`的优势在于你可以轻易的整合关系型数据和非关系型数据，[在性能方面，可以比大多数类似于MongoDB这样的非关系数据库更好](http://obartunov.livejournal.com/175235.html)
+
+#### **理解json和jsonb之间的不同**
+
+因此，两种列类型之间的区别是什么？当我们比较写入数据速度时，由于数据存储的方式的原因，`jsonb`会比`json`稍微的慢一点。
+
+- `json`存储完整复制过来的文本输入，必须一遍又一遍的解析在你调用任何函数的时候。它不支持索引，但你可以为查询创建表达式索引。
+
+- `jsonb`存储的二进制格式，避免了重新解析数据结构。它支持索引，这意味着你可以不使用指定的索引就能查询任何路径。
+
+其他的不同包括，`json`列会每次都解析存储的值，这意味着键的顺序要和输入的时候一样。但`jsonb`不同，以二进制格式存储且不保证键的顺序。因此，如果你有软件需要依赖键的顺序，`jsonb`可能不是你的应用的最佳选择。
+
+让我们运行一个简单的基准测试。在这个例子中，我使用下面这样一个`json`数据结构：
+
+{% highlight json %}
+{
+  "twitter": "johndoe1",
+  "github": "johndoe1",
+  "bio": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Labore impedit 
+          aliquam sapiente dolore magni aliquid ipsa ad, enim, esse ut reprehenderit 
+          quaerat deleniti fugit eaque. Vero eligendi voluptatibus atque, asperiores.",
+  "blog": "http://johndoe1.example.com",
+  "interests": [
+    "music",
+    "movies",
+    "programming"
+  ],
+  "age": 42,
+  "newsletter": true
+}
+{% endhighlight %}
+
+[插入30000条完全一样的记录](https://gist.github.com/fnando/f672c9243186933b3c8e)，我相信`jsonb`在插入复杂结构时会慢一些。
+
+    Rehearsal ------------------------------------------------
+    insert jsonb   2.690000   0.590000   3.280000 ( >12.572343)
+    insert json    2.690000   0.590000   3.280000 ( 12.766534)
+    --------------------------------------- total: 6.560000sec
+
+    -----------------------------------------user     system      total        real
+    insert jsonb   2.680000   0.590000   3.270000 ( 13.206602)
+    insert json    2.650000   0.580000   3.230000 ( 12.577138)
+
+真正的差距在查询`json/jsonb`列的时候。首先让我们看看这张表和索引。
+
+{% highlight sql %}
+
+CREATE TABLE users (
+  id serial not null,
+  settings jsonb not null default '{}',
+  preferences json not null default '{}'
+);
+
+CREATE INDEX settings_index ON users USING gin (settings);
+CREATE INDEX twitter_settings_index ON users ((settings->>'github'));
+CREATE INDEX preferences_index ON users ((preferences->>'github'));
+
+{% endhighlight %}
+
+
+注意我们有一个GIN索引在`settings`列上，两个给出的路径（github）表达式索引。在30000条数据中搜索Github用户名为john30000的记录（最后一个插入的记录），[会给出以下数字](https://gist.github.com/fnando/f672c9243186933b3c8e)：
+
+    Rehearsal -----------------------------------------------------------------
+    read jsonb (index column)       0.030000   0.030000   0.060000 (  3.673465)
+    read jsonb (expression index)   0.010000   0.010000   0.020000 (  0.087105)
+    read json (expression index)    0.010000   0.020000   0.030000 (  0.080121)
+    read json (no index)            0.060000   0.030000   0.090000 (113.206747)
+    -------------------------------------------------------- total: 0.200000sec
+    
+    -----------------------------------------user     system      total        real
+    read jsonb (index column)       0.010000   0.020000   0.030000 (  0.092476)
+    read jsonb (expression index)   0.010000   0.010000   0.020000 (  0.078916)
+    read json (expression index)    0.010000   0.010000   0.020000 (  0.081908)
+    read json (no index)            0.050000   0.040000   0.090000 (110.761944)
+
+和你看到的那样，表达式索引在两种数据类型中的性能几乎完全一样，所以它们在这里并没有实际的意义。剩下的两列不同的地方在于在查询列时有没有索引；`jsonb`能在整列建立GIN/GIST索引，而`json`不能建立这样的索引。这也是为什么这`json`查询速度这么慢的原因。
+
+让我们检查下在没有索引的情况下查询分析器查询数据。
+
+{% highlight sql %}
+
+EXPLAIN
+SELECT *
+FROM users
+WHERE settings @> '{"twitter": "john30000"}' LIMIT 1;
+
+--                                      QUERY PLAN
+-- -------------------------------------------------------------------------------------
+--  Limit  (cost=28.23..31.96 rows=1 width=468)
+--    ->  Bitmap Heap Scan on users  (cost=28.23..140.07 rows=30 width=468)
+--          Recheck Cond: (settings @> '{"twitter": "john30000"}'::jsonb)
+--          ->  Bitmap Index Scan on settings_index  (cost=0.00..28.23 rows=30 width=0)
+--                Index Cond: (settings @> '{"twitter": "john30000"}'::jsonb)
+
+EXPLAIN
+SELECT *
+FROM users
+WHERE preferences->>'twitter' = 'john30000' LIMIT 1;
+
+--                                QUERY PLAN
+-- -------------------------------------------------------------------------
+--  Limit  (cost=0.00..25.23 rows=1 width=468)
+--    ->  Seq Scan on users  (cost=0.00..3784.00 rows=150 width=468)
+--          Filter: ((preferences ->> 'twitter'::text) = 'john30000'::text)
+
+{% endhighlight %}
+
+最重要的是，`json`做的是顺序扫描，这意味着PostgreSQL将根据顺序一条一条往下找，直到找到符合条件的数据，同时记住查找这些数据时，每条记录中的JSON内容都会被解析，这将导致在复杂结构中查询速度变慢。
+
+但这些不会发生`jsonb`列中，这种查找使用了索引，却并没有像使用表达式索引那样将速度优化的很好。
+
+`jsonb`有一个需要注意的点是，`jsonb`会一直顺序检索如果你使用`->>`操作符在一个没有表达式索引的路径上。
+
+{% highlight sql %}
+
+EXPLAIN
+SELECT *
+FROM users
+WHERE settings->>'twitter' = 'johndoe30000' LIMIT 1;
+
+--                                QUERY PLAN
+-- -------------------------------------------------------------------------
+--  Limit  (cost=0.00..25.23 rows=1 width=468)
+--    ->  Seq Scan on users  (cost=0.00..3784.00 rows=150 width=468)
+--          Filter: ((settings ->> 'twitter'::text) = 'johndoe30000'::text)
+-- (3 rows)
+
+{% endhighlight %}
+
+因此，在你不提前知道查询哪个`json`数据中的键或者查询所有`json`路径的情况下，请确保你定义了GIN/GIST索引和使用`@>`（或者其他有利于索引的操作符）
+
+#### **json转化为jsonb**
+
+如果你已经使用了`json`格式或者`text`格式的列存储JSON数据，你可以将他们转化为`jsonb`，因而你可以依靠列索引。
+
+{% highlight sql %}
+
+BEGIN;
+ALTER TABLE users ADD COLUMN preferences_jsonb jsonb DEFAULT '{}';
+UPDATE users set preferences_jsonb = preferences::jsonb;
+ALTER TABLE users ALTER COLUMN preferences_jsonb SET NOT NULL;
+ALTER TABLE users RENAME COLUMN preferences TO preferences_json;
+ALTER TABLE users RENAME COLUMN preferences_jsonb TO preferences;
+
+-- Don't remove the column until you're sure everything is working.
+-- ALTER TABLE users DROP COLUMN preferences_json;
+
+COMMIT;
+
+{% endhighlight %}
+
+现在你已经知道了`json`是如何工作的，让我们看看在Ruby on Rails中是怎么使用的。
+
+#### **在Ruby on Rails中使用jsonb**
+
+Rails从4.2版本开始支持`jsonb`，使用他跟使用`string`或`text`类型的列一样简单，在下面的代码中，你将看到如何添加`jsonb`类型的列到在已经存在的表中。
+
+{% highlight ruby %}
+
+# db/migrate/*_create_users.rb
+class CreateUsers < ActiveRecord::Migration
+  def change
+    enable_extension 'citext'
+
+    create_table :users do |t|
+      t.text :name, null: false
+      t.citext :username, null: false
+      t.jsonb :preferences, null: false, default: '{}'
+    end
+
+    add_index  :users, :preferences, using: :gin
+  end
+end
+
+# db/migrate/*_add_jsonb_column_to_users.rb
+class AddJsonbColumnToUsers < ActiveRecord::Migration
+  def change
+    add_column :users, :preferences, :jsonb, null: false, default: '{}'
+    add_index  :users, :preferences, using: :gin
+  end
+end
+
+{% endhighlight %}
+
+注意，我们已经定义了GIN类型的索引，如果你想对给出的路径创建表达式索引，你必须使用`execute`。在这个例子中，Rails不知道怎么使用ruby来转化这个索引，所以你最好选择将格式转为SQL。
+
+{% highlight ruby %}
+
+# config/initializers/active_record.rb
+Rails.application.config.active_record.schema_format = :sql
+
+# db/migrate/*_add_index_to_preferences_path_on_users.rb
+class AddIndexToPreferencesPathOnUsers < ActiveRecord::Migration
+  def change
+    execute <<-SQL
+      CREATE INDEX user_prefs_newsletter_index ON users ((preferences->>'newsletter'))
+    SQL
+  end
+end
+
+{% endhighlight %}
+
+你的模型不需要做任何配置。你只需要创建支持`json`序列化的记录来提供对象。
+
+{% highlight ruby %}
+
+user = User.create!({
+  name: 'John Doe',
+  username: 'johndoe',
+  preferences: {
+    twitter: 'johndoe',
+    github: 'johndoe',
+    blog: 'http://example.com'
+  }
+})
+
+# Reload record from database to enforce serialization.
+user.reload
+
+# Show preferences.
+user.preferences
+#=> {"blog"=>"http://example.com", "github"=>"johndoe", "twitter"=>"johndoe"}
+
+# Get blog.
+user.preferences['blog']
+#=> http://example.com
+
+{% endhighlight %}
+
+可以看到所有的键都是以`string`形式返回。你也可以使用通用的序列化方式，你就可以通过符号来访问JSON对象。
+
+{% highlight ruby %}
+
+# app/models/user.rb
+class User < ActiveRecord::Base
+  serialize :preferences, HashSerializer
+end
+
+# app/serializers/hash_serializer.rb
+class HashSerializer
+  def self.dump(hash)
+    hash.to_json
+  end
+
+  def self.load(hash)
+    (hash || {}).with_indifferent_access
+  end
+end
+{% endhighlight %}
+
+另一个比较有意思的是ActiveRecord特性就是`store_accessor`。如果你更改一些属性比较频繁，你可以创建`accessor`，这样你可以赋值给属性来代替JSON传值。这也使得数据验证和创建表单更加简单。因此，如果我们创建一个表单来保存博客url、Github和Twitter账户，你可以像下面这样使用：
+
+{% highlight ruby %}
+
+class User < ActiveRecord::Base
+  serialize :preferences, HashSerializer
+  store_accessor :preferences, :blog, :github, :twitter
+end
+
+{% endhighlight %}
+
+现在你可以简单的赋值给这些属性了。
+
+{% highlight ruby %}
+
+user = User.new(blog: 'http://example.org', github: 'johndoe')
+
+user.preferences
+#=> {"blog"=>"http://example.org", "github"=>"johndoe"}
+
+user.blog
+#=> http://example.org
+
+user.preferences[:github]
+#=> johndoe
+
+user.preferences['github']
+#=> johndoe
+
+{% endhighlight %}
+
+定义了 store accessors 后，你可以像正常其他属性一样，定义数据验证和创建表单
+
+#### **查询jsonb列**
+
+现在是时候使用一些查询操作。关于PostgreSQL的更多操作，请[阅读完整的文档列表](http://www.postgresql.org/docs/9.4/static/functions-json.html)
+
+同时，记得使用注释你执行的查询语句；这有助于你更好的去做索引优化。
+
+**订阅新闻邮件的用户**
+
+{% highlight ruby %}
+
+# preferences->newsletter = true
+User.where('preferences @> ?', {newsletter: true}.to_json)
+
+{% endhighlight %}
+
+**对Ruby感兴趣的用户**
+
+{% highlight ruby %}
+
+# preferences->interests = ['ruby', 'javascript', 'python']
+User.where("preferences -> 'interests' ? :language", language: 'ruby')
+
+{% endhighlight %}
+
+这个查询不会用到列索引；如果你想查询数组，请确保你创建了表达式索引。
+
+{% highlight ruby %}
+
+CREATE INDEX preferences_interests_on_users ON users USING GIN ((preferences->'interests'))
+
+{% endhighlight %}
+
+**设置了Twitter和Github账号的用户**
+
+{% highlight ruby %}
+
+# preferences->twitter AND preferences->github
+User.where('preferences ?& array[:keys]', keys: ['twitter', 'github'])
+
+{% endhighlight %}
+
+**设置Twitter或Github账号的用户**
+
+{% highlight ruby %}
+
+# preferences->twitter OR preferences->github
+User.where('preferences ?| array[:keys]', keys: ['twitter', 'github'])
+
+{% endhighlight %}
+
+**住在洛杉矶/加利福尼亚的用户**
+
+{% highlight ruby %}
+
+# preferences->state = 'SP' AND preferences->city = 'São Paulo'
+User.where('preferences @> ?', {city: 'San Francisco', state: 'CA'}.to_json)
+
+{% endhighlight %}
+
+#### **关于hstore**
+
+`hstore`列不允许嵌套的结构，它将所有的值以字符串形式存储，所以必须要在数据库层或者应用程序层将数据强制转化为字符串类型。而在`json/jsonb`类型的列上不会遇到这个问题，数值类型(integers/float)，布尔类型，数组，字符串和空类型都可以接受，甚至你想的任何方式的数据嵌套。
+
+因此推荐你尽早放弃`hstore`而去使用`jsonb`，但要记住的是你必须使用PostgreSQL 9.4以上版本才行。
+
+[我以前写的hstore](http://nandovieira.com/using-postgresql-and-hstore-with-rails)，想知道更多相关的内容就点击查看。
+
+#### 总结
+
+PostgreSQL是一个非常强大的数据库，幸运的是ActiveRecord能跟上PostgreSQL的更新，为jsonb和hstore特性引入了内置支持。
+
+而像表达式索引这样的支持也在不断的改善。将ActiveRecord的序列化改为SQL没什么大不了的，但却是的索引变得更加简单。
+
+{% highlight ruby %}
+
+# This doesn't exist, but it would be nice to have it!
+add_index :users, "(settings->>'github')", raw: true
+
+{% endhighlight %}
+
+在每一个新版本中，使用Rails和PostgreSQL都比过去更加容易，变得更加出色。因此，尝试使用最新的Rails版本，付出总是会得到回报的。
+
+
+
+
+
+

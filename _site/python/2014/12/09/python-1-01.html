@@ -64,13 +64,13 @@
   <article class="post-content">
   <p><code>__init__()</code>方法意义重大的原因有两个。第一个原因是在对象生命周期中初始化是最重要的一步；每个对象必须正确初始化后才能正常工作。第二个原因是<code>__init__()</code>参数值可以有多种形式。</p>
 
-<p>因为有很多种方式为<code>__init__()</code>提供参数值，对于对象创建有大量的用例，我们可以看看其中的几个。我们想尽可能的弄清楚，因此我们需要定义一个初始化来正确的描述问题区域。</p>
+<p>因为有很多种方式为<code>__init__()</code>提供参数值，对于对象创建有大量的使用案例，我们可以看看其中的几个。我们想尽可能的弄清楚，因此我们需要定义一个初始化来正确的描述问题域。</p>
 
-<p>在我们接触<code>__init__()</code>方法之前，无论如何，我们都需要粗略、简单地看看在Python中隐含的<code>object</code>类的层次结构。</p>
+<p>在我们接触<code>__init__()</code>方法之前，无论如何，我们都需要简单粗略地看看在Python中隐含的<code>object</code>类的层次结构。</p>
 
-<p>在这一章，我们看看不同形式的简单对象的初始化（例如：打牌）。在这之后，我们还可以看看更复杂的对象，就像包含集合的<code>hands</code>对象以及包含策略和状态的<code>players</code>。</p>
+<p>在这一章，我们看看不同形式的简单对象的初始化（例如：打牌）。在这之后，我们还可以看看更复杂的对象，就像包含集合的<code>hands</code>以及包含策略和状态的<code>players</code>。</p>
 
-<h3 id="object"><strong>隐含的超类——object</strong></h3>
+<h3 id="object"><strong>隐式的超类——object</strong></h3>
 
 <p>每一个Python类都隐含了一个超类：<strong>object</strong>。它是一个非常简单的类定义，几乎不做任何事情。我们可以创建<code>object</code>的实例，但是我们不能用它做太多，因为许多特殊的方法容易抛出异常。</p>
 
@@ -90,23 +90,23 @@
 
 <p>我们可以看到该类是<code>type</code>类的一个对象，且它的基类为<code>object</code>。</p>
 
-<p>就像在每个方法中看到的那样，我们也看看从<code>object</code>继承的默认行为。在某些情况下，超类特殊方法的行为是我们所想要的。在其他情况下，我们需要覆盖这个特殊方法。</p>
+<p>就像在每个方法中看到的那样，我们也看看从<code>object</code>继承的默认行为。在某些情况下，超类的特殊方法是我们所想要的。而在其他情况下，我们又需要覆盖这个特殊方法。</p>
 
 <h3 id="init"><strong>基类对象的__init__()方法</strong></h3>
 
-<p>对象生命周期的基础是创建、初始化和销毁。我们将创建和销毁的高级特殊方法推迟到后面的章节中，目前只关注初始化。</p>
+<p>对象生命周期的基础是创建、初始化和销毁。我们将创建和销毁的高级特殊方法推迟到后面的章节中讲，目前只关注初始化。</p>
 
-<p>所有类的超类<code>object</code>，有一个默认包含<code>pass</code>的<code>__init__()</code>实现，我们不需要去实现<code>__init__()</code>。如果不实现它，则在对象创建后就不会创建实例变量。在某些情况下，这种默认行为是可以接受的。</p>
+<p>所有类的超类<code>object</code>，有一个默认包含<code>pass</code>的<code>__init__()</code>方法，我们不需要去实现它。如果不实现它，则在对象创建后就不会创建实例变量。在某些情况下，这种默认行为是可以接受的。</p>
 
-<p>我们总是给对象添加属性，该对象为基类<code>object</code>的子类。思考以下类，需要两个实例变量但不初始化它们：</p>
+<p>我们总是给对象添加属性，该对象为基类<code>object</code>的子类。思考下面的类，它需要两个实例变量但不初始化它们：</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Rectangle</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span></code></pre></div>
 
-<p><code>Rectangle</code>类有一个使用两个属性来返回一个值的方法。这些属性没有初始化。这是合法的Python代码。它可以有效的避免专门设置属性，虽然感觉有点奇怪，但是有效。</p>
+<p><code>Rectangle</code>类有一个使用两个属性来返回一个值的方法。这些属性没有初始化。这是合法的Python代码。它可以明确地避免设置属性，虽然感觉有点奇怪，但是有效。</p>
 
-<p>下面是于Rectangle类的交互：</p>
+<p>下面是与<code>Rectangle</code>类的交互：</p>
 
 <pre><code>&gt;&gt;&gt; r = Rectangle()
 &gt;&gt;&gt; r.length, r.width = 13, 8
@@ -114,9 +114,9 @@
 104
 </code></pre>
 
-<p>显然这是合法的，但也是容易混淆的根源，所以也是我们需要避免的原因。</p>
+<p>显然这是合法的，但这也是容易混淆的根源，所以也是我们需要避免的原因。</p>
 
-<p>无论如何，这个设计给予了很大的灵活性，这样有时候我们不用在<code>__init__()</code>方法中设置所有属性。至此我们走的很顺利。一个可选属性其实就是一个子类，只是没有真正的正式声明为子类。我们创建多态在某种程度上可能会引起混乱以及<code>if</code>语句的不恰当使用所造成的盘绕。虽然未初始化的属性可能是有用的，但很有可能是糟糕设计的前兆。</p>
+<p>无论如何，这个设计给予了很大的灵活性，这样有时候我们不用在<code>__init__()</code>方法中设置所有属性。至此我们走的很顺利。一个可选属性其实就是一个子类，只是没有真正的正式声明为子类。我们创建多态在某种程度上可能会引起混乱，以及<code>if</code>语句的不恰当使用所造成的盘绕。虽然未初始化的属性可能是有用的，但也很有可能是糟糕设计的前兆。</p>
 
 <p>《Python之禅》中的建议：</p>
 
@@ -146,9 +146,9 @@ except AttributeError:
 
 <h3 id="init-1"><strong>在超类中实现__init__()</strong></h3>
 
-<p>我们通过实现<code>__init__()</code>方法来初始化对象。当一个对象被创建，Python首先创建一个空对象，然后为那个新对象调用<code>__init__()</code>方法。这个方法函数通常用来创建对象的实例变量并执行任何其他一次性处理。</p>
+<p>我们通过实现<code>__init__()</code>方法来初始化对象。当一个对象被创建，Python首先创建一个空对象并为该新对象调用<code>__init__()</code>方法。这个方法函数通常用来创建对象的实例变量并执行任何其他一次性处理。</p>
 
-<p>下面是<code>Card</code>类示例定义的层次结构。我们将定义<code>Card</code>超类和三个子类，这三个子类是<code>Card</code>的变种。两个实例变量直接由参数值设置，两个变量通过初始化方法计算：</p>
+<p>下面是<code>Card</code>类示例定义的层次结构。我们将定义<code>Card</code>超类和三个子类，这三个子类是<code>Card</code>的变种。两个实例变量直接由参数值设置，并通过初始化方法计算：</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Card</span><span class="p">:</span>
     <span class="k">def</span>  <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">suit</span><span class="p">):</span>
@@ -193,8 +193,8 @@ except AttributeError:
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Suit</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">symbol</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="o">=</span> <span class="n">symbol</span></code></pre></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span></code></pre></div>
 
 <p>下面是通过这个类创建的常量：</p>
 
@@ -205,13 +205,13 @@ except AttributeError:
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">cards</span> <span class="o">=</span> <span class="p">[</span><span class="n">AceCard</span><span class="p">(</span><span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="n">Spade</span><span class="p">),</span> <span class="n">NumberCard</span><span class="p">(</span><span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="n">Spade</span><span class="p">),</span> <span class="n">NumberCard</span><span class="p">(</span><span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="n">Spade</span><span class="p">),]</span></code></pre></div>
 
-<p>这个小示例，这种方法对于单个特性的花色代码来说并不是一个巨大的进步。在更复杂的情况下，会有一些策略或状态对象通过这个方式创建。通过从小的、静态的常量对象中复用可以使策略或状态设计模式更有效率。</p>
+<p>这个小示例的方法对于单个特性的花色代码来说并没有多大改进。在更复杂的情况下，会通过这个方式创建一些策略或状态对象。通过从小的静态常量池中复用对象使得策略或状态设计模式效率更高。</p>
 
 <p>我们必须承认，在Python中这些对象并不是技术上一成不变的，它是可变的。进行额外的编码使得这些对象真正不变可能会有一些好处。</p>
 
 <p><strong>无关紧要的不变性</strong></p>
 
-<p>不变性很有吸引力但却容易带来麻烦。有时候被神话般的“恶意程序员”在他们的应用程序中通过修改常量值进行调整。从设计上考虑，这是非常愚蠢的。这些神话般的、恶意的程序员不会停止这样做，因为已经没有更好的方法去更简洁简单的在Python中编码。恶意程序员访问到源码并且修改它仅仅是希望尽可能轻松地编写代码来修改一个常数。</p>
+<p>不变性很有吸引力但却容易带来麻烦。有时候被神话般的“恶意程序员”在他们的应用程序中通过修改常量值进行调整。从设计上考虑，这是非常愚蠢的。这些神话般的、恶意的程序员不会停止这样做，因为已经没有更好的方法去更简洁简单的在Python中编码了。恶意程序员访问到源码并且修改它仅仅是希望尽可能轻松地编写代码来修改一个常数。</p>
 
 <p>在定义不可变对象的类的时候最好不要挣扎太久。在第三章《属性访问、方法属性和描述符》中，我们将通过在有bug的程序中提供合适的诊断信息来展示如何实现不变性。</p>
 
