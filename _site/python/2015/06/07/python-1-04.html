@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Python学习 —— __init__()方法 4</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="关于Python及生活随记">
+    <link rel="canonical" href="/python/2015/06/07/python-1-04.html">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+
+</head>
+
+
+    <body>
+
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <a class="site-title" href="">小乌龟 の blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+          <a class="page-link" href="/about/">About</a>
+        
+          <a class="page-link" href="/feed.xml"></a>
+        
+          <a class="page-link" href="/index.html"></a>
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Python学习 —— __init__()方法 4</h1>
+    <br />
+    <p class="meta">Jun 7, 2015 by young</p>
+  </header>
+
+  <article class="post-content">
+  <h3 id="init"><strong>没有__init__()的无状态对象</strong></h3>
+
+<p>下面这个示例，是一个简化去掉了<code>__init__()</code>的类。这是一个常见的<strong>Strategy</strong>设计模式对象。策略对象插入到主对象来实现一种算法或者决策。它可能依赖主对象的数据，策略对象自身可能没有任何数据。我们经常设计策略类来遵循<strong>Flyweight</strong>设计模式：我们避免在<code>Strategy</code>对象内部进行存储。所有提供给<code>Strategy</code>的值都是作为方法的参数值。<code>Strategy</code>对象本身可以是无状态的。这更多是为了方法函数的集合而非其他。</p>
+
+<p>在本例中，我们为<code>Player</code>实例提供了游戏策略。下面是一个抓牌和减少其他赌注的策略示例（比较笨的策略）：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">GameStrategy</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">insurance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hand</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hand</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">def</span> <span class="nf">double</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hand</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">def</span> <span class="nf">hit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hand</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">hard</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">hand</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">17</span></code></pre></div>
+
+<p>每个方法都需要当前的<code>Hand</code>作为参数值。决策是基于可用信息的，也就是指庄家的牌和闲家的牌。</p>
+
+<p>我们可以使用不同的<code>Player</code>实例来构建单个策略实例，如下面代码片段所示：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">dumb</span> <span class="o">=</span> <span class="n">GameStrategy</span><span class="p">()</span></code></pre></div>
+
+<p>我们可以想象创造一组相关的策略类，在21点中玩家可以针对各种决策使用不同的规则。</p>
+
+<h3 id="section"><strong>一些额外的类定义</strong></h3>
+
+<p>如前所述，一个玩家有两个策略：一个用于下注，一个用于出牌。每个<code>Player</code>实例都与模拟计算执行器有一序列的交互。我们称计算执行器为<code>Table</code>类。</p>
+
+<p><code>Table</code>类需要<code>Player</code>实例提供以下事件：</p>
+
+<ul>
+  <li>
+    <p>玩家必须基于下注策略来设置初始赌注。</p>
+  </li>
+  <li>
+    <p>玩家将得到一手牌。</p>
+  </li>
+  <li>
+    <p>如果手牌是可分离的，玩家必须决定是分离或不基于出牌策略。这可以创建额外的<code>Hand</code>实例。在一些赌场，额外的一手牌也是可分离的。</p>
+  </li>
+  <li>
+    <p>对于每个<code>Hand</code>实例，玩家必须基于出牌策略来决定是要牌、加倍或停牌。</p>
+  </li>
+  <li>
+    <p>玩家会获得奖金，然后基于输赢情况调整下注策略。</p>
+  </li>
+</ul>
+
+<p>从这，我们可以看到<code>Table</code>类有许多API方法来获得赌注，创建<code>Hand</code>对象提供分裂、分解每一手牌、付清赌注。这个对象跟踪了一组<code>Players</code>的出牌状态。</p>
+
+<p>以下是处理赌注和牌的<code>Table</code>类：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Table</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span> <span class="o">=</span> <span class="n">Deck</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">place_bet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Bet&quot;</span><span class="p">,</span> <span class="n">amount</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_hand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hand</span> <span class="o">=</span> <span class="n">Hand2</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hole_card</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="c"># Out of cards: need to shuffle.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deck</span> <span class="o">=</span> <span class="n">Deck</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hand</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Deal&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hand</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hand</span>
+    <span class="k">def</span> <span class="nf">can_insure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hand</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">hand</span><span class="o">.</span><span class="n">dealer_card</span><span class="o">.</span><span class="n">insure</span></code></pre></div>
+
+<p><code>Player</code>使用<code>Table</code>类来接收赌注，创建一个<code>Hand</code>对象，出牌时根据这手牌来决定是否买保险。使用额外方法去获取牌并决定偿还。</p>
+
+<p>在<code>get_hand()</code>中展示的异常处理不是一个精确的赌场玩牌模型。这可能会导致微小的统计误差。更精确的模拟需要编写一副牌，当空的时候可以重新洗牌，而不是抛出异常。</p>
+
+<p>为了正确地交互和模拟现实出牌，<code>Player</code>类需要一个下注策略。下注策略是一个有状态的对象，决定了初始赌注。各种下注策略调整赌注通常都是基于游戏的输赢。</p>
+
+<p>理想情况下，我们渴望有一组下注策略对象。Python的装饰器模块允许我们创建一个抽象超类。一个非正式的方法创建策略对象引发的异常<em>必须</em>由子类实现。</p>
+
+<p>我们定义了一个抽象超类，此外还有一个具体子类定义了固定下注策略，如下所示：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">BettingStrategy</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">bet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;No bet method&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">record_win</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">record_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">Flat</span><span class="p">(</span><span class="n">BettingStrategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">bet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span></code></pre></div>
+
+<p>超类定义了带有默认值的方法。抽象超类中的基本<code>bet()</code>方法抛出异常。子类必须覆盖<code>bet()</code>方法。其他方法可以提供默认值。这里给上一节的游戏策略添加了下注策略，我们可以看看<code>Player</code>类周围更复杂的<code>__init__()</code>方法。</p>
+
+<p>我们可以利用<code>abc</code>模块正式化抽象超类的定义。就像下面的代码片段那样：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">abc</span>
+<span class="k">class</span> <span class="nc">BettingStrategy2</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">bet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">def</span> <span class="nf">record_win</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">record_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="err">￼</span>       <span class="k">pass</span></code></pre></div>
+
+<p>这样做的优势在于创建了<code>BettingStrategy2</code>的实例，不会造成任何子类<code>bet()</code>的失败。如果我们试图通过未实现的抽象方法来创建这个类的实例，它将引发一个异常来替代创建对象。</p>
+
+<p>是的，抽象方法有一个实现。它可以通过<code>super().bet()</code>来访问。</p>
+
+<h3 id="init-1"><strong>多策略的__init__()</strong></h3>
+
+<p>我们可从各种来源创建对象。例如，我们可能需要复制一个对象作为创建备份或冻结一个对象的一部分，以便它可以作为字典的键或被置入集合中；这是内置类<code>set</code>和<code>frozenset</code>背后的想法。</p>
+
+<p>有几个总体设计模式，它们有多种方法来构建一个对象。一个设计模式就是一个复杂的<code>__init__()</code>，称为多策略初始化。同时，有多个类级别的(静态)构造函数的方法。</p>
+
+<p>这些都是不兼容的方法。他们有完全不同的接口。</p>
+
+<p><strong>避免克隆方法</strong></p>
+
+<p>在Python中，一个克隆方法没必要复制一个不需要的对象。使用克隆技术表明可能是未能理解Python中的面向对象设计原则。</p>
+
+<p>克隆方法封装了在错误的地方创建对象的常识。被克隆的源对象不能了解通过克隆建立的目标对象的结构。然而，如果源对象提供了一个合理的、得到了良好封装的接口，反向(目标对象有源对象相关的内容)是可以接受的。</p>
+
+<p>我们这里展示的例子是有效的克隆，因为它们很简单。我们将在下一章展开它们。然而，展示这些基本技术是用来做更多的事情，而不是琐碎的克隆，我们看看将可变对象<code>Hand</code>冻结为不可变对象。</p>
+
+<p>下面可以通过两种方式创建<code>Hand</code>对象的示例：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Hand3</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Hand3</span><span class="p">):</span>
+          <span class="c"># Clone an existing hand; often a bad idea</span>
+          <span class="n">other</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">dealer_card</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">dealer_card</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">cards</span>
+      <span class="k">else</span><span class="p">:</span>
+          <span class="c"># Build a fresh, new hand.</span>
+          <span class="n">dealer_card</span><span class="p">,</span> <span class="o">*</span><span class="n">cards</span> <span class="o">=</span> <span class="n">args</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">dealer_card</span> <span class="o">=</span>  <span class="n">dealer_card</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span></code></pre></div>
+
+<p>第一种情况，从现有的<code>Hand3</code>对象创建<code>Hand3</code>实例。第二种情况，从单独的<code>Card</code>实例创建<code>Hand3</code>对象。</p>
+
+<p>与<code>frozenset</code>对象的相似之处在于可由单独的项目或现有<code>set</code>对象创建。我们将在下一章学习创建不可变对象。使用像下面代码片段这样的构造，从现有的<code>Hand</code>创建一个新的<code>Hand</code>使得我们可以创建一个<code>Hand</code>对象的备份：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">h</span> <span class="o">=</span> <span class="n">Hand</span><span class="p">(</span><span class="n">deck</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">deck</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">deck</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+<span class="n">memento</span> <span class="o">=</span> <span class="n">Hand</span><span class="p">(</span><span class="n">h</span><span class="p">)</span></code></pre></div>
+
+<p>我们保存<code>Hand</code>对象到<code>memento</code>变量中。这可以用来比较最后处理的牌与原来手牌，或者我们可以在集合或映射中使用时<em>冻结</em>它。</p>
+
+<h4 id="section-1"><strong>1. 更复杂的初始化选择</strong></h4>
+
+<p>为了编写一个多策略初始化，我们经常被迫放弃特定的命名参数。这种设计的优点是灵活，但缺点是不透明的、毫无意义的参数命名。它需要大量的用例文档来解释变形。</p>
+
+<p>我们还可以扩大我们的初始化来分裂<code>Hand</code>对象。分裂<code>Hand</code>对象的结果是只是另一个构造函数。下面的代码片段说明了如何分裂<code>Hand</code>对象：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Hand4</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Hand4</span><span class="p">):</span>
+            <span class="c"># Clone an existing handl often a bad idea</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dealer_card</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">dealer_card</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">cards</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Hand4</span><span class="p">)</span> <span class="ow">and</span> <span class="s">&#39;split&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">:</span>
+            <span class="c"># Split an existing hand</span>
+            <span class="n">other</span><span class="p">,</span> <span class="n">card</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dealer_card</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">dealer_card</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="p">[</span><span class="n">other</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="n">kw</span><span class="p">[</span><span class="s">&#39;split&#39;</span><span class="p">]],</span> <span class="n">card</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c"># Build a fresh, new hand.</span>
+            <span class="n">dealer_card</span><span class="p">,</span> <span class="o">*</span><span class="n">cards</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dealer_card</span> <span class="o">=</span>  <span class="n">dealer_card</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Invalid constructor args={0!r} kw={1!r}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kw</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span></code></pre></div>
+
+<p>这个设计包括获得额外的牌来建立合适的、分裂的手牌。当我们从一个<code>Hand4</code>对象创建一个<code>Hand4</code>对象，我们提供一个分裂的关键字参数，它从原<code>Hand4</code>对象使用<code>Card</code>类索引。</p>
+
+<p>下面的代码片段展示了我们如何使用被分裂的手牌：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">d</span> <span class="o">=</span> <span class="n">Deck</span><span class="p">()</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">Hand4</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+<span class="n">s1</span> <span class="o">=</span> <span class="n">Hand4</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">split</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">s2</span> <span class="o">=</span> <span class="n">Hand4</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">split</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code></pre></div>
+
+<p>我们创建了一个<code>Hand4</code>初始化的<code>h</code>实例并分裂到两个其他<code>Hand4</code>实例，<code>s1</code>和<code>s2</code>，并处理额外的<code>Card</code>类。21点的规则只允许最初的手牌有两个牌值相等。</p>
+
+<p>虽然这个<code>__init__()</code>方法相当复杂，它的优点是可以并行的方式从现有集创建<code>fronzenset</code>。缺点是它需要一个大文档字符串来解释这些变化。</p>
+
+<h4 id="section-2"><strong>2. 初始化静态方法</strong></h4>
+
+<p>当我们有多种方法来创建一个对象时，有时会更清晰的使用静态方法来创建并返回实例，而不是复杂的<code>__init__()</code>方法。</p>
+
+<p>也可以使用类方法作为替代初始化，但是有一个实实在在的优势在于接收类作为参数的方法。在冻结或分裂<code>Hand</code>对象的情况下，我们可能需要创建两个新的静态方法冻结或分离对象。使用静态方法作为代理构造函数是一个小小的语法变化，但当组织代码的时候它拥有巨大的优势。</p>
+
+<p>下面是一个有静态方法的<code>Hand</code>，可用于从现有的<code>Hand</code>实例构建新的<code>Hand</code>实例：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Hand5</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dealer_card</span><span class="p">,</span> <span class="o">*</span><span class="n">cards</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dealer_card</span> <span class="o">=</span> <span class="n">dealer_card</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">freeze</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="n">hand</span> <span class="o">=</span> <span class="n">Hand5</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">dealer_card</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hand</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">card0</span><span class="p">,</span> <span class="n">card1</span> <span class="p">):</span>
+        <span class="n">hand0</span> <span class="o">=</span> <span class="n">Hand5</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">dealer_card</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">card0</span><span class="p">)</span>
+        <span class="n">hand1</span> <span class="o">=</span> <span class="n">Hand5</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">dealer_card</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">card1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hand0</span><span class="p">,</span> <span class="n">hand1</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span></code></pre></div>
+
+<p>一个方法冻结或创建一个备份。另一个方法分裂<code>Hand5</code>实例来创建两个<code>Hand5</code>实例。</p>
+
+<p>这更具可读性并保存参数名的使用来解释接口。</p>
+
+<p>下面的代码片段展示了我们如何通过这个版本分裂<code>Hand5</code>实例：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">d</span> <span class="o">=</span> <span class="n">Deck</span><span class="p">()</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">Hand5</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+<span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">Hand5</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span></code></pre></div>
+
+<p>我们创建了一个初始的<code>Hand5</code>的<code>h</code>实例，分裂成两个手牌，s1和s2，处理每一个额外的<code>Card</code>类。<code>split()</code>静态方法比<code>__init__()</code>简单得多。然而，它不遵循从现有的<code>set</code>对象创建<code>fronzenset</code>对象的模式。</p>
+
+<h3 id="init-2"><strong>更多的__init__()技巧</strong></h3>
+
+<p>我们会看看一些其他更高级的<code>__init__()</code>技巧。在前面的部分这些不是那么普遍有用的技术。</p>
+
+<p>下面是<code>Player</code>类的定义，使用了两个策略对象和<code>table</code>对象。这展示了一个看起来并不舒服的<code>__init__()</code>方法：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Player</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">bet_strategy</span><span class="p">,</span> <span class="n">game_strategy</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bet_strategy</span> <span class="o">=</span> <span class="n">bet_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_strategy</span> <span class="o">=</span> <span class="n">game_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">table</span>
+    <span class="k">def</span> <span class="nf">game</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">place_bet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bet_strategy</span><span class="o">.</span><span class="n">bet</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">get_hand</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">can_insure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hand</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_strategy</span><span class="o">.</span><span class="n">insurance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hand</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">insure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bet_strategy</span><span class="o">.</span><span class="n">bet</span><span class="p">())</span>
+        <span class="c"># Yet more... Elided for now</span></code></pre></div>
+
+<p><code>Player</code>的<code>__init__()</code>方法似乎只是统计。只是简单传递命名好的参数到相同命名的实例变量。如果我们有大量的参数，简单地传递参数到内部变量会产生过多看似冗余的代码。</p>
+
+<p>我们可以如下使用<code>Player</code>类(和相关对象)：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">()</span>
+<span class="n">flat_bet</span> <span class="o">=</span> <span class="n">Flat</span><span class="p">()</span>
+<span class="n">dumb</span> <span class="o">=</span> <span class="n">GameStrategy</span><span class="p">()</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Player</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">flat_bet</span><span class="p">,</span> <span class="n">dumb</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">game</span><span class="p">()</span></code></pre></div>
+
+<p>我们可以通过简单的传递关键字参数值到内部实例变量来提供一个非常短的和非常灵活的初始化。</p>
+
+<p>下面是使用关键字参数值构建<code>Player</code>类的示例：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Player2</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Must provide table, bet_strategy, game_strategy.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kw</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">game</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">place_bet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bet_strategy</span><span class="o">.</span><span class="n">bet</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hand</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">get_hand</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">can_insure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hand</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_strategy</span><span class="o">.</span><span class="n">insurance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hand</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">insure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bet_strategy</span><span class="o">.</span><span class="n">bet</span><span class="p">())</span>
+        <span class="c"># etc.</span></code></pre></div>
+
+<p>为了简洁而牺牲了大量可读性。它跨越到一个潜在的默默无闻的领域。</p>
+
+<p>因为<code>__init__()</code>方法减少到一行，它消除了某种程度上“累赘”的方法。这个累赘，无论如何，是被传递到每个单独的对象构造函数表达式中。我们必须将关键字添加到对象初始化表达式中，因为我们不再使用位置参数，如下面代码片段所示：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">p2</span> <span class="o">=</span> <span class="n">Player2</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span> <span class="n">bet_strategy</span><span class="o">=</span><span class="n">flat_bet</span><span class="p">,</span> <span class="n">game_strategy</span><span class="o">=</span><span class="n">dumb</span><span class="p">)</span></code></pre></div>
+
+<p>为什么这样做呢？</p>
+
+<p>它有一个<em>潜在</em>的优势。这样的类定义是相当易于扩展的。我们可能只有几个特定的担忧，提供额外关键字参数给构造函数。</p>
+
+<p>下面是预期的用例：</p>
+
+<pre><code>&gt;&gt;&gt; p1= Player2(table=table, bet_strategy=flat_bet, game_strategy=dumb)
+&gt;&gt;&gt; p1.game()
+</code></pre>
+
+<p>下面是一个额外的用例：</p>
+
+<pre><code>&gt;&gt;&gt; p2= Player2(table=table, bet_strategy=flat_bet, game_strategy=dumb, 
+    log_name="Flat/Dumb")
+&gt;&gt;&gt; p2.game()
+</code></pre>
+
+<p>我们添加了一个与类定义无关的<code>log_name</code>属性。也许，这可以被用作统计分析的一部分。<code>Player2.log_name</code>属性可以用来注释日志或其他数据的收集。</p>
+
+<p>我们能添加的东西是有限的；我们只能添加没有与内部使用的命名相冲突的参数。类实现的常识是需要的，用于创建没有滥用已在使用的关键字的子类。由于<code>**kw</code>参数提供了很少的信息，我们需要仔细阅读。在大多数情况下，比起检查实现细节我们宁愿相信类是正常工作的。</p>
+
+<p>在超类的定义中是可以做到基于关键字的初始化的，对于使用超类来实现子类会变得稍微的简单些。我们可以避免编写一个额外的<code>__init__()</code>方法到每个子类，当子类的唯一特性包括了简单新实例变量。</p>
+
+<p>这样做的缺点是，我们已经模糊了没有正式通过子类定义记录的实例变量。如果只是一个小变量，整个子类可能有太多的编程开销用于给一个类添加单个变量。然而，一个小变量常常会导致第二个、第三个。不久，我们将会认识到一个子类会比一个极其灵活的超类还要更智能。</p>
+
+<p>我们可以(也应该)通过混合的位置和关键字实现生成这些，如下面的代码片段所示：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Player3</span><span class="p">(</span><span class="n">Player</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">bet_strategy</span><span class="p">,</span> <span class="n">game_strategy</span><span class="p">,</span> <span class="o">**</span><span class="n">extras</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bet_strategy</span> <span class="o">=</span> <span class="n">bet_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_strategy</span> <span class="o">=</span> <span class="n">game_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">=</span> <span class="n">table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extras</span><span class="p">)</span></code></pre></div>
+
+<p>这比完全开放定义更明智。我们已经取得了所需的位置参数。我们留下任何非必需参数作为关键字。这个阐明了<code>__init__()</code>给出的任何额外的关键字参数的使用。</p>
+
+<p>这种灵活的关键字初始化取决于我们是否有相对透明的类定义。这种开放的态度面对改变需要注意避免调试名称冲突，因为关键字参数名是开放式的。</p>
+
+<h4 id="section-3"><strong>1. 初始化类型验证</strong></h4>
+
+<p>类型验证很少是一个合理的要求。在某种程度上，是没有对Python完全理解。名义目标是验证所有参数是否是一个<em>合适的</em>类型。试图这样做的原因主要是因为<em>适当</em>的定义往往是过于狭隘以至于没有什么真正的用途。</p>
+
+<p>这不同于确认对象满足其他条件。数字范围检查，例如，防止无限循环的必要。</p>
+
+<p>我们可以制造问题去试图做些什么，就像下面<code>__init__()</code>方法中那样：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">ValidPlayer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">bet_strategy</span><span class="p">,</span> <span class="n">game_strategy</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">Table</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bet_strategy</span><span class="p">,</span> <span class="n">BettingStrategy</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">game_strategy</span><span class="p">,</span> <span class="n">GameStrategy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bet_strategy</span> <span class="o">=</span> <span class="n">bet_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_strategy</span> <span class="o">=</span> <span class="n">game_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">table</span></code></pre></div>
+
+<p><code>isinstance()</code>方法检查、规避Python的标准<strong>鸭子类型</strong>。</p>
+
+<p>我们写一个赌场游戏模拟是为了尝试不断变化的<code>GameStrategy</code>。这些很简单(仅仅四个方法)，几乎没有从超类的继承中得到任何帮助。我们可以独立的定义缺乏整体的超类。</p>
+
+<p>这个示例中所示的初始化错误检查，将迫使我们通过错误检查的创建子类。没有可用的代码是继承自抽象超类。</p>
+
+<p>最大的一个鸭子类型问题就围绕数值类型。不同的数值类型将工作在不同的上下文中。试图验证类型的争论可能会阻止一个完美合理的数值类型正常工作。当尝试验证时，我们有以下两个选择在Python中：</p>
+
+<ul>
+  <li>
+    <p>我们编写验证，这样一个相对狭窄的集合类型是允许的，总有一天代码会因为聪明的新类型被禁止而中断。</p>
+  </li>
+  <li>
+    <p>我们避开验证，这样一个相对广泛的集合类型是允许的，总有一天代码会因为不聪明地类型被使用而中断。</p>
+  </li>
+</ul>
+
+<p>注意，两个本质上是相同的。代码可能有一天被中断。要么因为禁止使用即使它是聪明，要么因为不聪明的使用。</p>
+
+<p><strong>让它</strong></p>
+
+<p>一般来说，更好的Python风格就是简单地允许使用任何类型的数据。</p>
+
+<p>我们将在第4章《一致设计的基本知识》回到这个问题。</p>
+
+<p>这个问题是：为什么限制未来潜在的用例？</p>
+
+<p>通常回答是，没有理由限制未来潜在的用例。</p>
+
+<p>比起阻止一个聪明的，但可能是意料之外的用例，我们可以提供文档、测试和调试日志帮助其他程序员理解任何可以处理的限制类型。我们必须提供文档、日志和测试用例，这样额外的工作开销最小。</p>
+
+<p>下面是一个示例文档字符串，它提供了对类的预期：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Player</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">bet_strategy</span><span class="p">,</span> <span class="n">game_strategy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a new player associated with a table,</span>
+<span class="sd">            and configured with proper betting and play strategies</span>
+<span class="sd">            :param table: an instance of :class:`Table`</span>
+<span class="sd">            :param bet_strategy: an instance of :class:`BettingStrategy`</span>
+<span class="sd">            :param  game_strategy: an instance of :class:`GameStrategy`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bet_strategy</span> <span class="o">=</span> <span class="n">bet_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_strategy</span> <span class="o">=</span> <span class="n">game_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">table</span></code></pre></div>
+
+<p>程序员使用这个类已经被警告了限制类型是什么。其他类型的使用是被允许的。如果类型不符合预期，执行会中断。理想情况下，我们将使用<code>unittest</code>和<code>doctest</code>来发现bug。</p>
+
+<h4 id="section-4"><strong>2. 初始化、封装和私有</strong></h4>
+
+<p>一般Python关于私有的政策可以总结如下：我们都是成年人了。</p>
+
+<p>面向对象的设计有显式接口和实现之间的区别。这是封装的结果。类封装了数据结构、算法、一个外部接口或者一些有意义的事情。这个想法是从实现细节封装分离基于类的接口。</p>
+
+<p>但是，没有编程语言反映了每一个设计细节。Python中，通常情况下，并没有考虑都用显式代码实现所有设计。</p>
+
+<p>类的设计，一方面是没有完全在代码中有私有(实现)和公有(接口)方法或属性对象的区别。私有的概念主要来自(c++或Java)语言，这已经很复杂了。这些语言设置包括如私有、保护、和公有以及“未指定”，这是一种半专用的。私有关键字的使用不当，通常使得子类定义产生不必要的困难。</p>
+
+<p>Python私有的概念很简单，如下</p>
+
+<ul>
+  <li>
+    <p><em>本质上</em>都是公有的。源代码是可用的。我们都是成年人。没有什么可以真正隐藏的。</p>
+  </li>
+  <li>
+    <p>一般来说，我们会把一些名字的方式公开。他们普遍实现细节，如有变更，恕不另行通知，但是没有正式的私有的概念。</p>
+  </li>
+</ul>
+
+<p>在部分Python中，命名以<code>_</code>开头的一般是非公有的。<code>help()</code>函数通常忽略了这些方法。Sphinx等工具可以从文档隐藏这些名字。</p>
+
+<p>Python的内部命名是以<code>__</code>开始(结束)的。这就是Python保持内部不与应用程序的命名起冲突。这些内部的集合名称完全是由语言内部参考定义的。此外，在我们的代码中尝试使用<code>__</code>试图创建“超级私人”属性或方法是没有任何好处的。一旦Python的发行版本开始使用我们选择内部使用的命名，会造成潜在的问题。同样，我们使用这些命名很可能与内部命名发生冲突。</p>
+
+<p>Python的命名规则如下：</p>
+
+<ul>
+  <li>
+    <p>大多数命名是公有的。</p>
+  </li>
+  <li>
+    <p>以<code>_</code>开头的都是非公有的。使用它们来实现细节是真正可能发生变化的。</p>
+  </li>
+  <li>
+    <p>以<code>__</code>开头或结尾的命名是Python内部的。我们不能这样命名；我们使用语言参考定义的名称。</p>
+  </li>
+</ul>
+
+<p>一般情况下，Python方法使用文档和好的命名来表达一个方法(或属性)的意图。通常，接口方法会有复杂的文档，可能包括<code>doctest</code>的示例，而实现方法将有更多的简写文档，很可能没有<code>doctest</code>示例。</p>
+
+<p>新手Python程序员，有时奇怪私有没有得到更广泛的使用。而经验丰富的Python程序员，却惊讶于为了整理并不实用的私有和公有声明去消耗大脑的卡路里，因为从方法的命名和文档中就能知道变量名的意图。</p>
+
+<h3 id="section-5"><strong>总结</strong></h3>
+
+<p>在本章中，我们回顾了<code>__init__()</code>方法的各种设计方案。在下一章，我们将看一看特别的以及一些高级的方法。</p>
+
+
+  </article>
+
+</div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>iPython</li>
+        <li><a href="mailto:yipython@163.com">yipython@163.com</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://twitter.com/">
+            <span class="icon twitter">
+              <svg version="1.1" class="twitter-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill="#C2C2C2" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27
+                c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767
+                c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206
+                C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271
+                c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469
+                c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">关于Python及生活随记</p>
+    </div>
+
+  </div>
+
+</footer>
+
+
+    </body>
+</html>

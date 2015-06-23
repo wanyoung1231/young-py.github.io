@@ -1,0 +1,15 @@
+---
+layout: post
+title:  "Python学习 —— 与Python无缝集成——基本特殊方法 2"
+date:   2015-06-23 09:43:20
+categories: python
+author: young
+---
+
+### **__hash__()方法**
+
+### **__bool__()方法**
+
+### **__bytes__()方法**
+
+### **比较操作符方法**

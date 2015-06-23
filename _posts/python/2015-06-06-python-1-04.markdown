@@ -1,0 +1,483 @@
+---
+layout: post
+title:  "Python学习 —— __init__()方法 4"
+date:   2015-06-06 23:18:10
+categories: python
+author: young
+---
+
+### **没有__init__()的无状态对象**
+
+下面这个示例，是一个简化去掉了`__init__()`的类。这是一个常见的**Strategy**设计模式对象。策略对象插入到主对象来实现一种算法或者决策。它可能依赖主对象的数据，策略对象自身可能没有任何数据。我们经常设计策略类来遵循**Flyweight**设计模式：我们避免在`Strategy`对象内部进行存储。所有提供给`Strategy`的值都是作为方法的参数值。`Strategy`对象本身可以是无状态的。这更多是为了方法函数的集合而非其他。
+
+在本例中，我们为`Player`实例提供了游戏策略。下面是一个抓牌和减少其他赌注的策略示例（比较笨的策略）：
+
+{% highlight python %}
+
+class GameStrategy:
+    def insurance(self, hand):
+        return False
+    def split(self, hand):
+        return False
+    def double(self, hand):
+        return False
+    def hit(self, hand):
+        return sum(c.hard for c in hand.cards) <= 17
+
+{% endhighlight %}
+
+每个方法都需要当前的`Hand`作为参数值。决策是基于可用信息的，也就是指庄家的牌和闲家的牌。
+
+我们可以使用不同的`Player`实例来构建单个策略实例，如下面代码片段所示：
+
+{% highlight python %}
+
+dumb = GameStrategy()
+
+{% endhighlight %}
+
+我们可以想象创造一组相关的策略类，在21点中玩家可以针对各种决策使用不同的规则。
+
+### **一些额外的类定义**
+
+如前所述，一个玩家有两个策略：一个用于下注，一个用于出牌。每个`Player`实例都与模拟计算执行器有一序列的交互。我们称计算执行器为`Table`类。
+
+`Table`类需要`Player`实例提供以下事件：
+
+* 玩家必须基于下注策略来设置初始赌注。
+
+* 玩家将得到一手牌。
+
+* 如果手牌是可分离的，玩家必须决定是分离或不基于出牌策略。这可以创建额外的`Hand`实例。在一些赌场，额外的一手牌也是可分离的。
+
+* 对于每个`Hand`实例，玩家必须基于出牌策略来决定是要牌、加倍或停牌。
+
+* 玩家会获得奖金，然后基于输赢情况调整下注策略。
+
+从这，我们可以看到`Table`类有许多API方法来获得赌注，创建`Hand`对象提供分裂、分解每一手牌、付清赌注。这个对象跟踪了一组`Players`的出牌状态。
+
+以下是处理赌注和牌的`Table`类：
+
+{% highlight python %}
+
+class Table:
+    def __init__(self):
+        self.deck = Deck()
+    def place_bet(self, amount):
+        print("Bet", amount)
+    def get_hand(self):
+        try:
+            self.hand = Hand2(d.pop(), d.pop(), d.pop())
+            self.hole_card = d.pop()
+        except IndexError:
+            # Out of cards: need to shuffle.
+            self.deck = Deck()
+            return self.get_hand()
+        print("Deal", self.hand)
+        return self.hand
+    def can_insure(self, hand):
+        return hand.dealer_card.insure
+
+{% endhighlight %}
+
+`Player`使用`Table`类来接收赌注，创建一个`Hand`对象，出牌时根据这手牌来决定是否买保险。使用额外方法去获取牌并决定偿还。
+
+在`get_hand()`中展示的异常处理不是一个精确的赌场玩牌模型。这可能会导致微小的统计误差。更精确的模拟需要编写一副牌，当空的时候可以重新洗牌，而不是抛出异常。
+
+为了正确地交互和模拟现实出牌，`Player`类需要一个下注策略。下注策略是一个有状态的对象，决定了初始赌注。各种下注策略调整赌注通常都是基于游戏的输赢。
+
+理想情况下，我们渴望有一组下注策略对象。Python的装饰器模块允许我们创建一个抽象超类。一个非正式的方法创建策略对象引发的异常*必须*由子类实现。
+
+我们定义了一个抽象超类，此外还有一个具体子类定义了固定下注策略，如下所示：
+
+{% highlight python %}
+
+class BettingStrategy:
+    def bet(self):
+        raise NotImplementedError("No bet method")
+    def record_win(self):
+        pass
+    def record_loss(self):
+        pass
+
+class Flat(BettingStrategy):
+    def bet(self):
+        return 1
+
+{% endhighlight %}
+
+超类定义了带有默认值的方法。抽象超类中的基本`bet()`方法抛出异常。子类必须覆盖`bet()`方法。其他方法可以提供默认值。这里给上一节的游戏策略添加了下注策略，我们可以看看`Player`类周围更复杂的`__init__()`方法。
+
+我们可以利用`abc`模块正式化抽象超类的定义。就像下面的代码片段那样：
+
+{% highlight python %}
+
+import abc
+class BettingStrategy2(metaclass=abc.ABCMeta):
+    @abstractmethod
+    def bet(self):
+        return 1
+    def record_win(self):
+        pass
+    def record_loss(self):
+￼       pass
+
+{% endhighlight %}
+
+这样做的优势在于创建了`BettingStrategy2`的实例，不会造成任何子类`bet()`的失败。如果我们试图通过未实现的抽象方法来创建这个类的实例，它将引发一个异常来替代创建对象。
+
+是的，抽象方法有一个实现。它可以通过`super().bet()`来访问。
+
+### **多策略的__init__()**
+
+我们可从各种来源创建对象。例如，我们可能需要复制一个对象作为创建备份或冻结一个对象的一部分，以便它可以作为字典的键或被置入集合中；这是内置类`set`和`frozenset`背后的想法。
+
+有几个总体设计模式，它们有多种方法来构建一个对象。一个设计模式就是一个复杂的`__init__()`，称为多策略初始化。同时，有多个类级别的(静态)构造函数的方法。
+
+这些都是不兼容的方法。他们有完全不同的接口。
+
+**避免克隆方法**
+
+在Python中，一个克隆方法没必要复制一个不需要的对象。使用克隆技术表明可能是未能理解Python中的面向对象设计原则。
+
+克隆方法封装了在错误的地方创建对象的常识。被克隆的源对象不能了解通过克隆建立的目标对象的结构。然而，如果源对象提供了一个合理的、得到了良好封装的接口，反向(目标对象有源对象相关的内容)是可以接受的。
+
+我们这里展示的例子是有效的克隆，因为它们很简单。我们将在下一章展开它们。然而，展示这些基本技术是用来做更多的事情，而不是琐碎的克隆，我们看看将可变对象`Hand`冻结为不可变对象。
+
+下面可以通过两种方式创建`Hand`对象的示例：
+
+{% highlight python %}
+
+class Hand3:
+    def __init__(self, *args, **kw):
+      if len(args) == 1 and isinstance(args[0], Hand3):
+          # Clone an existing hand; often a bad idea
+          other = args[0]
+          self.dealer_card = other.dealer_card
+          self.cards = other.cards
+      else:
+          # Build a fresh, new hand.
+          dealer_card, *cards = args
+          self.dealer_card =  dealer_card
+          self.cards = list(cards)
+
+{% endhighlight %}
+
+第一种情况，从现有的`Hand3`对象创建`Hand3`实例。第二种情况，从单独的`Card`实例创建`Hand3`对象。
+
+与`frozenset`对象的相似之处在于可由单独的项目或现有`set`对象创建。我们将在下一章学习创建不可变对象。使用像下面代码片段这样的构造，从现有的`Hand`创建一个新的`Hand`使得我们可以创建一个`Hand`对象的备份：
+
+{% highlight python %}
+
+h = Hand(deck.pop(), deck.pop(), deck.pop())
+memento = Hand(h)
+
+{% endhighlight %}
+
+我们保存`Hand`对象到`memento`变量中。这可以用来比较最后处理的牌与原来手牌，或者我们可以在集合或映射中使用时*冻结*它。
+
+#### **1. 更复杂的初始化选择**
+
+为了编写一个多策略初始化，我们经常被迫放弃特定的命名参数。这种设计的优点是灵活，但缺点是不透明的、毫无意义的参数命名。它需要大量的用例文档来解释变形。
+
+我们还可以扩大我们的初始化来分裂`Hand`对象。分裂`Hand`对象的结果是只是另一个构造函数。下面的代码片段说明了如何分裂`Hand`对象：
+
+{% highlight python %}
+
+class Hand4:
+    def __init__(self, *args, **kw):
+        if len(args) == 1 and isinstance(args[0], Hand4):
+            # Clone an existing handl often a bad idea
+            other = args[0]
+            self.dealer_card = other.dealer_card
+            self.cards= other.cards
+        elif len(args) == 2 and isinstance(args[0], Hand4) and 'split' in kw:
+            # Split an existing hand
+            other, card = args
+            self.dealer_card = other.dealer_card
+            self.cards = [other.cards[kw['split']], card]
+        elif len(args) == 3:
+            # Build a fresh, new hand.
+            dealer_card, *cards = args
+            self.dealer_card =  dealer_card
+            self.cards = list(cards)
+        else:
+            raise TypeError("Invalid constructor args={0!r} kw={1!r}".format(args, kw))
+    def __str__(self):
+        return ", ".join(map(str, self.cards))
+
+{% endhighlight %}
+
+这个设计包括获得额外的牌来建立合适的、分裂的手牌。当我们从一个`Hand4`对象创建一个`Hand4`对象，我们提供一个分裂的关键字参数，它从原`Hand4`对象使用`Card`类索引。
+
+下面的代码片段展示了我们如何使用被分裂的手牌：
+
+{% highlight python %}
+
+d = Deck()
+h = Hand4(d.pop(), d.pop(), d.pop())
+s1 = Hand4(h, d.pop(), split=0)
+s2 = Hand4(h, d.pop(), split=1)
+
+{% endhighlight %}
+
+我们创建了一个`Hand4`初始化的`h`实例并分裂到两个其他`Hand4`实例，`s1`和`s2`，并处理额外的`Card`类。21点的规则只允许最初的手牌有两个牌值相等。
+
+虽然这个`__init__()`方法相当复杂，它的优点是可以并行的方式从现有集创建`fronzenset`。缺点是它需要一个大文档字符串来解释这些变化。
+
+#### **2. 初始化静态方法**
+
+当我们有多种方法来创建一个对象时，有时会更清晰的使用静态方法来创建并返回实例，而不是复杂的`__init__()`方法。
+
+也可以使用类方法作为替代初始化，但是有一个实实在在的优势在于接收类作为参数的方法。在冻结或分裂`Hand`对象的情况下，我们可能需要创建两个新的静态方法冻结或分离对象。使用静态方法作为代理构造函数是一个小小的语法变化，但当组织代码的时候它拥有巨大的优势。
+
+下面是一个有静态方法的`Hand`，可用于从现有的`Hand`实例构建新的`Hand`实例：
+
+{% highlight python %}
+
+class Hand5:
+    def __init__(self, dealer_card, *cards):
+        self.dealer_card = dealer_card
+        self.cards = list(cards)
+    @staticmethod
+    def freeze(other):
+        hand = Hand5(other.dealer_card, *other.cards)
+        return hand
+    @staticmethod
+    def split(other, card0, card1 ):
+        hand0 = Hand5(other.dealer_card, other.cards[0], card0)
+        hand1 = Hand5(other.dealer_card, other.cards[1], card1)
+        return hand0, hand1
+    def __str__(self):
+        return ", ".join(map(str, self.cards))
+
+{% endhighlight %}
+
+一个方法冻结或创建一个备份。另一个方法分裂`Hand5`实例来创建两个`Hand5`实例。
+
+这更具可读性并保存参数名的使用来解释接口。
+
+下面的代码片段展示了我们如何通过这个版本分裂`Hand5`实例：
+
+{% highlight python %}
+
+d = Deck()
+h = Hand5(d.pop(), d.pop(), d.pop())
+s1, s2 = Hand5.split(h, d.pop(), d.pop())
+
+{% endhighlight %}
+
+我们创建了一个初始的`Hand5`的`h`实例，分裂成两个手牌，s1和s2，处理每一个额外的`Card`类。`split()`静态方法比`__init__()`简单得多。然而，它不遵循从现有的`set`对象创建`fronzenset`对象的模式。
+
+### **更多的__init__()技巧**
+
+我们会看看一些其他更高级的`__init__()`技巧。在前面的部分这些不是那么普遍有用的技术。
+
+下面是`Player`类的定义，使用了两个策略对象和`table`对象。这展示了一个看起来并不舒服的`__init__()`方法：
+
+{% highlight python %}
+
+class Player:
+    def __init__(self, table, bet_strategy, game_strategy):
+        self.bet_strategy = bet_strategy
+        self.game_strategy = game_strategy
+        self.table = table
+    def game(self):
+        self.table.place_bet(self.bet_strategy.bet())
+        self.hand = self.table.get_hand()
+        if self.table.can_insure(self.hand):
+            if self.game_strategy.insurance(self.hand):
+                self.table.insure(self.bet_strategy.bet())
+        # Yet more... Elided for now
+
+{% endhighlight %}
+
+`Player`的`__init__()`方法似乎只是统计。只是简单传递命名好的参数到相同命名的实例变量。如果我们有大量的参数，简单地传递参数到内部变量会产生过多看似冗余的代码。
+
+我们可以如下使用`Player`类(和相关对象)：
+
+{% highlight python %}
+
+table = Table()
+flat_bet = Flat()
+dumb = GameStrategy()
+p = Player(table, flat_bet, dumb)
+p.game()
+
+{% endhighlight %}
+
+我们可以通过简单的传递关键字参数值到内部实例变量来提供一个非常短的和非常灵活的初始化。
+
+下面是使用关键字参数值构建`Player`类的示例：
+
+{% highlight python %}
+
+class Player2:
+    def __init__(self, **kw):
+        """Must provide table, bet_strategy, game_strategy."""
+        self.__dict__.update(kw)
+    def game(self):
+        self.table.place_bet(self.bet_strategy.bet())
+        self.hand= self.table.get_hand()
+        if self.table.can_insure(self.hand):
+            if self.game_strategy.insurance(self.hand):
+                self.table.insure(self.bet_strategy.bet())
+        # etc.
+
+{% endhighlight %}
+
+为了简洁而牺牲了大量可读性。它跨越到一个潜在的默默无闻的领域。
+
+因为`__init__()`方法减少到一行，它消除了某种程度上“累赘”的方法。这个累赘，无论如何，是被传递到每个单独的对象构造函数表达式中。我们必须将关键字添加到对象初始化表达式中，因为我们不再使用位置参数，如下面代码片段所示：
+
+{% highlight python %}
+
+p2 = Player2(table=table, bet_strategy=flat_bet, game_strategy=dumb)
+
+{% endhighlight %}
+
+为什么这样做呢？
+
+它有一个*潜在*的优势。这样的类定义是相当易于扩展的。我们可能只有几个特定的担忧，提供额外关键字参数给构造函数。
+
+下面是预期的用例：
+
+    >>> p1= Player2(table=table, bet_strategy=flat_bet, game_strategy=dumb)
+    >>> p1.game()
+
+下面是一个额外的用例：
+    
+    >>> p2= Player2(table=table, bet_strategy=flat_bet, game_strategy=dumb, 
+        log_name="Flat/Dumb")
+    >>> p2.game()
+
+我们添加了一个与类定义无关的`log_name`属性。也许，这可以被用作统计分析的一部分。`Player2.log_name`属性可以用来注释日志或其他数据的收集。
+
+我们能添加的东西是有限的；我们只能添加没有与内部使用的命名相冲突的参数。类实现的常识是需要的，用于创建没有滥用已在使用的关键字的子类。由于`**kw`参数提供了很少的信息，我们需要仔细阅读。在大多数情况下，比起检查实现细节我们宁愿相信类是正常工作的。
+
+在超类的定义中是可以做到基于关键字的初始化的，对于使用超类来实现子类会变得稍微的简单些。我们可以避免编写一个额外的`__init__()`方法到每个子类，当子类的唯一特性包括了简单新实例变量。
+
+这样做的缺点是，我们已经模糊了没有正式通过子类定义记录的实例变量。如果只是一个小变量，整个子类可能有太多的编程开销用于给一个类添加单个变量。然而，一个小变量常常会导致第二个、第三个。不久，我们将会认识到一个子类会比一个极其灵活的超类还要更智能。
+
+我们可以(也应该)通过混合的位置和关键字实现生成这些，如下面的代码片段所示：
+
+{% highlight python %}
+
+class Player3(Player):
+    def __init__(self, table, bet_strategy, game_strategy, **extras):
+        self.bet_strategy = bet_strategy
+        self.game_strategy = game_strategy
+        self.table= table
+        self.__dict__.update(extras)
+
+{% endhighlight %}
+
+这比完全开放定义更明智。我们已经取得了所需的位置参数。我们留下任何非必需参数作为关键字。这个阐明了`__init__()`给出的任何额外的关键字参数的使用。
+
+这种灵活的关键字初始化取决于我们是否有相对透明的类定义。这种开放的态度面对改变需要注意避免调试名称冲突，因为关键字参数名是开放式的。
+
+#### **1. 初始化类型验证**
+
+类型验证很少是一个合理的要求。在某种程度上，是没有对Python完全理解。名义目标是验证所有参数是否是一个*合适的*类型。试图这样做的原因主要是因为*适当*的定义往往是过于狭隘以至于没有什么真正的用途。
+
+这不同于确认对象满足其他条件。数字范围检查，例如，防止无限循环的必要。
+
+我们可以制造问题去试图做些什么，就像下面`__init__()`方法中那样：
+
+{% highlight python %}
+
+class ValidPlayer:
+    def __init__(self, table, bet_strategy, game_strategy):
+        assert isinstance(table, Table)
+        assert isinstance(bet_strategy, BettingStrategy)
+        assert isinstance(game_strategy, GameStrategy)
+        self.bet_strategy = bet_strategy
+        self.game_strategy = game_strategy
+        self.table = table
+
+{% endhighlight %}
+
+`isinstance()`方法检查、规避Python的标准**鸭子类型**。
+
+我们写一个赌场游戏模拟是为了尝试不断变化的`GameStrategy`。这些很简单(仅仅四个方法)，几乎没有从超类的继承中得到任何帮助。我们可以独立的定义缺乏整体的超类。
+
+这个示例中所示的初始化错误检查，将迫使我们通过错误检查的创建子类。没有可用的代码是继承自抽象超类。
+
+最大的一个鸭子类型问题就围绕数值类型。不同的数值类型将工作在不同的上下文中。试图验证类型的争论可能会阻止一个完美合理的数值类型正常工作。当尝试验证时，我们有以下两个选择在Python中：
+
+* 我们编写验证，这样一个相对狭窄的集合类型是允许的，总有一天代码会因为聪明的新类型被禁止而中断。
+
+* 我们避开验证，这样一个相对广泛的集合类型是允许的，总有一天代码会因为不聪明地类型被使用而中断。
+
+注意，两个本质上是相同的。代码可能有一天被中断。要么因为禁止使用即使它是聪明，要么因为不聪明的使用。
+
+**让它**
+
+一般来说，更好的Python风格就是简单地允许使用任何类型的数据。
+
+我们将在第4章《一致设计的基本知识》回到这个问题。
+
+这个问题是：为什么限制未来潜在的用例？
+
+通常回答是，没有理由限制未来潜在的用例。
+
+比起阻止一个聪明的，但可能是意料之外的用例，我们可以提供文档、测试和调试日志帮助其他程序员理解任何可以处理的限制类型。我们必须提供文档、日志和测试用例，这样额外的工作开销最小。
+
+下面是一个示例文档字符串，它提供了对类的预期：
+
+{% highlight python %}
+
+class Player:
+    def __init__(self, table, bet_strategy, game_strategy):
+        """Creates a new player associated with a table,
+            and configured with proper betting and play strategies
+            :param table: an instance of :class:`Table`
+            :param bet_strategy: an instance of :class:`BettingStrategy`
+            :param  game_strategy: an instance of :class:`GameStrategy`
+        """
+        self.bet_strategy = bet_strategy
+        self.game_strategy = game_strategy
+        self.table = table
+
+{% endhighlight %}
+
+程序员使用这个类已经被警告了限制类型是什么。其他类型的使用是被允许的。如果类型不符合预期，执行会中断。理想情况下，我们将使用`unittest`和`doctest`来发现bug。
+
+#### **2. 初始化、封装和私有**
+
+一般Python关于私有的政策可以总结如下：我们都是成年人了。
+
+面向对象的设计有显式接口和实现之间的区别。这是封装的结果。类封装了数据结构、算法、一个外部接口或者一些有意义的事情。这个想法是从实现细节封装分离基于类的接口。
+
+但是，没有编程语言反映了每一个设计细节。Python中，通常情况下，并没有考虑都用显式代码实现所有设计。
+
+类的设计，一方面是没有完全在代码中有私有(实现)和公有(接口)方法或属性对象的区别。私有的概念主要来自(c++或Java)语言，这已经很复杂了。这些语言设置包括如私有、保护、和公有以及“未指定”，这是一种半专用的。私有关键字的使用不当，通常使得子类定义产生不必要的困难。
+
+Python私有的概念很简单，如下
+
+* *本质上*都是公有的。源代码是可用的。我们都是成年人。没有什么可以真正隐藏的。
+
+* 一般来说，我们会把一些名字的方式公开。他们普遍实现细节，如有变更，恕不另行通知，但是没有正式的私有的概念。
+
+在部分Python中，命名以`_`开头的一般是非公有的。`help()`函数通常忽略了这些方法。Sphinx等工具可以从文档隐藏这些名字。
+
+Python的内部命名是以`__`开始(结束)的。这就是Python保持内部不与应用程序的命名起冲突。这些内部的集合名称完全是由语言内部参考定义的。此外，在我们的代码中尝试使用`__`试图创建“超级私人”属性或方法是没有任何好处的。一旦Python的发行版本开始使用我们选择内部使用的命名，会造成潜在的问题。同样，我们使用这些命名很可能与内部命名发生冲突。
+
+Python的命名规则如下：
+
+* 大多数命名是公有的。
+
+* 以`_`开头的都是非公有的。使用它们来实现细节是真正可能发生变化的。
+
+* 以`__`开头或结尾的命名是Python内部的。我们不能这样命名；我们使用语言参考定义的名称。
+
+一般情况下，Python方法使用文档和好的命名来表达一个方法(或属性)的意图。通常，接口方法会有复杂的文档，可能包括`doctest`的示例，而实现方法将有更多的简写文档，很可能没有`doctest`示例。
+
+新手Python程序员，有时奇怪私有没有得到更广泛的使用。而经验丰富的Python程序员，却惊讶于为了整理并不实用的私有和公有声明去消耗大脑的卡路里，因为从方法的命名和文档中就能知道变量名的意图。
+
+### **总结**
+
+在本章中，我们回顾了`__init__()`方法的各种设计方案。在下一章，我们将看一看特别的以及一些高级的方法。
+
+
+

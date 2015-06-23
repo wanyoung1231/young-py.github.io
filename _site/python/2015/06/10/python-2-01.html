@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Python学习 —— 与Python无缝集成——基本特殊方法 1</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="关于Python及生活随记">
+    <link rel="canonical" href="/python/2015/06/10/python-2-01.html">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+
+</head>
+
+
+    <body>
+
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <a class="site-title" href="">小乌龟 の blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+          <a class="page-link" href="/about/">About</a>
+        
+          <a class="page-link" href="/feed.xml"></a>
+        
+          <a class="page-link" href="/index.html"></a>
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Python学习 —— 与Python无缝集成——基本特殊方法 1</h1>
+    <br />
+    <p class="meta">Jun 10, 2015 by young</p>
+  </header>
+
+  <article class="post-content">
+  <p>有许多特殊方法允许类与Python之间紧密结合。标准库参考称之为<strong>基本</strong>。更好的术语可能是基础或本质。这些特殊方法构成了创建与其他Python特性无缝集成的类的基础。</p>
+
+<p>例如，对于给定对象的值的我们需要字符串表示。基类、对象都有默认的<code>__repr__()</code>和<code>__str__()</code>实现用于提供对象的字符串表示。遗憾的是，这些默认表示不提供信息。我们总是想要覆盖这些默认定义中的一个或两个。我们可以看看<code>__format__()</code>，这个更复杂但目的和前面是一样的。</p>
+
+<p>我们也可以看看其他转换，特别是<code>__hash__()</code>、<code>__bool__()</code>、和<code>__bytes__()</code>。这些方法将一个对象转换成数字、<code>true/false</code>值或字符串的字节。例如，当我们实现<code>__bool__()</code>时，可以在<code>if</code>语句中使用对象，如下：<code>if someobject:</code>。</p>
+
+<p>然后，我们可以看看实现比较运算符的特殊方法<code>__lt__()</code>、<code>__le__()</code>、<code>__eq__()</code>、<code>__ne__()</code>、<code>__gt__()</code>和<code>__ge__()</code>。</p>
+
+<p>这些基本的特殊方法在类中定义中几乎总是需要的。</p>
+
+<p>最后我们来看看<code>__new__()</code>和<code>__del__()</code>，因为这些方法的用例相当复杂。我们不需要这些每当我们需要其他基本特殊方法的时候。</p>
+
+<p>我们会详细看看如何添加这些特殊方法来扩大一个简单的类定义。我们需要看一下两个从对象继承的默认行为，这样我们可以了解需要什么样的覆盖以及何时真正需要。</p>
+
+<h3 id="reprstr"><strong>__repr__()和__str__()方法</strong></h3>
+
+<p>对于一个对象，Python有两种字符串表示方法。这些都和内置函数<code>__repr__()</code>、<code>__str__()</code>、<code>__print__()</code>以及<code>string.format()</code>方法紧密结合。</p>
+
+<ul>
+  <li>
+    <p><code>str()</code>方法表示的对象通常是友好的，由对象的<code>__str__()</code>方法创建。</p>
+  </li>
+  <li>
+    <p><code>repr()</code>方法表示通常是更技术性的，甚至是完整的Python表达式来重建对象。文档中是这样说的：</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>对于许多类型，这个函数试图返回一个字符串来<strong>yield</strong>带有与传递给<code>eval()</code>相同的值。</p>
+</blockquote>
+
+<p>这是由对象的<code>repr()</code>方法创建。</p>
+
+<ul>
+  <li>
+    <p><code>print()</code>函数会使用<code>str()</code>准备对象用于打印。</p>
+  </li>
+  <li>
+    <p>字符串的<code>format()</code>方法也可以访问这些方法。当我们使用<code>{!r}</code>或<code>{!s}</code>格式，我们分别需要<code>__repr__()</code>或<code>__str__()</code>。</p>
+  </li>
+</ul>
+
+<p>首先让我们看看默认实现。</p>
+
+<p>下面是一个简单的类层次结构：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Card</span><span class="p">:</span>
+    <span class="n">insure</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">suit</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suit</span> <span class="o">=</span> <span class="n">suit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">rank</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hard</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">soft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">NumberCard</span><span class="p">(</span><span class="n">Card</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span></code></pre></div>
+
+<p>我们已经定义了带有四个属性的两个简单类。</p>
+
+<p>以下是一个与其中一个类对象的交互：</p>
+
+<pre><code>&gt;&gt;&gt; x=NumberCard( '2', '♣')
+&gt;&gt;&gt; str(x)
+'&lt;__main__.NumberCard object at 0x1013ea610&gt;'
+&gt;&gt;&gt; repr(x)
+'&lt;__main__.NumberCard object at 0x1013ea610&gt;'
+&gt;&gt;&gt; print(x)
+&lt;__main__.NumberCard object at 0x1013ea610&gt;
+</code></pre>
+
+<p>从这个输出知道默认的<code>__str__()</code>和<code>__repr__()</code>实现不是很丰富。</p>
+
+<p>当我们需要覆盖<code>__str__()</code>和<code>__repr__()</code>时我们考虑下面两个广泛的设计用例：</p>
+
+<ul>
+  <li>
+    <p><strong>非集合对象：</strong>一个不包含其他对象集合的“简单”对象，通常不涉及非常复杂格式的集合。</p>
+  </li>
+  <li>
+    <p><strong>集合对象：</strong>一个包含一组更复杂格式的对象。</p>
+  </li>
+</ul>
+
+<h4 id="strrepr"><strong>1. 非集合__str__()和__repr__()</strong></h4>
+
+<p>正如我们之前看到的，<code>__str__()</code>和<code>__repr__()</code>的输出不是很丰富。我们几乎总是需要覆盖它们。以下是当没有包含集合的时候覆盖<code>__str__()</code>和<code>__repr__()</code>的方法。这些方法从属于之前定义的<code>Card</code>类：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&quot;{__class__.__name__}(suit={suit!r}, rank={rank!r})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">__class__</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&quot;{rank}{suit}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span></code></pre></div>
+
+<p>这两个方法依赖于传递内部对象的实例变量字典<code>__dict__()</code>给<code>format()</code>函数。对于对象使用<code>__slots__</code>是不适合的；通常，这些是不可变的对象。在格式说明符中使用名称会使得格式化更显式。当然也使得格式模板更长了。在<code>__repr__()</code>中，我们传递内部<code>__dict__</code>加上对象的<code>__class__</code>作为关键字参数值给<code>format()</code>函数。</p>
+
+<p>模板字符串使用两种格式说明符：</p>
+
+<ul>
+  <li>
+    <p><code>{__class__.__name__}</code>模板也可以写成<code>{__class__.__name__!s}</code>从而变得更明确当只提供简单字符串的类名。</p>
+  </li>
+  <li>
+    <p><code>{suit!r}</code>和<code>{rank!r }</code>模板都使用<code>!r</code>格式说明符生成属性值的<code>repr()</code>方法。</p>
+  </li>
+</ul>
+
+<p>在<code>__str__()</code>中，我们只有传递内部<code>__dict__</code>对象。格式化使用隐式的<code>{!s}</code>格式说明符生成属性值的<code>str()</code>方法。</p>
+
+<h4 id="strrepr-1"><strong>2. 集合__str__()和__repr__()</strong></h4>
+
+<p>当包含一个集合时，我们需要格式化集合中的每个项目以及整个容器。以下是带有<code>__str__()</code>和<code>__repr__()</code>方法的简单集合：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Hand</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dealer_card</span><span class="p">,</span> <span class="o">*</span><span class="n">cards</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dealer_card</span> <span class="o">=</span> <span class="n">dealer_card</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;{__class__.__name__}({dealer_card!r}, {_cards_str})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">__class__</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="n">_cards_str</span><span class="o">=</span><span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)),</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span></code></pre></div>
+
+<p><code>__str__()</code>方法是一个简单的设计，如下：</p>
+
+<ol>
+  <li>
+    <p>映射<code>str()</code>到集合中的每一项。这将在生成的每个字符串值上创建一个迭代器。</p>
+  </li>
+  <li>
+    <p>使用<code>", ".join()</code>合并所有项的字符串到一个长字符串中。</p>
+  </li>
+</ol>
+
+<p><code>__repr__()</code>方法是一个多部分的设计，如下：</p>
+
+<ol>
+  <li>
+    <p>映射<code>repr()</code>到集合中的每一项。这将在生成的每个字符串值上创建一个迭代器。</p>
+  </li>
+  <li>
+    <p>使用<code>", ".join()</code>合并所有项的字符串。</p>
+  </li>
+  <li>
+    <p>通过<code>__class__</code>、集合字符串和来自<code>__dict__</code>的各种属性。我们已经命名集合字符串为<code>_card_str</code>，与现有的属性不冲突。</p>
+  </li>
+  <li>
+    <p>使用<code>"{__class__.__name__}({dealer_card!r}, {_card_str})".format()</code>将类名与项目值的长字符串结合。我们使用<code>!r</code>进行格式化以确保属性也使用了<code>repr()</code>转换。</p>
+  </li>
+</ol>
+
+<p>在某些情况下，这可以优化且使一些事情变得稍微简单些。使用位置参数的格式化可以一定程度上缩短模板字符串的长度。</p>
+
+<h3 id="format"><strong>__format__()方法</strong></h3>
+
+<p>和内置函数<code>format()</code>一样，<code>string.format()</code>使用<code>__format__()</code>方法。这两个接口都是用来从给定对象得到像样字符串的方式。</p>
+
+<p>以下是将参数提供个<code>__format__()</code>的两种方法：</p>
+
+<ul>
+  <li>
+    <p><code>someobject.__format__("")</code>：发生在应用程序使用<code>format(someobject)</code>或等价的<code>"{0}".format(someobject)</code>的时候。在这些情况下，提供了长度为零的字符串说明符。这会产生一个默认格式。</p>
+  </li>
+  <li>
+    <p><code>someobject.__format__(specification)</code>：发生在应用程序使用<code>format(someobject, specification)</code>或等价的<code>"{0:specification}".format(someobject)</code>的时候。</p>
+  </li>
+</ul>
+
+<p>请注意，类似于<code>"{0!r}".format()</code>或<code>"{0!s}".format()</code>的方法没有使用<code>__format__()</code>方法。它们直接使用了<code>__repr__()</code>或<code>__str__()</code>。</p>
+
+<p>带有<code>""</code>说明符的合理响应是返回<code>str(self)</code>。它对各种对象的字符串提供了显式的一致性表示。</p>
+
+<p>格式说明符必须都是文本，且在格式字符串的<code>":"</code>之后。当我们写<code>"{0:06.4f}"</code>，<code>06.4f</code>是适用于第0项参数列表的格式说明符。</p>
+
+<p><em>Python标准库</em>文档中的6.1.3.1节定义了一个复杂的数值说明符作为九个部分字符串。这是格式说明符迷你语言。有如下语法：</p>
+
+<pre><code>[[fill]align][sign][#][0][width][,][.precision][type]
+</code></pre>
+
+<p>我们可以用正则表达式解析这些标准规范，如下面代码片段所示：</p>
+
+<pre><code>re.compile(
+r"(?P&lt;fill_align&gt;.?[\&lt;\&gt;=\^])?"
+"(?P&lt;sign&gt;[-+ ])?"
+"(?P&lt;alt&gt;#)?"
+"(?P&lt;padding&gt;0)?"
+"(?P&lt;width&gt;\d*)"
+"(?P&lt;comma&gt;,)?"
+"(?P&lt;precision&gt;\.\d*)?"
+"(?P&lt;type&gt;[bcdeEfFgGnosxX%])?" )
+</code></pre>
+
+<p>这个正则将打破规范，将其分成八组。第一组和原规范一样有<code>fill</code>和<code>alignment</code>字段。我们可以使用这些得出我们已定义类的格式化数值数据。</p>
+
+<p>然而，Python的格式说明符迷你语言可能不适用于我们的类定义。因此，我们需要定义我们自己的说明符迷你语言并在类的<code>__format__</code>方法中执行。如果我们定义数值类型，我们应该坚持预定义的迷你语言。然而，对于其他类型则没有理由再坚持预定义的语言。</p>
+
+<p>作为一个示例，这里有个微不足道的语言，使用字符<code>%r</code>和<code>%s</code>分别给我们展示牌值和花色。在结果字符串中<code>%%</code>字符变成<code>%</code>。所有其他字符是重复的。</p>
+
+<p>我们可以通过格式化扩展我们的<code>Card</code>类，如下面代码片段所示：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">__format__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_spec</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">format_spec</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">format_spec</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%r</span><span class="s">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">suit</span><span class="p">)</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%%</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;%&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rs</span></code></pre></div>
+
+<p>这个定义会检查格式说明符。如果没有说明符，则使用<code>str()</code>函数。如果提供了一个说明符，会合拢牌值、花色和任何<code>%</code>字符格式说明符，将其转化为输出字符串。</p>
+
+<p>这允许我们像下面这样格式化<code>Card</code>：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">print</span><span class="p">(</span> <span class="s">&quot;Dealer Has {0:</span><span class="si">%r</span><span class="s"> of </span><span class="si">%s</span><span class="s">}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hand</span><span class="o">.</span><span class="n">dealer_card</span><span class="p">))</span></code></pre></div>
+
+<p>格式说明符<code>("%r of %s")</code>被作为<code>format</code>的参数传递给我们的<code>__format__()</code>方法。使用这个，我们能够提供一个一致的接口来表示我们已经定义的类的对象。</p>
+
+<p>或者，我们可以定义如下：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">default_format</span> <span class="o">=</span> <span class="s">&quot;some specification&quot;</span>
+<span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__format__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_format</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">__format__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_spec</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">format_spec</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">:</span>  
+        <span class="n">format_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_format</span>
+    <span class="c"># process the format specification.</span></code></pre></div>
+
+<p>这个的优势在于把所有字符串放置到<code>__format__()</code>方法，而不是分开到的<code>__format__()</code>和<code>__str__()</code>。劣势在于，因为我们不总是需要实现<code>__format__()</code>，但我们几乎总是需要实现<code>__str__()</code>。</p>
+
+<h4 id="section"><strong>1. 嵌套格式化说明符</strong></h4>
+
+<p><code>string.format()</code>方法可以处理嵌套的<code>{}</code>实例来执行简单的关键字置换到格式说明符中。这个置换完成，会创建最终格式字符串被传递给类的<code>__format__()</code>方法。这种嵌套置换通过参数化通用说明符简化了某些相对复杂的数值格式。</p>
+
+<p>下面的例子，我们可以在<code>format</code>参数中很容易的修改<code>width</code>：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">width</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="k">for</span> <span class="n">hand</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">statistics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span> <span class="s">&quot;{hand} {count:{width}d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hand</span><span class="o">=</span><span class="n">hand</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">))</span></code></pre></div>
+
+<p>我们定义了一个通用的格式，<code>"{hand:%r%s } {count:{width}d}"</code>，这需要一个<code>width</code>参数让它变成适用的格式说明符。</p>
+
+<p>为<code>format()</code>方法提供<code>width=</code>参数的值被用于替代<code>{width}</code>嵌套说明符。一旦被替换，最终格式会作为一个整体提供给<code>__format__()</code>方法。</p>
+
+<h4 id="section-1"><strong>2. 集合和委托格式说明符</strong></h4>
+
+<p>格式化一个包括集合的复杂对象，有两个格式化问题：如何格式化整体对象以及如何格式化集合中的项目。当我们看到<code>Hand</code>，例如，我们看到我们有单独的<code>Card</code>类集合。我们需要<code>Hand</code>委托格式化细节给单独的<code>Card</code>实例。</p>
+
+<p>下面是一个适用于<code>Hand</code>的<code>__format__()</code>方法：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">__format__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_specification</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">format_specification</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;{0:{fs}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">format_specification</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span></code></pre></div>
+
+<p><code>format_specification</code>参数将用于每个<code>Hand</code>集合里面的<code>Card</code>实例。格式说明符<code>"{0:{fs}}"</code>使用嵌套格式说明符技术将<code>format_specification</code>字符串置入到应用于<code>Card</code>实例的格式创建。使用这种方法我们可以格式化<code>Hand</code>对象、<code>player_hand</code>，如下所示：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="s">&quot;Player: {hand:</span><span class="si">%r%s</span><span class="s">}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hand</span><span class="o">=</span><span class="n">player_hand</span><span class="p">)</span></code></pre></div>
+
+<p>这将应用<code>%r%s</code>格式说明符到<code>Hand</code>对象中的<code>Card</code>实例。</p>
+
+
+  </article>
+
+</div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>iPython</li>
+        <li><a href="mailto:yipython@163.com">yipython@163.com</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://twitter.com/">
+            <span class="icon twitter">
+              <svg version="1.1" class="twitter-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill="#C2C2C2" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27
+                c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767
+                c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206
+                C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271
+                c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469
+                c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">关于Python及生活随记</p>
+    </div>
+
+  </div>
+
+</footer>
+
+
+    </body>
+</html>
