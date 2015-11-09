@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Python学习 —— 与Python无缝集成——基本特殊方法 3</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="关于Python及生活随记">
+    <link rel="canonical" href="/python/2015/11/07/python-2-03.html">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+
+</head>
+
+
+    <body>
+
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <a class="site-title" href="">小乌龟 の blog</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+      <div class="trigger">
+        
+          <a class="page-link" href="/about/">About</a>
+        
+          <a class="page-link" href="/feed.xml"></a>
+        
+          <a class="page-link" href="/index.html"></a>
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>Python学习 —— 与Python无缝集成——基本特殊方法 3</h1>
+    <br />
+    <p class="meta">Nov 7, 2015 by young</p>
+  </header>
+
+  <article class="post-content">
+  <h3 id="bool"><strong>__bool__()方法</strong></h3>
+
+<p>Python对假有个很好的定义。参考手册列出了大量的值,将测试相当于假。这包括诸如假,0,”,[](){ }。大多数其他对象将测试等同于事实。</p>
+
+<p>通常,我们想要检查一个对象被“不空”用一个简单的语句,如下所示</p>
+
+<p>if some_object:
+       process( some_object )</p>
+
+<p>下罩,这是布尔值()内置函数的工作。这个函数依赖于一个给定对象的布尔值()方法。</p>
+
+<p>默认的布尔值()方法返回True。我们可以看到下面的代码</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>x = object()
+bool(x)
+   True</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>对于大多数类,这是非常有效的。大多数对象预计不会是假的。然而,对于集合,这是不合适的。一个空集合应该相当于假。一个非空的集合可以返回True。我们可能想要添加一个方法我们甲板对象。</p>
+
+<p>如果我们包装列表,我们可能有一些,下面的代码片段所示</p>
+
+<p>def <strong>bool</strong>( self ):
+       return bool( self._cards )</p>
+
+<p>这代表的布尔函数内部卡片收集。如果我们扩展列表,我们可能会有如下</p>
+
+<p>def <strong>bool</strong>( self ):
+       return super().<strong>bool</strong>( self )</p>
+
+<p>这代表了超类的定义布尔值()函数。</p>
+
+<p>在这两种情况下,我们speci卡莉委派逻辑测试。在包装的情况下,我们委托给集合。在延长的情况下,我们委托给超类。无论哪种方式,包装或扩展,一个空集合将是错误的。这将给我们一种甲板对象是否已经完全解决,是空的。</p>
+
+<p>我们可以做的事情,下面的代码片段所示</p>
+
+<p>d = Deck()
+   while d:
+       card= d.pop()
+       # process the card</p>
+
+<p>此循环将交易时所有的卡片不一个IndexError异常甲板已经筋疲力尽。</p>
+
+<h3 id="bytes"><strong>__bytes__()方法</strong></h3>
+
+<p>有相对较少的情况下将一个对象转换成字节。我们将在第2部分中详细看看这个,持久性和序列化。</p>
+
+<p>在最常见的情况下,应用程序可以创建一个字符串表示,和Python的内置编码功能IO类将被用于将字符串转换成字节。这是完全在几乎所有的情况下。主要的例外是当我们德宁一种新的字符串。在这种情况下,我们需要不编码的字符串。</p>
+
+<p>字节()函数做各种事情,这取决于参数</p>
+
+<ul>
+  <li>
+    <p>字节(整数):返回一个不可变的字节对象的给定的数字0 x00值。</p>
+  </li>
+  <li>
+    <p>字节(字符串):这将给定字符串字节编码。额外的参数编码和错误处理将不编码过程的细节。</p>
+  </li>
+  <li>
+    <p>字节():这将调用。字节()来创建一个字节对象。这里使用的编码或误差参数不会。</p>
+  </li>
+</ul>
+
+<p>基本对象类不de ne字节()。这意味着我们的课程不提供一个默认字节()方法。</p>
+
+<p>有一些特殊的情况下,我们可能会有一个对象,需要直接编码到字节被写入到勒之前。通常是简单的字符串和允许str类型产生字节。在处理字节时,重要的是要注意,没有简单的方法从勒解码字节或接口。内置的字节类只会解码字符串,不是我们独特的新对象。我们可能需要解析的字符串解码的字节。或者,我们可能需要显式地使用结构模块解析字节从解析和创建独特的对象值。</p>
+
+<p>我们来看看编码和解码卡字节。作为只有52卡值,每张卡片可以包装成一个字节。然而,我们已经决定使用一个字符代表诉讼和一个字符来表示。此外,我们需要正确地重建卡的子类,所以我们必须编码几件事情</p>
+
+<ul>
+  <li>
+    <p>卡的子类(AceCard、NumberCard FaceCard</p>
+  </li>
+  <li>
+    <p>subclass-de ned的参数初始化</p>
+  </li>
+</ul>
+
+<p>请注意,我们的一些替代init()方法将一个数字等级转换成一个字符串,失去原来的数值。为了一个可逆的字节编码,我们需要重建这个原始数值等级值。</p>
+
+<p>下面是一个实现的字节(),它返回一个utf - 8编码卡类的,等级,西装</p>
+
+<p>def <strong>bytes</strong>( self ):
+           class_code= self.<strong>class</strong>.<strong>name</strong>[0]
+           rank_number_str = {‘A’: ‘1’, ‘J’: ‘11’, ‘Q’: ‘12’, ‘K’: ‘13’}.
+   get( self.rank, self.rank )
+           string= “(“+” “.join([class_code, rank_number_str, self.suit,]
+   ) + “)”
+           return bytes(string,encoding=”utf8”)</p>
+
+<p>这是通过创建一个卡片对象的字符串表示,然后编码字符串到字节。这通常是最简单、最exible方法。</p>
+
+<p>当我们有一堆字节,可以解码字符串,然后将字符串解析成一个新的卡片对象。下面是一个方法,可以用于创建一个卡片对象的字节</p>
+
+<p>def card_from_bytes( buffer ):
+       string = buffer.decode(“utf8”)
+       assert string[0 ]==”(“ and string[-1] == “)”
+       code, rank_number, suit = string[1:-1].split()
+       class_ = { ‘A’: AceCard, ‘N’: NumberCard, ‘F’: FaceCard }[code]
+       return class_( int(rank_number), suit )</p>
+
+<p>在前面的代码中,我们解码字节为一个字符串。然后我们该字符串解析为各个值。从这些值,我们可以定位和构建原始卡片对象的类。</p>
+
+<p>我们可以建立一张卡片对象的字节表示如下</p>
+
+<p>b= bytes(someCard)</p>
+
+<p>我们可以重建卡对象的字节如下</p>
+
+<p>someCard = card_from_bytes(b)</p>
+
+<p>重要的是要注意,外部字节表示通常是具有挑战性的设计。我们创建一个表示一个对象的状态。Python已经有很多表示,适合我们班德定义。</p>
+
+<p>通常是使用酸洗或json模块比发明的低字节表示一个对象。这是第九章的主题,序列化和储蓄JSON,YAML,泡菜,CSV,XML。</p>
+
+<h3 id="section"><strong>比较运算符方法</strong></h3>
+
+<p>Python有六个比较运算符。这些操作符有特殊的方法实现。根据文档,映射工作如下</p>
+
+<ul>
+  <li>
+    <p>x&lt;y calls x.<strong>lt</strong>(y)</p>
+  </li>
+  <li>
+    <p>x&lt;=y calls x.<strong>le</strong>(y)</p>
+  </li>
+  <li>
+    <p>x==y calls x.<strong>eq</strong>(y)</p>
+  </li>
+  <li>
+    <p>x!=y calls x.<strong>ne</strong>(y)</p>
+  </li>
+  <li>
+    <p>x&gt;y calls x.<strong>gt</strong>(y)</p>
+  </li>
+  <li>
+    <p>x&gt;=y calls x.<strong>ge</strong>(y)</p>
+  </li>
+</ul>
+
+<p>我们会再次回到比较运算符在第七章看着数字时,创建的数字。</p>
+
+<p>有一个额外的规则对运营商相关的实际实现。这些规则是基于认为左边的对象的类de nes所需的特殊方法。如果没有,Python可以尝试另一种操作通过改变订单。</p>
+
+<p>这里有两个基本规则</p>
+
+<p>首先,左边的操作数是检查经营者实现:&lt; B意味着A lt(B)。</p>
+
+<p>第二,右边的操作数是检查逆转算子实现:&lt; B意味着B . gt(a)。</p>
+
+<p>罕见的例外发生在正确的操作数是一个子类的左操作数;然后,正确的操作数是检查rst允许子类覆盖超类。</p>
+
+<p>我们可以看到这是如何工作的德宁一个类只有一个运营商德奈德,然后使用其他操作。</p>
+
+<p>以下是部分类,我们可以使用</p>
+
+<p>class BlackJackCard_p:
+       def <strong>init</strong>( self, rank, suit ):
+           self.rank= rank
+           self.suit= suit
+       def <strong>lt</strong>( self, other ):
+           print( “Compare {0} &lt; {1}”.format( self, other ) )
+           return self.rank &lt; other.rank
+       def <strong>str</strong>( self ):
+           return “{rank}{suit}”.format( **self.<strong>dict</strong> )</p>
+
+<p>这是21点的比较规则,适合不重要。我们省略了比较的方法来了解Python会回退当操作员失踪。这个类将使我们能够执行&lt;比较。有趣的是,Python还可以使用该执行&gt;比较通过切换参数顺序。换句话说,x &lt; y y &gt; x。这是镜子重新检验规则;我们将在第七章再次见到它,创造数字。</p>
+
+<p>我们看到当我们试图评估不同的比较操作。我们将创建两个卡类和比较它们以不同的方式,下面的代码片段所示</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>two = BlackJackCard_p( 2, ‘♠’ )
+three = BlackJackCard_p( 3, ‘♠’ )
+two &lt; three
+   Compare 2♠ &lt; 3♠
+   True
+two &gt; three
+   Compare 3♠ &lt; 2♠
+   False
+two == three
+   False
+two &lt;= three
+   Traceback (most recent call last):
+   File “<stdin>", line 1, in <module>
+   TypeError: unorderable types: BlackJackCard_p() &lt;= BlackJackCard_p()</module></stdin></p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>从这,我们可以看到两个&lt;三个映射到两个。lt(三)。</p>
+
+<p>然而,对于2 &gt; 3、没有de ned gt()方法;Python使用三种。lt(两个)作为一个后备计划</p>
+
+<p>默认情况下,eq()方法是继承对象;它比较对象id;对象参与= =和!=测试如下</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p>two_c = BlackJackCard_p( 2, ‘♣’ )
+two == two_c
+   False</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>我们可以看到,结果不是我们所期待。我们会经常需要覆盖默认的eq()的实现。</p>
+
+<p>同样,没有运营商之间的逻辑连接。在数学上,我们可以从两个获得所有必要的比较。Python自动不这样做。相反,Python处理以下四个简单的检验对默认情况下</p>
+
+<p>x&lt;y≡y&gt;x x≤y≡y≥x x=y≡y=x x≠y≡y≠x</p>
+
+<p>至少,这意味着我们必须提供一个从每个四双。例如,我们可以提供eq(),(),lt()和()。</p>
+
+<p>@functools。总订购装饰克服,并推导出其余的默认限制比较从情商()和其中的一个:lt(),(),gt()、通用电气()。我们将再次讨论这个在第7章,创造数字。</p>
+
+<h3 id="del"><strong>__del__()方法</strong></h3>
+
+<h3 id="new"><strong>__new__()方法和不可变对象</strong></h3>
+
+<h3 id="newmetaclass"><strong>__new__()方法和metaclass</strong></h3>
+
+<h3 id="section-1"><strong>总结</strong></h3>
+
+  </article>
+
+</div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>iPython</li>
+        <li><a href="mailto:yipython@163.com">yipython@163.com</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://twitter.com/">
+            <span class="icon twitter">
+              <svg version="1.1" class="twitter-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill="#C2C2C2" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27
+                c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767
+                c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206
+                C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271
+                c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469
+                c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+              </svg>
+            </span>
+            <span class="username"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">关于Python及生活随记</p>
+    </div>
+
+  </div>
+
+</footer>
+
+
+    </body>
+</html>

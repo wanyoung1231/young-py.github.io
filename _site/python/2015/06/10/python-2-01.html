@@ -62,17 +62,17 @@
   </header>
 
   <article class="post-content">
-  <p>有许多特殊方法允许类与Python之间紧密结合。标准库参考称之为<strong>基本</strong>。更好的术语可能是基础或本质。这些特殊方法构成了创建与其他Python特性无缝集成的类的基础。</p>
+  <p>有许多特殊方法允许类与Python紧密结合，标准库参考将其称之为<strong>基本</strong>，基础或本质可能是更好的术语。这些特殊方法构成了创建与其他Python特性无缝集成的类的基础。</p>
 
-<p>例如，对于给定对象的值的我们需要字符串表示。基类、对象都有默认的<code>__repr__()</code>和<code>__str__()</code>实现用于提供对象的字符串表示。遗憾的是，这些默认表示不提供信息。我们总是想要覆盖这些默认定义中的一个或两个。我们可以看看<code>__format__()</code>，这个更复杂但目的和前面是一样的。</p>
+<p>例如，对于给定对象的值，我们需要字符串表示。基类、对象都有默认的<code>__repr__()</code>和<code>__str__()</code>用于提供对象的字符串表示。遗憾的是，这些默认表示不提供信息。我们总是想要覆盖这些默认定义中的一个或两个。我们可以看看<code>__format__()</code>，这个更复杂但目的和前面是一样的。</p>
 
 <p>我们也可以看看其他转换，特别是<code>__hash__()</code>、<code>__bool__()</code>、和<code>__bytes__()</code>。这些方法将一个对象转换成数字、<code>true/false</code>值或字符串的字节。例如，当我们实现<code>__bool__()</code>时，可以在<code>if</code>语句中使用对象，如下：<code>if someobject:</code>。</p>
 
-<p>然后，我们可以看看实现比较运算符的特殊方法<code>__lt__()</code>、<code>__le__()</code>、<code>__eq__()</code>、<code>__ne__()</code>、<code>__gt__()</code>和<code>__ge__()</code>。</p>
+<p>然后，我们可以看看实现比较操作符的特殊方法<code>__lt__()</code>、<code>__le__()</code>、<code>__eq__()</code>、<code>__ne__()</code>、<code>__gt__()</code>和<code>__ge__()</code>。</p>
 
 <p>这些基本的特殊方法在类中定义中几乎总是需要的。</p>
 
-<p>最后我们来看看<code>__new__()</code>和<code>__del__()</code>，因为这些方法的用例相当复杂。我们不需要这些每当我们需要其他基本特殊方法的时候。</p>
+<p>最后我们来看看<code>__new__()</code>和<code>__del__()</code>，因为这些方法的用例相当复杂。每当我们需要其他基本特殊方法时，是不需要这些的。</p>
 
 <p>我们会详细看看如何添加这些特殊方法来扩大一个简单的类定义。我们需要看一下两个从对象继承的默认行为，这样我们可以了解需要什么样的覆盖以及何时真正需要。</p>
 
@@ -82,20 +82,13 @@
 
 <ul>
   <li>
-    <p><code>str()</code>方法表示的对象通常是友好的，由对象的<code>__str__()</code>方法创建。</p>
+    <p><code>str()</code>方法表示的对象通常是适用于人理解的，由对象的<code>__str__()</code>方法创建。</p>
   </li>
   <li>
-    <p><code>repr()</code>方法表示通常是更技术性的，甚至是完整的Python表达式来重建对象。文档中是这样说的：</p>
+    <p><code>repr()</code>方法表示的对象通常是适用于解释器理解的，可能是完整的Python表达式来重建对象。文档中是这样说的：<em>对于许多类型，这个函数试图返回一个字符串，将该字符串传递给<code>eval()</code>会重新生成对象。</em></p>
+
+    <p>这是由对象的<code>__repr__()</code>方法创建的。</p>
   </li>
-</ul>
-
-<blockquote>
-  <p>对于许多类型，这个函数试图返回一个字符串来<strong>yield</strong>带有与传递给<code>eval()</code>相同的值。</p>
-</blockquote>
-
-<p>这是由对象的<code>repr()</code>方法创建。</p>
-
-<ul>
   <li>
     <p><code>print()</code>函数会使用<code>str()</code>准备对象用于打印。</p>
   </li>
@@ -155,20 +148,20 @@
 <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="s">&quot;{rank}{suit}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span></code></pre></div>
 
-<p>这两个方法依赖于传递内部对象的实例变量字典<code>__dict__()</code>给<code>format()</code>函数。对于对象使用<code>__slots__</code>是不适合的；通常，这些是不可变的对象。在格式说明符中使用名称会使得格式化更显式。当然也使得格式模板更长了。在<code>__repr__()</code>中，我们传递内部<code>__dict__</code>加上对象的<code>__class__</code>作为关键字参数值给<code>format()</code>函数。</p>
+<p>这两个方法依赖于传递内部对象的实例变量<code>__dict__()</code>给<code>format()</code>函数。对于对象使用<code>__slots__</code>是不适合的；通常，这些是不可变的对象。在格式说明符中使用名称会使得格式化更显式。当然也使得格式模板更长了。在<code>__repr__()</code>中，我们传递内部<code>__dict__</code>加上对象的<code>__class__</code>作为关键字参数值给<code>format()</code>函数。</p>
 
 <p>模板字符串使用两种格式说明符：</p>
 
 <ul>
   <li>
-    <p><code>{__class__.__name__}</code>模板也可以写成<code>{__class__.__name__!s}</code>从而变得更明确当只提供简单字符串的类名。</p>
+    <p><code>{__class__.__name__}</code>模板也可以写成<code>{__class__.__name__!s}</code>从而当只提供简单字符串的类名时变得更显式。</p>
   </li>
   <li>
     <p><code>{suit!r}</code>和<code>{rank!r }</code>模板都使用<code>!r</code>格式说明符生成属性值的<code>repr()</code>方法。</p>
   </li>
 </ul>
 
-<p>在<code>__str__()</code>中，我们只有传递内部<code>__dict__</code>对象。格式化使用隐式的<code>{!s}</code>格式说明符生成属性值的<code>str()</code>方法。</p>
+<p>在<code>__str__()</code>中，我们只有传递内部<code>__dict__</code>对象。格式化使用隐式的<code>{!s}</code>格式说明符来生成属性值的<code>str()</code>方法。</p>
 
 <h4 id="strrepr-1"><strong>2. 集合__str__()和__repr__()</strong></h4>
 
@@ -206,20 +199,20 @@
     <p>使用<code>", ".join()</code>合并所有项的字符串。</p>
   </li>
   <li>
-    <p>通过<code>__class__</code>、集合字符串和来自<code>__dict__</code>的各种属性。我们已经命名集合字符串为<code>_card_str</code>，与现有的属性不冲突。</p>
+    <p>创建一组带有<code>__class__</code>的关键字、集合字符串和来自<code>__dict__</code>的各种属性。我们已经命名集合字符串为<code>_card_str</code>，与现有的属性不冲突。</p>
   </li>
   <li>
     <p>使用<code>"{__class__.__name__}({dealer_card!r}, {_card_str})".format()</code>将类名与项目值的长字符串结合。我们使用<code>!r</code>进行格式化以确保属性也使用了<code>repr()</code>转换。</p>
   </li>
 </ol>
 
-<p>在某些情况下，这可以优化且使一些事情变得稍微简单些。使用位置参数的格式化可以一定程度上缩短模板字符串的长度。</p>
+<p>在某些情况下，这可以使一些事情变得稍微简单些。位置参数的格式化可以一定程度上缩短模板字符串的长度。</p>
 
 <h3 id="format"><strong>__format__()方法</strong></h3>
 
-<p>和内置函数<code>format()</code>一样，<code>string.format()</code>使用<code>__format__()</code>方法。这两个接口都是用来从给定对象得到像样字符串的方式。</p>
+<p>和内置函数<code>format()</code>一样，<code>string.format()</code>使用<code>__format__()</code>方法。这两个接口都是用来从给定对象得到像样的字符串的方式。</p>
 
-<p>以下是将参数提供个<code>__format__()</code>的两种方法：</p>
+<p>以下是将参数提供给<code>__format__()</code>的两种方法：</p>
 
 <ul>
   <li>
@@ -236,12 +229,12 @@
 
 <p>格式说明符必须都是文本，且在格式字符串的<code>":"</code>之后。当我们写<code>"{0:06.4f}"</code>，<code>06.4f</code>是适用于第0项参数列表的格式说明符。</p>
 
-<p><em>Python标准库</em>文档中的6.1.3.1节定义了一个复杂的数值说明符作为九个部分字符串。这是格式说明符迷你语言。有如下语法：</p>
+<p><em>Python标准库</em>文档中的6.1.3.1节定义了一个复杂的数值说明符作为九个部分字符串，这是格式说明符的一种迷你语言。有如下语法：</p>
 
 <pre><code>[[fill]align][sign][#][0][width][,][.precision][type]
 </code></pre>
 
-<p>我们可以用正则表达式解析这些标准规范，如下面代码片段所示：</p>
+<p>我们可以用正则表达式解析这些标准说明符，如下面代码片段所示：</p>
 
 <pre><code>re.compile(
 r"(?P&lt;fill_align&gt;.?[\&lt;\&gt;=\^])?"
@@ -254,7 +247,7 @@ r"(?P&lt;fill_align&gt;.?[\&lt;\&gt;=\^])?"
 "(?P&lt;type&gt;[bcdeEfFgGnosxX%])?" )
 </code></pre>
 
-<p>这个正则将打破规范，将其分成八组。第一组和原规范一样有<code>fill</code>和<code>alignment</code>字段。我们可以使用这些得出我们已定义类的格式化数值数据。</p>
+<p>这个正则将说明符拆分成八组。第一组和原说明符一样有<code>fill</code>和<code>alignment</code>字段。我们可以使用这些得出我们已定义类的格式化数值数据。</p>
 
 <p>然而，Python的格式说明符迷你语言可能不适用于我们的类定义。因此，我们需要定义我们自己的说明符迷你语言并在类的<code>__format__</code>方法中执行。如果我们定义数值类型，我们应该坚持预定义的迷你语言。然而，对于其他类型则没有理由再坚持预定义的语言。</p>
 
@@ -287,11 +280,11 @@ r"(?P&lt;fill_align&gt;.?[\&lt;\&gt;=\^])?"
         <span class="n">format_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_format</span>
     <span class="c"># process the format specification.</span></code></pre></div>
 
-<p>这个的优势在于把所有字符串放置到<code>__format__()</code>方法，而不是分开到的<code>__format__()</code>和<code>__str__()</code>。劣势在于，因为我们不总是需要实现<code>__format__()</code>，但我们几乎总是需要实现<code>__str__()</code>。</p>
+<p>这个的优势在于把所有字符串放置到<code>__format__()</code>方法，而不是分开到的<code>__format__()</code>和<code>__str__()</code>。劣势在于，我们不总是需要实现<code>__format__()</code>，但我们几乎总是需要实现<code>__str__()</code>。</p>
 
 <h4 id="section"><strong>1. 嵌套格式化说明符</strong></h4>
 
-<p><code>string.format()</code>方法可以处理嵌套的<code>{}</code>实例来执行简单的关键字置换到格式说明符中。这个置换完成，会创建最终格式字符串被传递给类的<code>__format__()</code>方法。这种嵌套置换通过参数化通用说明符简化了某些相对复杂的数值格式。</p>
+<p><code>string.format()</code>方法可以处理嵌套的<code>{}</code>实例来执行简单的关键字置换到格式说明符中。这个置换完成，会创建最终格式字符串并传递给类的<code>__format__()</code>方法。这种嵌套置换通过参数化通用说明符简化了某些相对复杂的数值格式。</p>
 
 <p>下面的例子，我们可以在<code>format</code>参数中很容易的修改<code>width</code>：</p>
 
@@ -303,7 +296,7 @@ r"(?P&lt;fill_align&gt;.?[\&lt;\&gt;=\^])?"
 
 <p>为<code>format()</code>方法提供<code>width=</code>参数的值被用于替代<code>{width}</code>嵌套说明符。一旦被替换，最终格式会作为一个整体提供给<code>__format__()</code>方法。</p>
 
-<h4 id="section-1"><strong>2. 集合和委托格式说明符</strong></h4>
+<h4 id="section-1"><strong>2. 集合与委托格式说明符</strong></h4>
 
 <p>格式化一个包括集合的复杂对象，有两个格式化问题：如何格式化整体对象以及如何格式化集合中的项目。当我们看到<code>Hand</code>，例如，我们看到我们有单独的<code>Card</code>类集合。我们需要<code>Hand</code>委托格式化细节给单独的<code>Card</code>实例。</p>
 
@@ -314,7 +307,7 @@ r"(?P&lt;fill_align&gt;.?[\&lt;\&gt;=\^])?"
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="k">return</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;{0:{fs}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">format_specification</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span></code></pre></div>
 
-<p><code>format_specification</code>参数将用于每个<code>Hand</code>集合里面的<code>Card</code>实例。格式说明符<code>"{0:{fs}}"</code>使用嵌套格式说明符技术将<code>format_specification</code>字符串置入到应用于<code>Card</code>实例的格式创建。使用这种方法我们可以格式化<code>Hand</code>对象、<code>player_hand</code>，如下所示：</p>
+<p><code>format_specification</code>参数将用于每个<code>Hand</code>集合里面的<code>Card</code>实例。格式说明符<code>"{0:{fs}}"</code>使用嵌套格式说明符技术将<code>format_specification</code>字符串置入到应用于<code>Card</code>实例的创建。使用这种方法我们可以格式化<code>Hand</code>对象、<code>player_hand</code>，如下所示：</p>
 
 <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="s">&quot;Player: {hand:</span><span class="si">%r%s</span><span class="s">}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hand</span><span class="o">=</span><span class="n">player_hand</span><span class="p">)</span></code></pre></div>
 

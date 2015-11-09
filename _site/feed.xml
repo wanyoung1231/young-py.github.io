@@ -62,14 +62,641 @@
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
-        <title>Python学习 —— 与Python无缝集成——基本特殊方法 2</title>
-        <description>&lt;h3 id=&quot;hash&quot;&gt;&lt;strong&gt;__hash__()方法&lt;/strong&gt;&lt;/h3&gt;
+        <title>Python学习 —— 与Python无缝集成——基本特殊方法 3</title>
+        <description>&lt;h3 id=&quot;bool&quot;&gt;&lt;strong&gt;__bool__()方法&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;h3 id=&quot;bool&quot;&gt;&lt;strong&gt;__bool__()方法&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;Python对假有个很好的定义。参考手册列出了大量的值,将测试相当于假。这包括诸如假,0,”,[](){ }。大多数其他对象将测试等同于事实。&lt;/p&gt;
+
+&lt;p&gt;通常,我们想要检查一个对象被“不空”用一个简单的语句,如下所示&lt;/p&gt;
+
+&lt;p&gt;if some_object:
+       process( some_object )&lt;/p&gt;
+
+&lt;p&gt;下罩,这是布尔值()内置函数的工作。这个函数依赖于一个给定对象的布尔值()方法。&lt;/p&gt;
+
+&lt;p&gt;默认的布尔值()方法返回True。我们可以看到下面的代码&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;x = object()
+bool(x)
+   True&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;对于大多数类,这是非常有效的。大多数对象预计不会是假的。然而,对于集合,这是不合适的。一个空集合应该相当于假。一个非空的集合可以返回True。我们可能想要添加一个方法我们甲板对象。&lt;/p&gt;
+
+&lt;p&gt;如果我们包装列表,我们可能有一些,下面的代码片段所示&lt;/p&gt;
+
+&lt;p&gt;def &lt;strong&gt;bool&lt;/strong&gt;( self ):
+       return bool( self._cards )&lt;/p&gt;
+
+&lt;p&gt;这代表的布尔函数内部卡片收集。如果我们扩展列表,我们可能会有如下&lt;/p&gt;
+
+&lt;p&gt;def &lt;strong&gt;bool&lt;/strong&gt;( self ):
+       return super().&lt;strong&gt;bool&lt;/strong&gt;( self )&lt;/p&gt;
+
+&lt;p&gt;这代表了超类的定义布尔值()函数。&lt;/p&gt;
+
+&lt;p&gt;在这两种情况下,我们speci卡莉委派逻辑测试。在包装的情况下,我们委托给集合。在延长的情况下,我们委托给超类。无论哪种方式,包装或扩展,一个空集合将是错误的。这将给我们一种甲板对象是否已经完全解决,是空的。&lt;/p&gt;
+
+&lt;p&gt;我们可以做的事情,下面的代码片段所示&lt;/p&gt;
+
+&lt;p&gt;d = Deck()
+   while d:
+       card= d.pop()
+       # process the card&lt;/p&gt;
+
+&lt;p&gt;此循环将交易时所有的卡片不一个IndexError异常甲板已经筋疲力尽。&lt;/p&gt;
 
 &lt;h3 id=&quot;bytes&quot;&gt;&lt;strong&gt;__bytes__()方法&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;比较操作符方法&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;有相对较少的情况下将一个对象转换成字节。我们将在第2部分中详细看看这个,持久性和序列化。&lt;/p&gt;
+
+&lt;p&gt;在最常见的情况下,应用程序可以创建一个字符串表示,和Python的内置编码功能IO类将被用于将字符串转换成字节。这是完全在几乎所有的情况下。主要的例外是当我们德宁一种新的字符串。在这种情况下,我们需要不编码的字符串。&lt;/p&gt;
+
+&lt;p&gt;字节()函数做各种事情,这取决于参数&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;字节(整数):返回一个不可变的字节对象的给定的数字0 x00值。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;字节(字符串):这将给定字符串字节编码。额外的参数编码和错误处理将不编码过程的细节。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;字节():这将调用。字节()来创建一个字节对象。这里使用的编码或误差参数不会。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;基本对象类不de ne字节()。这意味着我们的课程不提供一个默认字节()方法。&lt;/p&gt;
+
+&lt;p&gt;有一些特殊的情况下,我们可能会有一个对象,需要直接编码到字节被写入到勒之前。通常是简单的字符串和允许str类型产生字节。在处理字节时,重要的是要注意,没有简单的方法从勒解码字节或接口。内置的字节类只会解码字符串,不是我们独特的新对象。我们可能需要解析的字符串解码的字节。或者,我们可能需要显式地使用结构模块解析字节从解析和创建独特的对象值。&lt;/p&gt;
+
+&lt;p&gt;我们来看看编码和解码卡字节。作为只有52卡值,每张卡片可以包装成一个字节。然而,我们已经决定使用一个字符代表诉讼和一个字符来表示。此外,我们需要正确地重建卡的子类,所以我们必须编码几件事情&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;卡的子类(AceCard、NumberCard FaceCard&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;subclass-de ned的参数初始化&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;请注意,我们的一些替代init()方法将一个数字等级转换成一个字符串,失去原来的数值。为了一个可逆的字节编码,我们需要重建这个原始数值等级值。&lt;/p&gt;
+
+&lt;p&gt;下面是一个实现的字节(),它返回一个utf - 8编码卡类的,等级,西装&lt;/p&gt;
+
+&lt;p&gt;def &lt;strong&gt;bytes&lt;/strong&gt;( self ):
+           class_code= self.&lt;strong&gt;class&lt;/strong&gt;.&lt;strong&gt;name&lt;/strong&gt;[0]
+           rank_number_str = {‘A’: ‘1’, ‘J’: ‘11’, ‘Q’: ‘12’, ‘K’: ‘13’}.
+   get( self.rank, self.rank )
+           string= “(“+” “.join([class_code, rank_number_str, self.suit,]
+   ) + “)”
+           return bytes(string,encoding=”utf8”)&lt;/p&gt;
+
+&lt;p&gt;这是通过创建一个卡片对象的字符串表示,然后编码字符串到字节。这通常是最简单、最exible方法。&lt;/p&gt;
+
+&lt;p&gt;当我们有一堆字节,可以解码字符串,然后将字符串解析成一个新的卡片对象。下面是一个方法,可以用于创建一个卡片对象的字节&lt;/p&gt;
+
+&lt;p&gt;def card_from_bytes( buffer ):
+       string = buffer.decode(“utf8”)
+       assert string[0 ]==”(“ and string[-1] == “)”
+       code, rank_number, suit = string[1:-1].split()
+       class_ = { ‘A’: AceCard, ‘N’: NumberCard, ‘F’: FaceCard }[code]
+       return class_( int(rank_number), suit )&lt;/p&gt;
+
+&lt;p&gt;在前面的代码中,我们解码字节为一个字符串。然后我们该字符串解析为各个值。从这些值,我们可以定位和构建原始卡片对象的类。&lt;/p&gt;
+
+&lt;p&gt;我们可以建立一张卡片对象的字节表示如下&lt;/p&gt;
+
+&lt;p&gt;b= bytes(someCard)&lt;/p&gt;
+
+&lt;p&gt;我们可以重建卡对象的字节如下&lt;/p&gt;
+
+&lt;p&gt;someCard = card_from_bytes(b)&lt;/p&gt;
+
+&lt;p&gt;重要的是要注意,外部字节表示通常是具有挑战性的设计。我们创建一个表示一个对象的状态。Python已经有很多表示,适合我们班德定义。&lt;/p&gt;
+
+&lt;p&gt;通常是使用酸洗或json模块比发明的低字节表示一个对象。这是第九章的主题,序列化和储蓄JSON,YAML,泡菜,CSV,XML。&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;比较运算符方法&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;Python有六个比较运算符。这些操作符有特殊的方法实现。根据文档,映射工作如下&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;x&amp;lt;y calls x.&lt;strong&gt;lt&lt;/strong&gt;(y)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;x&amp;lt;=y calls x.&lt;strong&gt;le&lt;/strong&gt;(y)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;x==y calls x.&lt;strong&gt;eq&lt;/strong&gt;(y)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;x!=y calls x.&lt;strong&gt;ne&lt;/strong&gt;(y)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;x&amp;gt;y calls x.&lt;strong&gt;gt&lt;/strong&gt;(y)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;x&amp;gt;=y calls x.&lt;strong&gt;ge&lt;/strong&gt;(y)&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;我们会再次回到比较运算符在第七章看着数字时,创建的数字。&lt;/p&gt;
+
+&lt;p&gt;有一个额外的规则对运营商相关的实际实现。这些规则是基于认为左边的对象的类de nes所需的特殊方法。如果没有,Python可以尝试另一种操作通过改变订单。&lt;/p&gt;
+
+&lt;p&gt;这里有两个基本规则&lt;/p&gt;
+
+&lt;p&gt;首先,左边的操作数是检查经营者实现:&amp;lt; B意味着A lt(B)。&lt;/p&gt;
+
+&lt;p&gt;第二,右边的操作数是检查逆转算子实现:&amp;lt; B意味着B . gt(a)。&lt;/p&gt;
+
+&lt;p&gt;罕见的例外发生在正确的操作数是一个子类的左操作数;然后,正确的操作数是检查rst允许子类覆盖超类。&lt;/p&gt;
+
+&lt;p&gt;我们可以看到这是如何工作的德宁一个类只有一个运营商德奈德,然后使用其他操作。&lt;/p&gt;
+
+&lt;p&gt;以下是部分类,我们可以使用&lt;/p&gt;
+
+&lt;p&gt;class BlackJackCard_p:
+       def &lt;strong&gt;init&lt;/strong&gt;( self, rank, suit ):
+           self.rank= rank
+           self.suit= suit
+       def &lt;strong&gt;lt&lt;/strong&gt;( self, other ):
+           print( “Compare {0} &amp;lt; {1}”.format( self, other ) )
+           return self.rank &amp;lt; other.rank
+       def &lt;strong&gt;str&lt;/strong&gt;( self ):
+           return “{rank}{suit}”.format( **self.&lt;strong&gt;dict&lt;/strong&gt; )&lt;/p&gt;
+
+&lt;p&gt;这是21点的比较规则,适合不重要。我们省略了比较的方法来了解Python会回退当操作员失踪。这个类将使我们能够执行&amp;lt;比较。有趣的是,Python还可以使用该执行&amp;gt;比较通过切换参数顺序。换句话说,x &amp;lt; y y &amp;gt; x。这是镜子重新检验规则;我们将在第七章再次见到它,创造数字。&lt;/p&gt;
+
+&lt;p&gt;我们看到当我们试图评估不同的比较操作。我们将创建两个卡类和比较它们以不同的方式,下面的代码片段所示&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;two = BlackJackCard_p( 2, ‘♠’ )
+three = BlackJackCard_p( 3, ‘♠’ )
+two &amp;lt; three
+   Compare 2♠ &amp;lt; 3♠
+   True
+two &amp;gt; three
+   Compare 3♠ &amp;lt; 2♠
+   False
+two == three
+   False
+two &amp;lt;= three
+   Traceback (most recent call last):
+   File “&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;
+   TypeError: unorderable types: BlackJackCard_p() &amp;lt;= BlackJackCard_p()&lt;/module&gt;&lt;/stdin&gt;&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;从这,我们可以看到两个&amp;lt;三个映射到两个。lt(三)。&lt;/p&gt;
+
+&lt;p&gt;然而,对于2 &amp;gt; 3、没有de ned gt()方法;Python使用三种。lt(两个)作为一个后备计划&lt;/p&gt;
+
+&lt;p&gt;默认情况下,eq()方法是继承对象;它比较对象id;对象参与= =和!=测试如下&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;blockquote&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;two_c = BlackJackCard_p( 2, ‘♣’ )
+two == two_c
+   False&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;我们可以看到,结果不是我们所期待。我们会经常需要覆盖默认的eq()的实现。&lt;/p&gt;
+
+&lt;p&gt;同样,没有运营商之间的逻辑连接。在数学上,我们可以从两个获得所有必要的比较。Python自动不这样做。相反,Python处理以下四个简单的检验对默认情况下&lt;/p&gt;
+
+&lt;p&gt;x&amp;lt;y≡y&amp;gt;x x≤y≡y≥x x=y≡y=x x≠y≡y≠x&lt;/p&gt;
+
+&lt;p&gt;至少,这意味着我们必须提供一个从每个四双。例如,我们可以提供eq(),(),lt()和()。&lt;/p&gt;
+
+&lt;p&gt;@functools。总订购装饰克服,并推导出其余的默认限制比较从情商()和其中的一个:lt(),(),gt()、通用电气()。我们将再次讨论这个在第7章,创造数字。&lt;/p&gt;
+
+&lt;h3 id=&quot;del&quot;&gt;&lt;strong&gt;__del__()方法&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h3 id=&quot;new&quot;&gt;&lt;strong&gt;__new__()方法和不可变对象&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h3 id=&quot;newmetaclass&quot;&gt;&lt;strong&gt;__new__()方法和metaclass&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h3&gt;
+</description>
+        <pubDate>Sat, 07 Nov 2015 22:10:20 +0800</pubDate>
+        <link>/python/2015/11/07/python-2-03.html</link>
+        <guid isPermaLink="true">/python/2015/11/07/python-2-03.html</guid>
+      </item>
+    
+      <item>
+        <title>Python学习 —— 与Python无缝集成——基本特殊方法 2</title>
+        <description>&lt;h3 id=&quot;hash&quot;&gt;&lt;strong&gt;__hash__()方法&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;内置&lt;code&gt;hash()&lt;/code&gt;函数会调用给定对象的&lt;code&gt;__hash__()&lt;/code&gt;方法。这里hash就是将（可能是复杂的）值缩减为小整数值的计算。理想情况下，一个hash值反映了源值的所有信息。还有一些hash计算经常用于加密，生成非常大的值。&lt;/p&gt;
+
+&lt;p&gt;Python包含两个hash库。在&lt;code&gt;hashlib&lt;/code&gt;模块中有高品质加密hash函数。&lt;code&gt;zlib&lt;/code&gt;模块有两个高速hash函数：&lt;code&gt;adler32()&lt;/code&gt;和&lt;code&gt;crc32()&lt;/code&gt;。对于相对简单的值，我们不使用这些。而对于大型、复杂的值，使用这些算法会有很大帮助。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;hash()&lt;/code&gt;函数（和相关的&lt;code&gt;__hash__()&lt;/code&gt;方法）用于创建集合中使用的小整数key，如下集合：&lt;code&gt;set&lt;/code&gt;、&lt;code&gt;frozenset&lt;/code&gt;和&lt;code&gt;dict&lt;/code&gt;。这些集合使用&lt;strong&gt;不可变&lt;/strong&gt;对象的hash值来快速定位对象。&lt;/p&gt;
+
+&lt;p&gt;在这里不变性是很重要的，我们会多次提到它。不可变对象不会改变它们的状态。例如，数字3并没有改变状态，它总是3。更复杂的对象也是一样的，可以有一个不变的状态。Python字符串是不可变的，这样它们可以用来映射作集合的key。&lt;/p&gt;
+
+&lt;p&gt;默认的&lt;code&gt;__hash__()&lt;/code&gt;继承自对象本身，返回一个基于对象的内部ID值。这个值可以通过&lt;code&gt;id()&lt;/code&gt;函数看到，如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; x = object()
+&amp;gt;&amp;gt;&amp;gt; hash(x)
+269741571
+&amp;gt;&amp;gt;&amp;gt; id(x)
+4315865136
+&amp;gt;&amp;gt;&amp;gt; id(x) / 16
+269741571.0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;由此，我们可以看到在作者的系统中，hash值就是对象的&lt;code&gt;id / 16&lt;/code&gt;。这一细节针对不同平台可能会有所不同。例如，CPython使用可移植的C库，Jython依赖于Java JVM。&lt;/p&gt;
+
+&lt;p&gt;至关重要的是，内部ID和默认&lt;code&gt;__hash__()&lt;/code&gt;方法间有一种强联系。这意味着每个对象默认是可以hash且完全不同的，即使它们似乎相同。&lt;/p&gt;
+
+&lt;p&gt;如果我们想将有相同值的不同对象合并到单个可hash对象中，我们需要修改这个。在下一节中，我们将看一个示例，该示例一个卡片的两个实例被视为是同一个对象。&lt;/p&gt;
+
+&lt;h4 id=&quot;hash-1&quot;&gt;&lt;strong&gt;1. 判断什么需要hash&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;p&gt;不是每一个对象都需要提供一个hash值。具体地说，如果我们创建一个有状态、可变对象的类，该类万万不能返回hash值。&lt;code&gt;__hash__&lt;/code&gt;应该定义为&lt;code&gt;None&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;另一方面，不可变对象返回一个hash值，这样对象就可用作字典中的key或集合中的一员。在这种情况下，hash值需要用并行的方式检测相等性。对象有不同的hash值但被看作相等的对象是糟糕的。相反的，对象具有相同hash值，实际上不相等是可以接受的。&lt;/p&gt;
+
+&lt;p&gt;我们在比较运算符中看到的&lt;code&gt;__eq__()&lt;/code&gt;方法与hash关系密切。&lt;/p&gt;
+
+&lt;p&gt;有三种级别的等式比较：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;相同的hash值：这意味着两个对象可能是相等的。该hash值为我们提供了一个快速检查对象相等的可能性。如果hash值是不同的，两个对象不可能是相等的，他们也不可能是相同的对象。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;等号比较：这意味着hash值也一定相等。这是&lt;code&gt;==&lt;/code&gt;操作符的定义。对象可能是相同的对象。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;相同的IDD：这意味着他们是同一个对象。进行了等号比较且有相同的hash值。这是&lt;code&gt;is&lt;/code&gt;操作符的定义。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Hash的基本规律（FLH）是：对象等号比较必须具有相同的hash值。&lt;/p&gt;
+
+&lt;p&gt;在相等性检测中我们能想到的第一步是hash比较。&lt;/p&gt;
+
+&lt;p&gt;然而，反过来是不正确的。对象可以有相同的hash值但比较是不相等的。在创建集合或字典时导致一些预计的处理开销是正当的。我们不能确切的从更大的数据结构创建不同的64位hash值。将有不相等的对象被简化为一致相等的hash值。&lt;/p&gt;
+
+&lt;p&gt;在使用集合和字典时比较hash值是一个预期的开销，它们是同时发生的。这些集合有内部的算法在hash冲突时会使用替换位置进行处理。&lt;/p&gt;
+
+&lt;p&gt;有三个用例通过&lt;code&gt;__eq__()&lt;/code&gt;和&lt;code&gt;__hash__()&lt;/code&gt;方法定义相等性检测和hash值：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;不可变对象：对于有些无状态对象，例如&lt;code&gt;tuples&lt;/code&gt;、&lt;code&gt;namedtuples&lt;/code&gt;、&lt;code&gt;frozensets&lt;/code&gt;这些不能被更新的类型。我们有两个选择：&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;不定义&lt;code&gt;__hash__()&lt;/code&gt;和&lt;code&gt;__eq__()&lt;/code&gt;。这意味着什么都不做，使用继承的定义。在这种情况下&lt;code&gt;__hash__()&lt;/code&gt;返回一个简单的函数对象的ID值，然后&lt;code&gt;__eq__()&lt;/code&gt;比较ID值。默认的相等性检测有时是违反直觉的。我们的应用程序可能需要两个&lt;code&gt;Card(1, Clubs)&lt;/code&gt;实例检测相等性和计算相同的hash，默认情况下是不会发生这种情况的。&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;定义&lt;code&gt;__hash__()&lt;/code&gt;和&lt;code&gt;__eq__()&lt;/code&gt;。请注意，我们将为不可变对象定义以上两个。&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;可变对象：这些是有状态的对象，可以进行内部修改。我们有一个选择：&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;定义&lt;code&gt;__eq__()&lt;/code&gt;，但&lt;code&gt;__hash__()&lt;/code&gt;设置为&lt;code&gt;None&lt;/code&gt;。这些不能被用作&lt;code&gt;dict&lt;/code&gt;中的key或&lt;code&gt;set&lt;/code&gt;中的项目。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;请注意，有一个额外可能的组合：定义&lt;code&gt;__hash__()&lt;/code&gt;但对&lt;code&gt;__eq__()&lt;/code&gt;使用一个默认的定义。这其实是浪费时间，作为默认的&lt;code&gt;__eq__()&lt;/code&gt;方法其实和&lt;code&gt;is&lt;/code&gt;操作符是一样的。默认的&lt;code&gt;__hash__()&lt;/code&gt;方法会为相同的行为编写更少的代码。&lt;/p&gt;
+
+&lt;p&gt;我们可以详细的看看这三种情况。&lt;/p&gt;
+
+&lt;h4 id=&quot;section&quot;&gt;&lt;strong&gt;2. 为不可变对象继承定义&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;p&gt;让我们看看默认定义操作。下面是一个简单的类层次结构，使用默认的&lt;code&gt;__hash__()&lt;/code&gt;和&lt;code&gt;__eq__()&lt;/code&gt;定义：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;insure&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__repr__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;{__class__.__name__}(suit={suit!r}, rank={rank!r})&amp;quot;&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__dict__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__str__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+       &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;{rank}{suit}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__dict__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;NumberCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AceCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;A&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;11&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FaceCard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;11&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;J&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;12&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;Q&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;13&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;K&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这是一个不可变对象的类层次结构。我们还没有实现特殊方法防止属性更新。在下一章我们将看看属性访问。&lt;/p&gt;
+
+&lt;p&gt;当我们使用这个类层次结构时，看看会发生什么：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; c1 = AceCard(1, &#39;♣&#39;)
+&amp;gt;&amp;gt;&amp;gt; c2 = AceCard(1, &#39;♣&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我们定义的两个相同的&lt;code&gt;Card&lt;/code&gt;实例。我们可以检查&lt;code&gt;id()&lt;/code&gt;的值，如下代码片段所示：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(id(c1), id(c2))
+4302577232 4302576976
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;他们有不同的&lt;code&gt;id()&lt;/code&gt;号，不同的对象。这符合我们的预期。&lt;/p&gt;
+
+&lt;p&gt;我们可以使用&lt;code&gt;is&lt;/code&gt;操作符来检查它们是否一样，如下代码片段所示：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; c1 is c2
+False
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;“&lt;code&gt;is&lt;/code&gt;测试”是基于&lt;code&gt;id()&lt;/code&gt;的数字，它告诉我们，它们确实是独立的对象。&lt;/p&gt;
+
+&lt;p&gt;我们可以看到，它们的hash值是不同的：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(hash(c1), hash(c2))
+268911077 268911061
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这些hash值直接来自&lt;code&gt;id()&lt;/code&gt;值。这是我们期望继承的方法。在这个实现中，我们可以从&lt;code&gt;id()&lt;/code&gt;函数中计算出hash值，如下代码片段所示：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; id(c1) / 16
+268911077.0
+&amp;gt;&amp;gt;&amp;gt; id(c2) / 16
+268911061.0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;hash值是不同的，它们之间的比较必须不相等。这符合hash的定义和相等性定义。然而，这违背了我们对这个类的期望。下面是一个相等性检查：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(c1 == c2)
+False
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我们使用相同的参数创建了它们。它们比较后不相等。在某些应用程序中，这样不好。例如，当处理牌的时候累加计数，我们不想给一张牌做6个计数因为使用的是6副牌牌盒。&lt;/p&gt;
+
+&lt;p&gt;我们可以看到，他们是不可变对象，我们可以把它们放在一个集合里：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(set([c1, c2]))
+{AceCard(suit=&#39;♣&#39;, rank=1), AceCard(suit=&#39;♣&#39;, rank=1)}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这是标准库参考文档中记录的行为。默认情况下，我们会得到一个基于对象ID的&lt;code&gt;__hash__()&lt;/code&gt;方法，这样每个实例都唯一出现。然而，这并不总是我们想要的。&lt;/p&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;&lt;strong&gt;3. 覆写不可变对象的定义&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;p&gt;下面是一个简单的类层次结构，它为我们提供了&lt;code&gt;__hash__()&lt;/code&gt;和&lt;code&gt;__eq__()&lt;/code&gt;的定义：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Card2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;insure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__repr__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;{__class__.__name__}(suit={suit!r}, rank={rank!r})&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__dict__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__str__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;{rank}{suit}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__dict__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__eq__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__hash__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;hash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;^&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;hash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AceCard2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Card2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;insure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;A&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;11&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;原则上这个对象是不可变的。还没有正式的机制来让它不可变。关于这个机制我们将在第3章《属性访问、属性和描述符》中看看如何防止属性值变化。&lt;/p&gt;
+
+&lt;p&gt;同时，注意前面的代码省略了的两个子类，从前面的示例来看并没有显著的改变。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;__eq__()&lt;/code&gt;方法函数比较这两个基本值：&lt;code&gt;suit&lt;/code&gt;和&lt;code&gt;rank&lt;/code&gt;。它不比较派生自&lt;code&gt;rank&lt;/code&gt;的&lt;code&gt;hard&lt;/code&gt;值和&lt;code&gt;soft&lt;/code&gt;值。&lt;/p&gt;
+
+&lt;p&gt;21点的规则使这个定义有点可疑。花色在21点中实际上并不重要。我们只是比较牌值吗？我们是否应该定义一个额外的方法，而不是仅仅比较牌值？或者，我们应该依靠应用程序比较牌值的正确性？对于这些问题没有最好的回答，只是做好一个权衡。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;__hash__()&lt;/code&gt;方法函数计算的位模式使用两个值作为基础进行hash，然后对hash值进行异或计算。使用&lt;code&gt;^&lt;/code&gt;操作符是一种应急的hash方法，很有用。对于更大、更复杂的对象，使用更复杂的hash会更合适。在构造某个东东之前使用&lt;code&gt;ziplib&lt;/code&gt;会有bug哦。&lt;/p&gt;
+
+&lt;p&gt;让我们来看看这些类对象的行为。我们期望它们比较是相等的且能够在集合和字典中正常使用。这里有两个对象：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; c1 = AceCard2(1, &#39;♣&#39;)
+&amp;gt;&amp;gt;&amp;gt; c2 = AceCard2(1, &#39;♣&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我们定义的两个实例似乎是相同的牌。我们可以检查ID值，以确保他们是不同的对象：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(id(c1), id(c2))
+4302577040 4302577296
+&amp;gt;&amp;gt;&amp;gt; print(c1 is c2)
+False
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这些有不同的&lt;code&gt;id()&lt;/code&gt;数字。当我们通过&lt;code&gt;is&lt;/code&gt;操作符检测，我们看到它们是截然不同的。&lt;/p&gt;
+
+&lt;p&gt;让我们来比较一下hash值：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(hash(c1), hash(c2))
+1259258073890 1259258073890
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;hash值是相同的。这意味着他们可能是相等的。&lt;/p&gt;
+
+&lt;p&gt;等号操作符告诉我们，他们是相等的&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(c1 == c2)
+True
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;它们是不可变的，我们可以把它们放到一个集合中，如下所示：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(set([c1, c2]))
+{AceCard2(suit=&#39;♣&#39;, rank=&#39;A&#39;)}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;对于复杂的不可变对象是符合我们预期的。我们必须覆盖这两个特殊方法获得一致的、有意义的结果。&lt;/p&gt;
+
+&lt;h4 id=&quot;section-2&quot;&gt;&lt;strong&gt;4. 覆写可变对象的定义&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;p&gt;这个例子将继续使用&lt;code&gt;Cards&lt;/code&gt;类。可变的牌是很奇怪的想法，甚至是错误的。然而，我们想小小调整一下前面的例子。&lt;/p&gt;
+
+&lt;p&gt;以下是一个类层次结构，为我们提供了适合可变对象的&lt;code&gt;__hash__()&lt;/code&gt;和&lt;code&gt;__eq__()&lt;/code&gt;的定义：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Card3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;insure&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hard&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soft&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__repr__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;{__class__.__name__}(suit={suit!r}, rank={rank!r})&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__dict__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__str__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;{rank}{suit}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__dict__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__eq__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;# and self.hard == other.hard and self.soft == other.soft&lt;/span&gt;
+
+       &lt;span class=&quot;n&quot;&gt;__hash__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AceCard3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Card3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;insure&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;A&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;suit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;11&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;让我们来看看这些类对象的行为。我们期望它们比较是相等的，但是在集合和字典中完全不起作用。我们创建如下两个对象：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; c1 = AceCard3(1, &#39;♣&#39;)
+&amp;gt;&amp;gt;&amp;gt; c2 = AceCard3(1, &#39;♣&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我们定义的两个实例似乎是相同的牌。我们可以检查ID值，以确保他们是不同的对象：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(id(c1), id(c2))
+4302577040 4302577296
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果我们尝试获取hash值，毫无意外，我们将会看到如下情形：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(hash(c1), hash(c2))
+Traceback (most recent call last):
+  File &quot;&amp;lt;stdin&amp;gt;&quot;, line 1, in &amp;lt;module&amp;gt;
+TypeError: unhashable type: &#39;AceCard3&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;__hash__&lt;/code&gt;被设置为&lt;code&gt;None&lt;/code&gt;，这些&lt;code&gt;Card3&lt;/code&gt;对象不能被hash，不能为&lt;code&gt;hash()&lt;/code&gt;函数提供值。和我们预期的是一样的。&lt;/p&gt;
+
+&lt;p&gt;我们可以执行相等性比较，如下代码片段所示：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(c1 == c2)
+True
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;相等性测试工作正常，才能很好的让我们比较牌。它们只是不能被插入到集合或用作字典的key。&lt;/p&gt;
+
+&lt;p&gt;我们试试会发生什么：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; print(set([c1, c2]))
+Traceback (most recent call last):
+  File &quot;&amp;lt;stdin&amp;gt;&quot;, line 1, in &amp;lt;module&amp;gt;
+TypeError: unhashable type: &#39;AceCard3&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;当试图把这些放到集合中，我们会得到这样一个异常。&lt;/p&gt;
+
+&lt;p&gt;显然，这不是一个正确的定义，在现实生活中和牌一样是不可变对象。这种风格的定义更适合有状态的对象，如&lt;code&gt;Hand&lt;/code&gt;，它的内容总是在变化的。我们将通过第二个示例为您提供一个有状态的对象在接下来的章节。&lt;/p&gt;
+
+&lt;h4 id=&quot;section-3&quot;&gt;&lt;strong&gt;5. 从可变手牌变为冻结手牌&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;p&gt;如果我们想对具体的&lt;code&gt;Hand&lt;/code&gt;实例进行统计分析，我们可能需要创建一个字典来映射&lt;code&gt;Hand&lt;/code&gt;实例到计数中。我们不能用一个可变&lt;code&gt;Hand&lt;/code&gt;类作为一个映射的key。然而，我们可以并行的设计&lt;code&gt;set&lt;/code&gt;和&lt;code&gt;frozenset&lt;/code&gt;并且创建两个类:&lt;code&gt;Hand&lt;/code&gt;和&lt;code&gt;FrozenHand&lt;/code&gt;。这允许我们能通过&lt;code&gt;FrozenHand&lt;/code&gt;类“冻结”&lt;code&gt;Hand&lt;/code&gt;类；冻结版本是不可变的，可以作为一个字典的key。&lt;/p&gt;
+
+&lt;p&gt;下面是一个简单的&lt;code&gt;Hand&lt;/code&gt;定义：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Hand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dealer_card&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dealer_card&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dealer_card&lt;/span&gt;
+        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__str__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;, &amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__repr__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;{__class__.__name__}({dealer_card!r}, {_cards_str})&amp;quot;&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_cards_str&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;, &amp;quot;&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;repr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)),&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__dict__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__eq__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dealer_card&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dealer_card&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;__hash__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;这是一个可变对象(&lt;code&gt;__hash__&lt;/code&gt;是&lt;code&gt;None&lt;/code&gt;)，它有一个恰当的相等性检测来比较两副手牌。&lt;/p&gt;
+
+&lt;p&gt;下面是关于&lt;code&gt;Hand&lt;/code&gt;的一个“冻结”版本：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;sys&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FrozenHand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Hand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kw&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;isinstance&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Hand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;c&quot;&gt;# Clone a hand&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+            &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dealer_card&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dealer_card&lt;/span&gt;
+            &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;c&quot;&gt;# Build a fresh hand&lt;/span&gt;
+            &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kw&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__hash__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;h&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;h&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;hash&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hash_info&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;modulus&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;h&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;冻结版本有一个构造函数，将从另一个&lt;code&gt;Hand&lt;/code&gt;类构建一个&lt;code&gt;Hand&lt;/code&gt;类。它定义了一个&lt;code&gt;__hash__()&lt;/code&gt;方法，计算牌的hash值的总和，这个值受&lt;code&gt;sys.hash_info.modules&lt;/code&gt;限制。大多数情况，这种基于模块的计算，在计算复合对象hash时效果相当好。&lt;/p&gt;
+
+&lt;p&gt;我们现在可以使用这些类进行操作，如下代码片段所示：&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;stats&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;defaultdict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Deck&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;h&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Hand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;h_f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FrozenHand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;stats&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h_f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;我们需要初始化统计字典——&lt;code&gt;stats&lt;/code&gt;为&lt;code&gt;defaultdict&lt;/code&gt;字典，可以收集整型计数。为此我们可以使用一个&lt;code&gt;collections.Counter&lt;/code&gt;对象。&lt;/p&gt;
+
+&lt;p&gt;通过冻结&lt;code&gt;Hand&lt;/code&gt;类，我们可以把它作为一个字典的key，收集每副手牌计数的问题就可以解决了。&lt;/p&gt;
 </description>
         <pubDate>Tue, 23 Jun 2015 17:43:20 +0800</pubDate>
         <link>/python/2015/06/23/python-2-02.html</link>
@@ -78,17 +705,17 @@
     
       <item>
         <title>Python学习 —— 与Python无缝集成——基本特殊方法 1</title>
-        <description>&lt;p&gt;有许多特殊方法允许类与Python之间紧密结合。标准库参考称之为&lt;strong&gt;基本&lt;/strong&gt;。更好的术语可能是基础或本质。这些特殊方法构成了创建与其他Python特性无缝集成的类的基础。&lt;/p&gt;
+        <description>&lt;p&gt;有许多特殊方法允许类与Python紧密结合，标准库参考将其称之为&lt;strong&gt;基本&lt;/strong&gt;，基础或本质可能是更好的术语。这些特殊方法构成了创建与其他Python特性无缝集成的类的基础。&lt;/p&gt;
 
-&lt;p&gt;例如，对于给定对象的值的我们需要字符串表示。基类、对象都有默认的&lt;code&gt;__repr__()&lt;/code&gt;和&lt;code&gt;__str__()&lt;/code&gt;实现用于提供对象的字符串表示。遗憾的是，这些默认表示不提供信息。我们总是想要覆盖这些默认定义中的一个或两个。我们可以看看&lt;code&gt;__format__()&lt;/code&gt;，这个更复杂但目的和前面是一样的。&lt;/p&gt;
+&lt;p&gt;例如，对于给定对象的值，我们需要字符串表示。基类、对象都有默认的&lt;code&gt;__repr__()&lt;/code&gt;和&lt;code&gt;__str__()&lt;/code&gt;用于提供对象的字符串表示。遗憾的是，这些默认表示不提供信息。我们总是想要覆盖这些默认定义中的一个或两个。我们可以看看&lt;code&gt;__format__()&lt;/code&gt;，这个更复杂但目的和前面是一样的。&lt;/p&gt;
 
 &lt;p&gt;我们也可以看看其他转换，特别是&lt;code&gt;__hash__()&lt;/code&gt;、&lt;code&gt;__bool__()&lt;/code&gt;、和&lt;code&gt;__bytes__()&lt;/code&gt;。这些方法将一个对象转换成数字、&lt;code&gt;true/false&lt;/code&gt;值或字符串的字节。例如，当我们实现&lt;code&gt;__bool__()&lt;/code&gt;时，可以在&lt;code&gt;if&lt;/code&gt;语句中使用对象，如下：&lt;code&gt;if someobject:&lt;/code&gt;。&lt;/p&gt;
 
-&lt;p&gt;然后，我们可以看看实现比较运算符的特殊方法&lt;code&gt;__lt__()&lt;/code&gt;、&lt;code&gt;__le__()&lt;/code&gt;、&lt;code&gt;__eq__()&lt;/code&gt;、&lt;code&gt;__ne__()&lt;/code&gt;、&lt;code&gt;__gt__()&lt;/code&gt;和&lt;code&gt;__ge__()&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;然后，我们可以看看实现比较操作符的特殊方法&lt;code&gt;__lt__()&lt;/code&gt;、&lt;code&gt;__le__()&lt;/code&gt;、&lt;code&gt;__eq__()&lt;/code&gt;、&lt;code&gt;__ne__()&lt;/code&gt;、&lt;code&gt;__gt__()&lt;/code&gt;和&lt;code&gt;__ge__()&lt;/code&gt;。&lt;/p&gt;
 
 &lt;p&gt;这些基本的特殊方法在类中定义中几乎总是需要的。&lt;/p&gt;
 
-&lt;p&gt;最后我们来看看&lt;code&gt;__new__()&lt;/code&gt;和&lt;code&gt;__del__()&lt;/code&gt;，因为这些方法的用例相当复杂。我们不需要这些每当我们需要其他基本特殊方法的时候。&lt;/p&gt;
+&lt;p&gt;最后我们来看看&lt;code&gt;__new__()&lt;/code&gt;和&lt;code&gt;__del__()&lt;/code&gt;，因为这些方法的用例相当复杂。每当我们需要其他基本特殊方法时，是不需要这些的。&lt;/p&gt;
 
 &lt;p&gt;我们会详细看看如何添加这些特殊方法来扩大一个简单的类定义。我们需要看一下两个从对象继承的默认行为，这样我们可以了解需要什么样的覆盖以及何时真正需要。&lt;/p&gt;
 
@@ -98,20 +725,13 @@
 
 &lt;ul&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;code&gt;str()&lt;/code&gt;方法表示的对象通常是友好的，由对象的&lt;code&gt;__str__()&lt;/code&gt;方法创建。&lt;/p&gt;
+    &lt;p&gt;&lt;code&gt;str()&lt;/code&gt;方法表示的对象通常是适用于人理解的，由对象的&lt;code&gt;__str__()&lt;/code&gt;方法创建。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;code&gt;repr()&lt;/code&gt;方法表示通常是更技术性的，甚至是完整的Python表达式来重建对象。文档中是这样说的：&lt;/p&gt;
+    &lt;p&gt;&lt;code&gt;repr()&lt;/code&gt;方法表示的对象通常是适用于解释器理解的，可能是完整的Python表达式来重建对象。文档中是这样说的：&lt;em&gt;对于许多类型，这个函数试图返回一个字符串，将该字符串传递给&lt;code&gt;eval()&lt;/code&gt;会重新生成对象。&lt;/em&gt;&lt;/p&gt;
+
+    &lt;p&gt;这是由对象的&lt;code&gt;__repr__()&lt;/code&gt;方法创建的。&lt;/p&gt;
   &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;对于许多类型，这个函数试图返回一个字符串来&lt;strong&gt;yield&lt;/strong&gt;带有与传递给&lt;code&gt;eval()&lt;/code&gt;相同的值。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;这是由对象的&lt;code&gt;repr()&lt;/code&gt;方法创建。&lt;/p&gt;
-
-&lt;ul&gt;
   &lt;li&gt;
     &lt;p&gt;&lt;code&gt;print()&lt;/code&gt;函数会使用&lt;code&gt;str()&lt;/code&gt;准备对象用于打印。&lt;/p&gt;
   &lt;/li&gt;
@@ -171,20 +791,20 @@
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__str__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;{rank}{suit}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__dict__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;这两个方法依赖于传递内部对象的实例变量字典&lt;code&gt;__dict__()&lt;/code&gt;给&lt;code&gt;format()&lt;/code&gt;函数。对于对象使用&lt;code&gt;__slots__&lt;/code&gt;是不适合的；通常，这些是不可变的对象。在格式说明符中使用名称会使得格式化更显式。当然也使得格式模板更长了。在&lt;code&gt;__repr__()&lt;/code&gt;中，我们传递内部&lt;code&gt;__dict__&lt;/code&gt;加上对象的&lt;code&gt;__class__&lt;/code&gt;作为关键字参数值给&lt;code&gt;format()&lt;/code&gt;函数。&lt;/p&gt;
+&lt;p&gt;这两个方法依赖于传递内部对象的实例变量&lt;code&gt;__dict__()&lt;/code&gt;给&lt;code&gt;format()&lt;/code&gt;函数。对于对象使用&lt;code&gt;__slots__&lt;/code&gt;是不适合的；通常，这些是不可变的对象。在格式说明符中使用名称会使得格式化更显式。当然也使得格式模板更长了。在&lt;code&gt;__repr__()&lt;/code&gt;中，我们传递内部&lt;code&gt;__dict__&lt;/code&gt;加上对象的&lt;code&gt;__class__&lt;/code&gt;作为关键字参数值给&lt;code&gt;format()&lt;/code&gt;函数。&lt;/p&gt;
 
 &lt;p&gt;模板字符串使用两种格式说明符：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;code&gt;{__class__.__name__}&lt;/code&gt;模板也可以写成&lt;code&gt;{__class__.__name__!s}&lt;/code&gt;从而变得更明确当只提供简单字符串的类名。&lt;/p&gt;
+    &lt;p&gt;&lt;code&gt;{__class__.__name__}&lt;/code&gt;模板也可以写成&lt;code&gt;{__class__.__name__!s}&lt;/code&gt;从而当只提供简单字符串的类名时变得更显式。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;&lt;code&gt;{suit!r}&lt;/code&gt;和&lt;code&gt;{rank!r }&lt;/code&gt;模板都使用&lt;code&gt;!r&lt;/code&gt;格式说明符生成属性值的&lt;code&gt;repr()&lt;/code&gt;方法。&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;在&lt;code&gt;__str__()&lt;/code&gt;中，我们只有传递内部&lt;code&gt;__dict__&lt;/code&gt;对象。格式化使用隐式的&lt;code&gt;{!s}&lt;/code&gt;格式说明符生成属性值的&lt;code&gt;str()&lt;/code&gt;方法。&lt;/p&gt;
+&lt;p&gt;在&lt;code&gt;__str__()&lt;/code&gt;中，我们只有传递内部&lt;code&gt;__dict__&lt;/code&gt;对象。格式化使用隐式的&lt;code&gt;{!s}&lt;/code&gt;格式说明符来生成属性值的&lt;code&gt;str()&lt;/code&gt;方法。&lt;/p&gt;
 
 &lt;h4 id=&quot;strrepr-1&quot;&gt;&lt;strong&gt;2. 集合__str__()和__repr__()&lt;/strong&gt;&lt;/h4&gt;
 
@@ -222,20 +842,20 @@
     &lt;p&gt;使用&lt;code&gt;&quot;, &quot;.join()&lt;/code&gt;合并所有项的字符串。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;通过&lt;code&gt;__class__&lt;/code&gt;、集合字符串和来自&lt;code&gt;__dict__&lt;/code&gt;的各种属性。我们已经命名集合字符串为&lt;code&gt;_card_str&lt;/code&gt;，与现有的属性不冲突。&lt;/p&gt;
+    &lt;p&gt;创建一组带有&lt;code&gt;__class__&lt;/code&gt;的关键字、集合字符串和来自&lt;code&gt;__dict__&lt;/code&gt;的各种属性。我们已经命名集合字符串为&lt;code&gt;_card_str&lt;/code&gt;，与现有的属性不冲突。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;使用&lt;code&gt;&quot;{__class__.__name__}({dealer_card!r}, {_card_str})&quot;.format()&lt;/code&gt;将类名与项目值的长字符串结合。我们使用&lt;code&gt;!r&lt;/code&gt;进行格式化以确保属性也使用了&lt;code&gt;repr()&lt;/code&gt;转换。&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;在某些情况下，这可以优化且使一些事情变得稍微简单些。使用位置参数的格式化可以一定程度上缩短模板字符串的长度。&lt;/p&gt;
+&lt;p&gt;在某些情况下，这可以使一些事情变得稍微简单些。位置参数的格式化可以一定程度上缩短模板字符串的长度。&lt;/p&gt;
 
 &lt;h3 id=&quot;format&quot;&gt;&lt;strong&gt;__format__()方法&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;和内置函数&lt;code&gt;format()&lt;/code&gt;一样，&lt;code&gt;string.format()&lt;/code&gt;使用&lt;code&gt;__format__()&lt;/code&gt;方法。这两个接口都是用来从给定对象得到像样字符串的方式。&lt;/p&gt;
+&lt;p&gt;和内置函数&lt;code&gt;format()&lt;/code&gt;一样，&lt;code&gt;string.format()&lt;/code&gt;使用&lt;code&gt;__format__()&lt;/code&gt;方法。这两个接口都是用来从给定对象得到像样的字符串的方式。&lt;/p&gt;
 
-&lt;p&gt;以下是将参数提供个&lt;code&gt;__format__()&lt;/code&gt;的两种方法：&lt;/p&gt;
+&lt;p&gt;以下是将参数提供给&lt;code&gt;__format__()&lt;/code&gt;的两种方法：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -252,12 +872,12 @@
 
 &lt;p&gt;格式说明符必须都是文本，且在格式字符串的&lt;code&gt;&quot;:&quot;&lt;/code&gt;之后。当我们写&lt;code&gt;&quot;{0:06.4f}&quot;&lt;/code&gt;，&lt;code&gt;06.4f&lt;/code&gt;是适用于第0项参数列表的格式说明符。&lt;/p&gt;
 
-&lt;p&gt;&lt;em&gt;Python标准库&lt;/em&gt;文档中的6.1.3.1节定义了一个复杂的数值说明符作为九个部分字符串。这是格式说明符迷你语言。有如下语法：&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Python标准库&lt;/em&gt;文档中的6.1.3.1节定义了一个复杂的数值说明符作为九个部分字符串，这是格式说明符的一种迷你语言。有如下语法：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;[[fill]align][sign][#][0][width][,][.precision][type]
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;我们可以用正则表达式解析这些标准规范，如下面代码片段所示：&lt;/p&gt;
+&lt;p&gt;我们可以用正则表达式解析这些标准说明符，如下面代码片段所示：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;re.compile(
 r&quot;(?P&amp;lt;fill_align&amp;gt;.?[\&amp;lt;\&amp;gt;=\^])?&quot;
@@ -270,7 +890,7 @@ r&quot;(?P&amp;lt;fill_align&amp;gt;.?[\&amp;lt;\&amp;gt;=\^])?&quot;
 &quot;(?P&amp;lt;type&amp;gt;[bcdeEfFgGnosxX%])?&quot; )
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;这个正则将打破规范，将其分成八组。第一组和原规范一样有&lt;code&gt;fill&lt;/code&gt;和&lt;code&gt;alignment&lt;/code&gt;字段。我们可以使用这些得出我们已定义类的格式化数值数据。&lt;/p&gt;
+&lt;p&gt;这个正则将说明符拆分成八组。第一组和原说明符一样有&lt;code&gt;fill&lt;/code&gt;和&lt;code&gt;alignment&lt;/code&gt;字段。我们可以使用这些得出我们已定义类的格式化数值数据。&lt;/p&gt;
 
 &lt;p&gt;然而，Python的格式说明符迷你语言可能不适用于我们的类定义。因此，我们需要定义我们自己的说明符迷你语言并在类的&lt;code&gt;__format__&lt;/code&gt;方法中执行。如果我们定义数值类型，我们应该坚持预定义的迷你语言。然而，对于其他类型则没有理由再坚持预定义的语言。&lt;/p&gt;
 
@@ -303,11 +923,11 @@ r&quot;(?P&amp;lt;fill_align&amp;gt;.?[\&amp;lt;\&amp;gt;=\^])?&quot;
         &lt;span class=&quot;n&quot;&gt;format_spec&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;default_format&lt;/span&gt;
     &lt;span class=&quot;c&quot;&gt;# process the format specification.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;这个的优势在于把所有字符串放置到&lt;code&gt;__format__()&lt;/code&gt;方法，而不是分开到的&lt;code&gt;__format__()&lt;/code&gt;和&lt;code&gt;__str__()&lt;/code&gt;。劣势在于，因为我们不总是需要实现&lt;code&gt;__format__()&lt;/code&gt;，但我们几乎总是需要实现&lt;code&gt;__str__()&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;这个的优势在于把所有字符串放置到&lt;code&gt;__format__()&lt;/code&gt;方法，而不是分开到的&lt;code&gt;__format__()&lt;/code&gt;和&lt;code&gt;__str__()&lt;/code&gt;。劣势在于，我们不总是需要实现&lt;code&gt;__format__()&lt;/code&gt;，但我们几乎总是需要实现&lt;code&gt;__str__()&lt;/code&gt;。&lt;/p&gt;
 
 &lt;h4 id=&quot;section&quot;&gt;&lt;strong&gt;1. 嵌套格式化说明符&lt;/strong&gt;&lt;/h4&gt;
 
-&lt;p&gt;&lt;code&gt;string.format()&lt;/code&gt;方法可以处理嵌套的&lt;code&gt;{}&lt;/code&gt;实例来执行简单的关键字置换到格式说明符中。这个置换完成，会创建最终格式字符串被传递给类的&lt;code&gt;__format__()&lt;/code&gt;方法。这种嵌套置换通过参数化通用说明符简化了某些相对复杂的数值格式。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;string.format()&lt;/code&gt;方法可以处理嵌套的&lt;code&gt;{}&lt;/code&gt;实例来执行简单的关键字置换到格式说明符中。这个置换完成，会创建最终格式字符串并传递给类的&lt;code&gt;__format__()&lt;/code&gt;方法。这种嵌套置换通过参数化通用说明符简化了某些相对复杂的数值格式。&lt;/p&gt;
 
 &lt;p&gt;下面的例子，我们可以在&lt;code&gt;format&lt;/code&gt;参数中很容易的修改&lt;code&gt;width&lt;/code&gt;：&lt;/p&gt;
 
@@ -319,7 +939,7 @@ r&quot;(?P&amp;lt;fill_align&amp;gt;.?[\&amp;lt;\&amp;gt;=\^])?&quot;
 
 &lt;p&gt;为&lt;code&gt;format()&lt;/code&gt;方法提供&lt;code&gt;width=&lt;/code&gt;参数的值被用于替代&lt;code&gt;{width}&lt;/code&gt;嵌套说明符。一旦被替换，最终格式会作为一个整体提供给&lt;code&gt;__format__()&lt;/code&gt;方法。&lt;/p&gt;
 
-&lt;h4 id=&quot;section-1&quot;&gt;&lt;strong&gt;2. 集合和委托格式说明符&lt;/strong&gt;&lt;/h4&gt;
+&lt;h4 id=&quot;section-1&quot;&gt;&lt;strong&gt;2. 集合与委托格式说明符&lt;/strong&gt;&lt;/h4&gt;
 
 &lt;p&gt;格式化一个包括集合的复杂对象，有两个格式化问题：如何格式化整体对象以及如何格式化集合中的项目。当我们看到&lt;code&gt;Hand&lt;/code&gt;，例如，我们看到我们有单独的&lt;code&gt;Card&lt;/code&gt;类集合。我们需要&lt;code&gt;Hand&lt;/code&gt;委托格式化细节给单独的&lt;code&gt;Card&lt;/code&gt;实例。&lt;/p&gt;
 
@@ -330,7 +950,7 @@ r&quot;(?P&amp;lt;fill_align&amp;gt;.?[\&amp;lt;\&amp;gt;=\^])?&quot;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;, &amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;{0:{fs}}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format_specification&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cards&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;&lt;code&gt;format_specification&lt;/code&gt;参数将用于每个&lt;code&gt;Hand&lt;/code&gt;集合里面的&lt;code&gt;Card&lt;/code&gt;实例。格式说明符&lt;code&gt;&quot;{0:{fs}}&quot;&lt;/code&gt;使用嵌套格式说明符技术将&lt;code&gt;format_specification&lt;/code&gt;字符串置入到应用于&lt;code&gt;Card&lt;/code&gt;实例的格式创建。使用这种方法我们可以格式化&lt;code&gt;Hand&lt;/code&gt;对象、&lt;code&gt;player_hand&lt;/code&gt;，如下所示：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;format_specification&lt;/code&gt;参数将用于每个&lt;code&gt;Hand&lt;/code&gt;集合里面的&lt;code&gt;Card&lt;/code&gt;实例。格式说明符&lt;code&gt;&quot;{0:{fs}}&quot;&lt;/code&gt;使用嵌套格式说明符技术将&lt;code&gt;format_specification&lt;/code&gt;字符串置入到应用于&lt;code&gt;Card&lt;/code&gt;实例的创建。使用这种方法我们可以格式化&lt;code&gt;Hand&lt;/code&gt;对象、&lt;code&gt;player_hand&lt;/code&gt;，如下所示：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Player: {hand:&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%r%s&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hand&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;player_hand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
@@ -2153,178 +2773,6 @@ OK
         <pubDate>Sun, 30 Nov 2014 23:48:27 +0800</pubDate>
         <link>/flask/2014/11/30/flask-7-1.html</link>
         <guid isPermaLink="true">/flask/2014/11/30/flask-7-1.html</guid>
-      </item>
-    
-      <item>
-        <title>Flask教程 —— Email</title>
-        <description>&lt;p&gt;许多类型的应用程序都会在某些事件发生的时候通知用户，常用的沟通方法就是电子邮件。尽管在Flask应用程序中，可以使用Python标准库中的&lt;code&gt;smtplib&lt;/code&gt;包来发送电子邮件，不过&lt;strong&gt;Flask-Mail&lt;/strong&gt;扩展封装了&lt;code&gt;smtplib&lt;/code&gt;且与Flask整合的非常好。&lt;/p&gt;
-
-&lt;h3 id=&quot;flask-mail&quot;&gt;&lt;strong&gt;1、使用Flask-Mail作为邮件支持&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;使用pip安装Flask-Mail：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) $ pip install flask-mail
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;扩展连接到一个简单邮件传输协议(SMTP)服务器并将邮件传递给它由它递送。如果没有给出配置，Flask-Mail则连接到&lt;strong&gt;localhost&lt;/strong&gt;25端口并发送无验证的电子邮件。表6-1所示的配置键列表可以用来配置SMTP服务器。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;表格6-1. Flask-Mail SMTP服务器配置键&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img style=&quot;width:419px; height:198px;&quot; src=&quot;http://young-py.github.io/imgs/flask6-01.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;在开发过程中如果能连接到一个外部SMTP服务器会更方便。示例6-1展示了如何配置应用程序通过谷歌的Gmail帐户发送电子邮件。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例6-1. hello.py：Flask-Mail配置Gmail&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_SERVER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;smtp.googlemail.com&amp;#39;&lt;/span&gt; 
-&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PORT&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;587&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_USE_TLS&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_USERNAME&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_USERNAME&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
-&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PASSWORD&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;MAIL_PASSWORD&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;建议：永远不要将账户证书直接写在你的脚本里面，尤其是如果你打算将你的的工作开源。为了保护你的帐户信息，必须让脚本从你的配置环境中导入敏感信息。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;示例6-2展示了Flask-Mail的初始化。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例6-2. hello.py：Flask-Mail初始化&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; 
-&lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Mail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;持有email服务器用户名和密码的两个变量需要在环境中定义。如果你是使用Linux或Mac OS X上的bash，你可以设置这些变量如下：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) $ export MAIL_USERNAME=&amp;lt;Gmail username&amp;gt;
-(venv) $ export MAIL_PASSWORD=&amp;lt;Gmail password&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;对于Windows用户，可以设置环境变量如下：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) $ set MAIL_USERNAME=&amp;lt;Gmail username&amp;gt;
-(venv) $ set MAIL_PASSWORD=&amp;lt;Gmail password&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&quot;python-shell&quot;&gt;&lt;strong&gt;1.1、使用python shell发送邮件&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;为了测试配置，你可以开启一个shell会话并发送测试email：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) $ python hello.py shell
-&amp;gt;&amp;gt;&amp;gt; from flask.ext.mail import Message
-&amp;gt;&amp;gt;&amp;gt; from hello import mail
-&amp;gt;&amp;gt;&amp;gt; msg = Message(&#39;test subject&#39;, sender=&#39;you@example.com&#39;, 
-... recipients=[&#39;you@example.com&#39;])
-&amp;gt;&amp;gt;&amp;gt; msg.body = &#39;text body&#39;
-&amp;gt;&amp;gt;&amp;gt; msg.html = &#39;&amp;lt;b&amp;gt;HTML&amp;lt;/b&amp;gt; body&#39;
-&amp;gt;&amp;gt;&amp;gt; with app.app_context():
-... mail.send(msg)
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;注意，Flask-Mail的&lt;code&gt;send()&lt;/code&gt;函数使用&lt;code&gt;current_app&lt;/code&gt;，所以它需要执行已激活的应用程序上下文。&lt;/p&gt;
-
-&lt;h5 id=&quot;section&quot;&gt;&lt;strong&gt;1.2、集成邮件到应用程序&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;为了避免每次都手动创建电子邮件消息，将应用电子邮件发送功能的共同部分抽象到一个函数中是非常不错的做法。另一个好处是，这个函数可以用Jinja2模板尽情渲染。示例6-3展示了怎么实现。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例6-3. hello.py：Email支持&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;flask.ext.mail&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt; 
-
-&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SUBJECT_PREFIX&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;[Flasky]&amp;#39;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SENDER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;Flasky Admin &amp;lt;flasky@example.com&amp;gt;&amp;#39;&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;send_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SUBJECT_PREFIX&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-                  &lt;span class=&quot;n&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SENDER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recipients&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;.txt&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;html&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;为发件人的主题和地址定义前缀字符串的函数依赖于两个特定于应用程序的配置键。&lt;code&gt;send_email&lt;/code&gt;函数携带目的地址、主题、邮件体模板和一组关键字参数。模板名不能有扩展，这样两个版本的模板可以使用纯文本或富文本。调用者传递关键字参数给&lt;code&gt;render_template()&lt;/code&gt;调用，这样模板就可以生成email体。&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;index()&lt;/code&gt;视图函数可以非常容易的扩充用来发送一个email给管理员，当从表单中收到一个新的名字的时候。示例6-4展示所做的改动。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例6-4. hello.py：Email示例&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
-&lt;span class=&quot;c&quot;&gt;# ...&lt;/span&gt;
-&lt;span class=&quot;nd&quot;&gt;@app.route&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;methods&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;GET&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NameForm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;validate_on_submit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filter_by&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; 
-        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
-            &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
-            &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;known&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
-                &lt;span class=&quot;n&quot;&gt;send_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_ADMIN&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;New User&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-                           &lt;span class=&quot;s&quot;&gt;&amp;#39;mail/new_user&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;known&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; 
-        &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;#39;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;redirect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url_for&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;index.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;form&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; 
-                            &lt;span class=&quot;n&quot;&gt;known&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;known&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;启动过程中，在&lt;code&gt;FLASKY_ADMIN&lt;/code&gt;环境变量中给出的email收件人会加载到同名的配置变量中。需要创建文本和HTML两个版本的email模板文件。这些文件都存储在&lt;code&gt;template&lt;/code&gt;内的&lt;code&gt;mail&lt;/code&gt;子目录中，让他们独立于普通模板。电子邮件模板需要给出用户作为该模板参数，因此&lt;code&gt;send_email()&lt;/code&gt;调用包括用户来作为一个关键字参数。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 6a&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;除了前面描述的&lt;code&gt;MAIL_USERNAME&lt;/code&gt;和&lt;code&gt;MAIL_PASSWORD&lt;/code&gt;环境变量，这个版本的应用程序需要&lt;code&gt;FLASKY_ADMIN&lt;/code&gt;环境变量。对于Linux和Mac OS X用户来说，启动应用程序命令：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) $ export FLASKY_ADMIN=&amp;lt;your-email-address&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;对于Windows用户，命令如下：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;(venv) $ set FLASKY_ADMIN=&amp;lt;Gmail username&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;使用这些环境变量设置，当你每次在表单中输入一个新的名字的时候都可以测试应用程序和接收电子邮件。&lt;/p&gt;
-
-&lt;h5 id=&quot;section-1&quot;&gt;&lt;strong&gt;1.3、发送异步邮件&lt;/strong&gt;&lt;/h5&gt;
-
-&lt;p&gt;如果你发送一些测试邮件，你可能注意到&lt;code&gt;mail.send()&lt;/code&gt;函数在发送电子邮件的时候会阻塞几秒钟，这段时间浏览器看起来没有响应。为了避免请求处理不必要的延误，可以将邮件发送功能移到一个后台线程去处理。示例6-5展示了以上改动。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;示例6-5. hello.py：异步邮件支持&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;threading&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt; 
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;send_async_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app_context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;mail&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;send_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SUBJECT_PREFIX&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-                  &lt;span class=&quot;n&quot;&gt;sender&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;FLASKY_MAIL_SENDER&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recipients&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;body&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;.txt&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;html&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;.html&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
-    &lt;span class=&quot;n&quot;&gt;thr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;send_async_email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; 
-    &lt;span class=&quot;n&quot;&gt;thr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;thr&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;这个实现突显了一个有趣的问题。许多Flask扩展操作是在假设有活动的应用程序和请求上下文的情况下进行的。Flask-Mail的&lt;code&gt;send()&lt;/code&gt;函数使用&lt;code&gt;current_app&lt;/code&gt;，所以它需要已激活的应用程序上下文。但是当&lt;code&gt;mail.send()&lt;/code&gt;函数在一个不同的线程上执行，应用程序上下文需要人为地创建使用&lt;code&gt;app.app_context()&lt;/code&gt;。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;建议：如果你有克隆在GitHub上的应用程序，你现在可以运行&lt;code&gt;git checkout 6b&lt;/code&gt;来切换到这个版本的应用程序。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;如果你现在运行应用程序，你会发现它响应更快了，但请记住，发送大量的电子邮件的应用程序，其拥有一个致力于发送电子邮件的服务比开启一个新的线程更合适。例如，执行&lt;code&gt;send_async_email()&lt;/code&gt;函数可以将邮件发送到&lt;a href=&quot;http://www.celeryproject.org/&quot;&gt;Celery&lt;/a&gt;的任务队列中。&lt;/p&gt;
-
-&lt;p&gt;本章完成的是大多数web应用程序必备的功能。现在的问题是，&lt;code&gt;hello.py&lt;/code&gt;脚本开始大，这使得它变得更难管理。在下一章中，你将学习如何构建一个更大的应用程序。&lt;/p&gt;
-
-</description>
-        <pubDate>Sat, 29 Nov 2014 00:32:50 +0800</pubDate>
-        <link>/flask/2014/11/29/flask-6-1.html</link>
-        <guid isPermaLink="true">/flask/2014/11/29/flask-6-1.html</guid>
       </item>
     
   </channel>
