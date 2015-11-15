@@ -64,233 +64,533 @@
   <article class="post-content">
   <h3 id="bool"><strong>__bool__()方法</strong></h3>
 
-<p>Python对假有个很好的定义。参考手册列出了大量的值,将测试相当于假。这包括诸如假,0,”,[](){ }。大多数其他对象将测试等同于事实。</p>
+<p>Python对假有个很好的定义。参考手册列出了大量的值来被检测为<code>False</code>。这包括诸如：<code>False</code>、<code>0</code>、<code>''</code>、<code>[]</code>、<code>()</code>、<code>{}</code>。大多数其他对象将被检测为<code>True</code>。</p>
 
-<p>通常,我们想要检查一个对象被“不空”用一个简单的语句,如下所示</p>
+<p>通常，我们会用一个简单的语句检查一个对象“不空”，如下所示：</p>
 
-<p>if some_object:
-       process( some_object )</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">some_object</span><span class="p">:</span>
+    <span class="n">process</span><span class="p">(</span><span class="n">some_object</span><span class="p">)</span></code></pre></div>
 
-<p>下罩,这是布尔值()内置函数的工作。这个函数依赖于一个给定对象的布尔值()方法。</p>
+<p>隐藏在内部的是内置函数<code>__bool__()</code>的工作。这个函数依赖于一个给定对象的<code>__bool__()</code>方法。</p>
 
-<p>默认的布尔值()方法返回True。我们可以看到下面的代码</p>
+<p>默认的<code>__bool__()</code>方法返回<code>True</code>。我们可以看如下代码：</p>
 
-<blockquote>
-  <blockquote>
-    <blockquote>
-      <p>x = object()
-bool(x)
-   True</p>
-    </blockquote>
-  </blockquote>
-</blockquote>
+<pre><code>&gt;&gt;&gt; x = object()
+&gt;&gt;&gt; bool(x)
+True
+</code></pre>
 
-<p>对于大多数类,这是非常有效的。大多数对象预计不会是假的。然而,对于集合,这是不合适的。一个空集合应该相当于假。一个非空的集合可以返回True。我们可能想要添加一个方法我们甲板对象。</p>
+<p>对于大多数类，这是非常有效的。大多数对象不会是<code>False</code>。然而，对于集合这是不合适的。空集合应该相当于<code>False</code>。非空集合则返回<code>True</code>。我们可能需要添加一个这样的方法到我们的<code>Deck</code>对象。</p>
 
-<p>如果我们包装列表,我们可能有一些,下面的代码片段所示</p>
+<p>如果我们包装一个列表，我们需要如下操作：</p>
 
-<p>def <strong>bool</strong>( self ):
-       return bool( self._cards )</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cards</span><span class="p">)</span></code></pre></div>
 
-<p>这代表的布尔函数内部卡片收集。如果我们扩展列表,我们可能会有如下</p>
+<p>它委托布尔函数到内部<code>_cards</code>集合。</p>
 
-<p>def <strong>bool</strong>( self ):
-       return super().<strong>bool</strong>( self )</p>
+<p>如果我们扩展列表，我们需要如下操作：</p>
 
-<p>这代表了超类的定义布尔值()函数。</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code></pre></div>
 
-<p>在这两种情况下,我们speci卡莉委派逻辑测试。在包装的情况下,我们委托给集合。在延长的情况下,我们委托给超类。无论哪种方式,包装或扩展,一个空集合将是错误的。这将给我们一种甲板对象是否已经完全解决,是空的。</p>
+<p>它委托到<code>__bool__()</code>函数的超类定义。</p>
 
-<p>我们可以做的事情,下面的代码片段所示</p>
+<p>在这两种情况下，我们特意地委托布尔检测。在包装那个例子，我们委托给集合。在扩展的例子，我们委托给超类。无论哪种方式，包装或扩展，空集合将是<code>False</code>。这将给我们一种途径去看<code>Deck</code>对象是否已经完全处理完且是空的。</p>
 
-<p>d = Deck()
-   while d:
-       card= d.pop()
-       # process the card</p>
+<p>我们可以按照如下代码片段所示去做：</p>
 
-<p>此循环将交易时所有的卡片不一个IndexError异常甲板已经筋疲力尽。</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">d</span> <span class="o">=</span> <span class="n">Deck</span><span class="p">()</span>
+<span class="k">while</span> <span class="n">d</span><span class="p">:</span>
+  <span class="n">card</span><span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+  <span class="c"># process the card</span></code></pre></div>
+
+<p>此循环将处理所有的牌，在整副牌都没有了的时候不会出现<code>IndexError</code>异常。</p>
 
 <h3 id="bytes"><strong>__bytes__()方法</strong></h3>
 
-<p>有相对较少的情况下将一个对象转换成字节。我们将在第2部分中详细看看这个,持久性和序列化。</p>
+<p>有时候会出现将一个对象转换成字节的情况。我们将在第2部分《持久化和序列化》中详细看看相关内容。</p>
 
-<p>在最常见的情况下,应用程序可以创建一个字符串表示,和Python的内置编码功能IO类将被用于将字符串转换成字节。这是完全在几乎所有的情况下。主要的例外是当我们德宁一种新的字符串。在这种情况下,我们需要不编码的字符串。</p>
+<p>在最常见的情况下，应用程序可以创建一个字符串表示，Python IO类内置的编码功能可以将字符串转换成字节。几乎任何情况下都能完成的很好。唯一的例外是当我们定义了一种新的字符串。在这种情况下，我们需要定义该字符串编码。</p>
 
-<p>字节()函数做各种事情,这取决于参数</p>
-
-<ul>
-  <li>
-    <p>字节(整数):返回一个不可变的字节对象的给定的数字0 x00值。</p>
-  </li>
-  <li>
-    <p>字节(字符串):这将给定字符串字节编码。额外的参数编码和错误处理将不编码过程的细节。</p>
-  </li>
-  <li>
-    <p>字节():这将调用。字节()来创建一个字节对象。这里使用的编码或误差参数不会。</p>
-  </li>
-</ul>
-
-<p>基本对象类不de ne字节()。这意味着我们的课程不提供一个默认字节()方法。</p>
-
-<p>有一些特殊的情况下,我们可能会有一个对象,需要直接编码到字节被写入到勒之前。通常是简单的字符串和允许str类型产生字节。在处理字节时,重要的是要注意,没有简单的方法从勒解码字节或接口。内置的字节类只会解码字符串,不是我们独特的新对象。我们可能需要解析的字符串解码的字节。或者,我们可能需要显式地使用结构模块解析字节从解析和创建独特的对象值。</p>
-
-<p>我们来看看编码和解码卡字节。作为只有52卡值,每张卡片可以包装成一个字节。然而,我们已经决定使用一个字符代表诉讼和一个字符来表示。此外,我们需要正确地重建卡的子类,所以我们必须编码几件事情</p>
+<p><code>bytes()</code>函数可以做很多事情，但这取决于它的参数：</p>
 
 <ul>
   <li>
-    <p>卡的子类(AceCard、NumberCard FaceCard</p>
+    <p><code>bytes(integer)</code>：返回给定整数个<code>0x00</code>的不可变字节对象。</p>
   </li>
   <li>
-    <p>subclass-de ned的参数初始化</p>
+    <p><code>bytes(string)</code>：将给定字符串编码成字节。额外的编码参数和错误处理将定义编码处理的细节。</p>
+  </li>
+  <li>
+    <p><code>bytes(something)</code>：这将调用<code>something.__bytes__()</code>来创建一个字节对象。这里将不会使用编码或错误参数。</p>
   </li>
 </ul>
 
-<p>请注意,我们的一些替代init()方法将一个数字等级转换成一个字符串,失去原来的数值。为了一个可逆的字节编码,我们需要重建这个原始数值等级值。</p>
+<p>基本<code>object</code>类没有定义<code>__bytes__()</code>。这意味着我们的类默认不提供<code>__bytes__()</code>方法。</p>
 
-<p>下面是一个实现的字节(),它返回一个utf - 8编码卡类的,等级,西装</p>
+<p>有一些特殊的情况下，我们可能需要有一个在写入到文件之前被直接编码到字节中的对象。通常是简单的字符串并允许<code>str</code>类型为我们生成字节。在处理字节时，重要的是要注意，没有简单的方法从文件或接口来解码。内置的<code>bytes</code>类只会解码字符串，不是我们独有的新对象。我们可能需要从字节解码来解析字符串。或者，我们可能需要使用<code>struct</code>模块显式地解析字节，通过解析好的值创建独有对象。</p>
 
-<p>def <strong>bytes</strong>( self ):
-           class_code= self.<strong>class</strong>.<strong>name</strong>[0]
-           rank_number_str = {‘A’: ‘1’, ‘J’: ‘11’, ‘Q’: ‘12’, ‘K’: ‘13’}.
-   get( self.rank, self.rank )
-           string= “(“+” “.join([class_code, rank_number_str, self.suit,]
-   ) + “)”
-           return bytes(string,encoding=”utf8”)</p>
+<p>我们看看编码和解码<code>Card</code>成字节。有52个牌值，每张牌可以打包到一个字节。然而，我们已经选择使用一个字符代表<code>suit</code>和一个字符来表示<code>rank</code>。此外，我们需要正确地重构<code>Card</code>子类，所以我们必须编码几件事情：</p>
 
-<p>这是通过创建一个卡片对象的字符串表示,然后编码字符串到字节。这通常是最简单、最exible方法。</p>
+<ul>
+  <li>
+    <p><code>Card(AceCard, NumberCard, FaceCard)</code>子类</p>
+  </li>
+  <li>
+    <p>子类定义的<code>__init__()</code>的参数</p>
+  </li>
+</ul>
 
-<p>当我们有一堆字节,可以解码字符串,然后将字符串解析成一个新的卡片对象。下面是一个方法,可以用于创建一个卡片对象的字节</p>
+<p>注意，我们的替代方法<code>__init__()</code>将一个牌值转换成一个字符串，失去原来的数值。为了一个可逆的字节编码，我们需要重构这个原始牌值。</p>
 
-<p>def card_from_bytes( buffer ):
-       string = buffer.decode(“utf8”)
-       assert string[0 ]==”(“ and string[-1] == “)”
-       code, rank_number, suit = string[1:-1].split()
-       class_ = { ‘A’: AceCard, ‘N’: NumberCard, ‘F’: FaceCard }[code]
-       return class_( int(rank_number), suit )</p>
+<p>下面是<code>__bytes__()</code>的实现，它返回一个utf-8编码的<code>Cards</code>类、<code>rank</code>和<code>suit</code>：</p>
 
-<p>在前面的代码中,我们解码字节为一个字符串。然后我们该字符串解析为各个值。从这些值,我们可以定位和构建原始卡片对象的类。</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">__bytes__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">class_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">rank_number_str</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;A&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">:</span> <span class="s">&#39;11&#39;</span><span class="p">,</span> <span class="s">&#39;Q&#39;</span><span class="p">:</span> <span class="s">&#39;12&#39;</span><span class="p">,</span> <span class="s">&#39;K&#39;</span><span class="p">:</span> <span class="s">&#39;13&#39;</span><span class="p">}</span><span class="o">.</span>
+      <span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="s">&quot;(&quot;</span><span class="o">+</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">class_code</span><span class="p">,</span> <span class="n">rank_number_str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">suit</span><span class="p">,])</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span>
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;utf8&quot;</span><span class="p">)</span></code></pre></div>
 
-<p>我们可以建立一张卡片对象的字节表示如下</p>
+<p>以上通过创建一个<code>Card</code>对象的字符串表示，然后编码字符串到字节才能起作用。这通常是最简单、最灵活的方法。</p>
 
-<p>b= bytes(someCard)</p>
+<p>当我们有一堆字节的时候，可以解码字符串，然后将字符串解析到新的<code>Card</code>对象。下面是一个可以用于从字节创建一个<code>Card</code>对象的方法：</p>
 
-<p>我们可以重建卡对象的字节如下</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">card_from_bytes</span><span class="p">(</span><span class="nb">buffer</span><span class="p">):</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="nb">buffer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&quot;utf8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;(&quot;</span> <span class="ow">and</span> <span class="n">string</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;)&quot;</span>
+    <span class="n">code</span><span class="p">,</span> <span class="n">rank_number</span><span class="p">,</span> <span class="n">suit</span> <span class="o">=</span> <span class="n">string</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">class_</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;A&#39;</span><span class="p">:</span> <span class="n">AceCard</span><span class="p">,</span> <span class="s">&#39;N&#39;</span><span class="p">:</span> <span class="n">NumberCard</span><span class="p">,</span> <span class="s">&#39;F&#39;</span><span class="p">:</span> <span class="n">FaceCard</span><span class="p">}[</span><span class="n">code</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">class_</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">rank_number</span><span class="p">),</span> <span class="n">suit</span><span class="p">)</span></code></pre></div>
 
-<p>someCard = card_from_bytes(b)</p>
+<p>在前面的代码中，我们将字节解码为一个字符串。然后我们将该字符串解析为各个值。从这些值，我们可以定位类且构建原始<code>Card</code>对象。</p>
 
-<p>重要的是要注意,外部字节表示通常是具有挑战性的设计。我们创建一个表示一个对象的状态。Python已经有很多表示,适合我们班德定义。</p>
+<p>我们可以构建<code>Card</code>对象的字节表示，如下：</p>
 
-<p>通常是使用酸洗或json模块比发明的低字节表示一个对象。这是第九章的主题,序列化和储蓄JSON,YAML,泡菜,CSV,XML。</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">b</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">someCard</span><span class="p">)</span></code></pre></div>
+
+<p>我们可以通过字节重构<code>Card</code>对象，如下：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">someCard</span> <span class="o">=</span> <span class="n">card_from_bytes</span><span class="p">(</span><span class="n">b</span><span class="p">)</span></code></pre></div>
+
+<p>重要的是要注意，外部字节表示通常是具有挑战性的设计。我们创建一个对象状态表示。Python已经有很多对我们类定义工作的很好的表示。</p>
+
+<p>通常是使用<code>pickle</code>或<code>json</code>模块比发明低级的字节来表示一个对象要更好。这是第九章《序列化和存储JSON、YAML、Pickle、CSV和XML》的主要内容。</p>
 
 <h3 id="section"><strong>比较运算符方法</strong></h3>
 
-<p>Python有六个比较运算符。这些操作符有特殊的方法实现。根据文档,映射工作如下</p>
+<p>Python有六个比较运算符。这些操作符有特殊的方法实现。根据文档，其映射工作如下：</p>
 
 <ul>
   <li>
-    <p>x&lt;y calls x.<strong>lt</strong>(y)</p>
+    <p><code>x &lt; y</code> calls <code>x.__lt__(y)</code></p>
   </li>
   <li>
-    <p>x&lt;=y calls x.<strong>le</strong>(y)</p>
+    <p><code>x &lt;= y</code> calls <code>x.__le__(y)</code></p>
   </li>
   <li>
-    <p>x==y calls x.<strong>eq</strong>(y)</p>
+    <p><code>x == y</code> calls <code>x.__eq__(y)</code></p>
   </li>
   <li>
-    <p>x!=y calls x.<strong>ne</strong>(y)</p>
+    <p><code>x != y</code> calls <code>x.__ne__(y)</code></p>
   </li>
   <li>
-    <p>x&gt;y calls x.<strong>gt</strong>(y)</p>
+    <p><code>x &gt; y</code> calls <code>x.__gt__(y)</code></p>
   </li>
   <li>
-    <p>x&gt;=y calls x.<strong>ge</strong>(y)</p>
+    <p><code>x &gt;= y</code> calls <code>x.__ge__(y)</code></p>
   </li>
 </ul>
 
-<p>我们会再次回到比较运算符在第七章看着数字时,创建的数字。</p>
+<p>第七章《创建数字》我们会再次回到比较运算符这块。</p>
 
-<p>有一个额外的规则对运营商相关的实际实现。这些规则是基于认为左边的对象的类de nes所需的特殊方法。如果没有,Python可以尝试另一种操作通过改变订单。</p>
+<p>有一些关于哪个操作符被真实实现的额外规则。这些规则是基于左边对象的类所需的特殊方法。如果没有，Python可以改变顺序来尝试另一种操作。</p>
 
-<p>这里有两个基本规则</p>
+<p><strong>这里有两个基本规则</strong></p>
 
-<p>首先,左边的操作数是检查经营者实现:&lt; B意味着A lt(B)。</p>
+<p>首先，左边的操作数是由操作符的实现方法来检查的：<code>A &lt; B</code>意味着<code>A.__lt__(B)</code>。</p>
 
-<p>第二,右边的操作数是检查逆转算子实现:&lt; B意味着B . gt(a)。</p>
+<p>第二，右边的操作数是由相反的操作符的实现方法来检查的:<code>A &lt; B</code>意味着<code>B.__gt__(A)</code>。</p>
 
-<p>罕见的例外发生在正确的操作数是一个子类的左操作数;然后,正确的操作数是检查rst允许子类覆盖超类。</p>
+<p>罕见的例外发生在右操作数是左操作数的一个子类；然后，右操作数是第一个被检查的，允许子类覆盖超类。</p>
 
-<p>我们可以看到这是如何工作的德宁一个类只有一个运营商德奈德,然后使用其他操作。</p>
+<p>我们可以看到这是如何工作的当一个类只有一个操作符的时候，然后供其他操作符使用。</p>
 
-<p>以下是部分类,我们可以使用</p>
+<p>以下是我们可以使用的部分类：</p>
 
-<p>class BlackJackCard_p:
-       def <strong>init</strong>( self, rank, suit ):
-           self.rank= rank
-           self.suit= suit
-       def <strong>lt</strong>( self, other ):
-           print( “Compare {0} &lt; {1}”.format( self, other ) )
-           return self.rank &lt; other.rank
-       def <strong>str</strong>( self ):
-           return “{rank}{suit}”.format( **self.<strong>dict</strong> )</p>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">BlackJackCard_p</span><span class="p">:</span>
 
-<p>这是21点的比较规则,适合不重要。我们省略了比较的方法来了解Python会回退当操作员失踪。这个类将使我们能够执行&lt;比较。有趣的是,Python还可以使用该执行&gt;比较通过切换参数顺序。换句话说,x &lt; y y &gt; x。这是镜子重新检验规则;我们将在第七章再次见到它,创造数字。</p>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">suit</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">rank</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suit</span> <span class="o">=</span> <span class="n">suit</span>
 
-<p>我们看到当我们试图评估不同的比较操作。我们将创建两个卡类和比较它们以不同的方式,下面的代码片段所示</p>
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Compare {0} &lt; {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">rank</span>
 
-<blockquote>
-  <blockquote>
-    <blockquote>
-      <p>two = BlackJackCard_p( 2, ‘♠’ )
-three = BlackJackCard_p( 3, ‘♠’ )
-two &lt; three
-   Compare 2♠ &lt; 3♠
-   True
-two &gt; three
-   Compare 3♠ &lt; 2♠
-   False
-two == three
-   False
-two &lt;= three
-   Traceback (most recent call last):
-   File “<stdin>", line 1, in <module>
-   TypeError: unorderable types: BlackJackCard_p() &lt;= BlackJackCard_p()</module></stdin></p>
-    </blockquote>
-  </blockquote>
-</blockquote>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;{rank}{suit}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span></code></pre></div>
 
-<p>从这,我们可以看到两个&lt;三个映射到两个。lt(三)。</p>
+<p>这是21点的比较规则，花色不重要。我们省略了比较的方法来了解当操作符丢失的时候Python是如何撤回的。这个类允许我们执行<code>&lt;</code>比较。有趣的是，Python还可以通过切换参数顺序来使用<code>&gt;</code>比较。换句话说，<code>x &lt; y ≡ y &gt; x</code>。这是镜像反射规则；我们将在第七章《创造数字》再次见到它。</p>
 
-<p>然而,对于2 &gt; 3、没有de ned gt()方法;Python使用三种。lt(两个)作为一个后备计划</p>
+<p>我们将看到试图评估不同的比较操作。创建两个<code>Cards</code>类且比以不同的方式较它们，如下代码片段所示：</p>
 
-<p>默认情况下,eq()方法是继承对象;它比较对象id;对象参与= =和!=测试如下</p>
+<pre><code>&gt;&gt;&gt; two = BlackJackCard_p(2, '♠')
+&gt;&gt;&gt; three = BlackJackCard_p(3, '♠')
+&gt;&gt;&gt; two &lt; three
+Compare 2♠ &lt; 3♠
+True
+&gt;&gt;&gt; two &gt; three
+Compare 3♠ &lt; 2♠
+False
+&gt;&gt;&gt; two == three
+False
+&gt;&gt;&gt; two &lt;= three
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+TypeError: unorderable types: BlackJackCard_p() &lt;= BlackJackCard_p()
+</code></pre>
 
-<blockquote>
-  <blockquote>
-    <blockquote>
-      <p>two_c = BlackJackCard_p( 2, ‘♣’ )
-two == two_c
-   False</p>
-    </blockquote>
-  </blockquote>
-</blockquote>
+<p>从这，我们可以看到<code>two &lt; three</code>映射到<code>two.__lt__(three)</code>。</p>
 
-<p>我们可以看到,结果不是我们所期待。我们会经常需要覆盖默认的eq()的实现。</p>
+<p>然而，对于<code>two &gt; three</code>、没有<code>__gt__()</code>方法定义；Python使用<code>three.__lt__(two)</code>作为一个后备计划。</p>
 
-<p>同样,没有运营商之间的逻辑连接。在数学上,我们可以从两个获得所有必要的比较。Python自动不这样做。相反,Python处理以下四个简单的检验对默认情况下</p>
+<p>默认情况下，<code>__eq__()</code>方法是继承自<code>object</code>；它比较对象ID；对象将有<code>==</code>和<code>!=</code>检测，如下：</p>
 
-<p>x&lt;y≡y&gt;x x≤y≡y≥x x=y≡y=x x≠y≡y≠x</p>
+<pre><code>&gt;&gt;&gt; two_c = BlackJackCard_p(2, '♣')
+&gt;&gt;&gt; two == two_c
+False
+</code></pre>
 
-<p>至少,这意味着我们必须提供一个从每个四双。例如,我们可以提供eq(),(),lt()和()。</p>
+<p>我们可以看到结果并不是我们所期待的。我们会经常需要覆盖默认的<code>__eq__()</code>实现。</p>
 
-<p>@functools。总订购装饰克服,并推导出其余的默认限制比较从情商()和其中的一个:lt(),(),gt()、通用电气()。我们将再次讨论这个在第7章,创造数字。</p>
+<p>同样，操作符之间没有逻辑联系。在数学上，只要两个就可以派生所有必要的比较。Python不会自动这样做。相反，Python默认处理以下四对相反的检测：</p>
 
-<h3 id="del"><strong>__del__()方法</strong></h3>
+<pre><code>x &lt; y ≡ y &gt; x
+x ≤ y ≡ y ≥ x
+x = y ≡ y = x
+x ≠ y ≡ y ≠ x
+</code></pre>
 
-<h3 id="new"><strong>__new__()方法和不可变对象</strong></h3>
+<p>这意味着我们必须至少从四对中提供一个。例如，我们可以提供<code>__eq__()</code>、<code>__ne__()</code>、<code>__lt__()</code>和<code>__le__()</code>。</p>
 
-<h3 id="newmetaclass"><strong>__new__()方法和metaclass</strong></h3>
+<p><code>@functools.total_ordering</code>装饰器克服了默认限制，并从<code>__eq__()</code>和<code>__lt__()</code>、<code>__le__()</code>、<code>__gt__()</code>中任意的一个，推导出其余的比较。我们将在第7章《创造数字》再次讨论这个。</p>
 
-<h3 id="section-1"><strong>总结</strong></h3>
+<h4 id="section-1"><strong>1. 设计比较</strong></h4>
+
+<p>在比较运算符有两个顾虑：</p>
+
+<ul>
+  <li>
+    <p>显而易见的问题是怎样比较相同类的两个对象</p>
+  </li>
+  <li>
+    <p>不太明显的问题是怎样比较不同类的对象</p>
+  </li>
+</ul>
+
+<p>对于一个类有多个属性，我们考虑比较运算符的时候经常模棱两可。可能不是很清楚我们要比较什么。</p>
+
+<p>再次考虑不起眼的扑克牌。表达式如<code>card1 == card2</code>显然是为了比较<code>rank</code>和<code>suit</code>。对吗？或者总是为真？终究，<code>suit</code>在21点没有意义。</p>
+
+<p>如果我们想决定<code>Hand</code>对象是否可以分牌，我们最好看下这两个代码片段。以下是第一个代码片段：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">hand</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">hand</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></code></pre></div>
+
+<p>下面是第二个代码片段：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">if</span> <span class="n">hand</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="n">hand</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rank</span></code></pre></div>
+
+<p>虽然有一个是更短，简洁并不总是最好的。如果我们定义相等只考虑<code>rank</code>，我们将很难定义单元测试，因为当一个单元测试应该关注完全正确的牌时，一个简单的<code>TestCase.assertEqual()</code>方法会容忍各种各样的牌。</p>
+
+<p>表达式如<code>card1 &lt; = 7</code>显然是为了比较<code>rank</code>。</p>
+
+<p>我们想要一些比较来比较牌的所有属性，一些比较比较<code>rank</code>？我们该怎样通过<code>suit</code>来排序？此外，相等性的比较必须并行计算hash。如果我们在hash中包含多个属性，我们需要将其包含在相等性的比较中。在这种情况下，似乎牌之间的相等和不相等必须全部的<code>Card</code>比较，因为我们的hash包括了<code>rank</code>和<code>suit</code>。</p>
+
+<p><code>Card</code>之间的比较顺序，无论如何都应该只有<code>rank</code>。和整数的比较同样也应该只有<code>rank</code>。当发现分牌这一特殊情况，<code>hand.cards[0].rank == hand.cards[1].rank</code>会处理的很好，因为在分牌规则中它是显式的。</p>
+
+<h4 id="section-2"><strong>2. 同一个类的对象的比较实现</strong></h4>
+
+<p>我们来看看一个简单的同一类的比较通过观察一个更完整的<code>BlackJackCard</code>类</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">BlackJackCard</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">suit</span><span class="p">,</span> <span class="n">hard</span><span class="p">,</span> <span class="n">soft</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">rank</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suit</span> <span class="o">=</span> <span class="n">suit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hard</span> <span class="o">=</span> <span class="n">hard</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">soft</span> <span class="o">=</span> <span class="n">soft</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">other</span><span class="p">,</span> <span class="n">BlackJackCard</span> <span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">rank</span>
+
+    <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="o">.</span><span class="n">rank</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span> <span class="nf">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BlackJackCard</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">rank</span>
+
+    <span class="k">def</span> <span class="nf">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BlackJackCard</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">&gt;=</span> <span class="n">other</span><span class="o">.</span><span class="n">rank</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BlackJackCard</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">rank</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">suit</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">suit</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BlackJackCard</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">rank</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">suit</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">suit</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;{rank}{suit}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span></code></pre></div>
+
+<p>现在我们已经定义了所有六个比较运算符。</p>
+
+<p>我们已经向您展示了两种类型检查：<strong>显式</strong>和<strong>隐式</strong>。显式类型检查使用<code>isinstance()</code>。隐式类型检查使用<code>try:</code>块。使用<code>try:</code>块有概念上的小优势，它能避免重复的类名。有可能会有人想发明一种变体牌来兼容<code>BlackJackCard</code>但不是定义为适当的子类。使用<code>isinstance()</code>可以防止一个无效类来保证工作正常。</p>
+
+<p><code>try:</code>块会允许一个类使用<code>rank</code>属性。这变成一个难以解决问题的风险会变为零，而作为类在应用程序的其他地方可能会失败。同样，<code>Card</code>实例与金融建模应用程序类比较出现根据牌值排序的属性。</p>
+
+<p>在接下来的例子中，我们将关注<code>try:</code>块。<code>isinstance()</code>方法检查一直是Python惯用方法且应用广泛。我们通过显式地返回<code>NotImplemented</code>来告知Python，这个操作符并不是用来实现这种类型数据的。Python可以颠倒参数顺序来看看另一个操作数是否提供了实现方法。如果没有找到有效的操作符，则<code>TypeError</code>异常将被抛出。</p>
+
+<p>我们省略了三个子类定义和工厂函数，留下<code>card21()</code>作为一个练习。</p>
+
+<p>我们也省略了同类的比较，我们将在下一节看到。通过这个类，我们可以成功的比较牌。下面是一个例子，我们创建并比较三张牌：</p>
+
+<pre><code>&gt;&gt;&gt; two = card21(2, '♠')
+&gt;&gt;&gt; three = card21(3, '♠')
+&gt;&gt;&gt; two_c = card21(2, '♣')
+</code></pre>
+
+<p>根据这些<code>Cards</code>类，我们可以进行一些比较，如下代码片段所示：</p>
+
+<pre><code>&gt;&gt;&gt; two == two_c
+False
+&gt;&gt;&gt; two.rank == two_c.rank
+True
+&gt;&gt;&gt; two &lt; three
+True
+&gt;&gt;&gt; two_c &lt; three
+True
+</code></pre>
+
+<p>定义似乎和预期的一样。</p>
+
+<h4 id="section-3"><strong>3. 混合类对象的比较实现</strong></h4>
+
+<p>我们使用<code>BlackJackCard</code>类为例，当我们尝试比较来自不同类的两个操作数时，看看会发生什么。</p>
+
+<p>下面是<code>Card</code>实例，我们可以和<code>int</code>值相比较：</p>
+
+<pre><code>&gt;&gt;&gt; two = card21(2, '♣')
+&gt;&gt;&gt; two &lt; 2
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+TypeError: unorderable types: Number21Card() &lt; int()
+&gt;&gt;&gt; two &gt; 2
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+TypeError: unorderable types: Number21Card() &gt; int()
+</code></pre>
+
+<p>这就是我们期望的，<code>BlackJackCard</code>、<code>Number21Card</code>的子类没有提供所需的特殊方法，所以有<code>TypeError</code>异常。</p>
+
+<p>然而，考虑下面的两个例子：</p>
+
+<pre><code>&gt;&gt;&gt; two == 2
+False
+&gt;&gt;&gt; two == 3
+False
+</code></pre>
+
+<p>为什么是这样的结果？当面临一个<code>NotImplemented</code>值，Python会对调操作数。在这种情况下，整数值定义<code>int.__eq__()</code>方法，容忍一个意想不到的类对象。</p>
+
+<h4 id="hardsoft"><strong>4. Hard点数、Soft点数和多态性</strong></h4>
+
+<p>我们定义<code>Hand</code>这样它将执行一些有意义的混合类比较。与其他的比较，我们必须确定这正是我们要比较的。</p>
+
+<p>对于<code>Hands</code>之间的相等比较，我们应该比较所有牌。</p>
+
+<p>对于<code>Hands</code>比较顺序，我们需要比较每个<code>Hand</code>对象的一个属性。为了逐个和<code>int</code>相比较，我们应该让<code>Hand</code>对象的总数逐个相比较。为了有一个总数，在21点游戏中我们必须分类hard点数和soft点数。</p>
+
+<p>当有一个A在手，会有下面两个候选点数：</p>
+
+<ul>
+  <li>
+    <p><strong>soft点数</strong>把A当作11。如果soft点数超过21，那么A当作1。</p>
+  </li>
+  <li>
+    <p><strong>hard点数</strong>把A当作1。</p>
+  </li>
+</ul>
+
+<p>这意味着手牌的总和不是简单的牌的总和。</p>
+
+<p>首先我们必须确定是否有一个A在手。确定这些，我们可以确定是否有一个有效的(小于或等于21)的soft点数。否则，我们将依靠hard点数。</p>
+
+<p><strong>多态性</strong>的一个症状是依靠<code>isinstance()</code>来确定子类的成员。一般来说，这违反了基本的封装特性。一组好的多态的子类定义应该完全对等且带有相同的方法签名。理想情况下，类的定义是不透明的，我们不需要看类的内部定义。一组多态的类使用广泛的<code>isinstance()</code>检测。在某些情况下，<code>isinstance()</code>是必要的。当使用一个内置类的时候都会出现这样。我们不能追溯添加方法函数到内置类中，子类化它们来添加一个多态性辅助方法可能是不值得的。</p>
+
+<p>对于一些特殊的方法，有必要看到<code>isinstance()</code>用于实现跨多个类对象的操作，没有简单的继承层次结构。在下一节，与之无关的类中，我们将向您展示<code>isinstance()</code>的惯用方法。</p>
+
+<p>对于我们牌的类层次结构，我们想要一个方法(或属性)来标识A，而不是用<code>isinstance()</code>。这是一个多态辅助方法。它确保我们可以辨别否则等价类会分开。</p>
+
+<p>我们有两个选择：</p>
+
+<ul>
+  <li>
+    <p>添加一个类级别的属性</p>
+  </li>
+  <li>
+    <p>添加一个方法</p>
+  </li>
+</ul>
+
+<p>因为保守的赌注方式，我们有两个原因去检查A。如果庄家的牌是A，它会触发一个保险的赌注。如果庄家手牌(或玩家的手牌)有一个A，会有一个soft点数与hard点数的计算。</p>
+
+<p>hard点数和soft点数是<code>card.soft - card.hard</code>值的差。我们可以在<code>AceCard</code>里面的定义看到这个值是10。然而，深入类的内部可以看到该实现违背了封装性。</p>
+
+<p>我们可以将<code>BlackjackCard</code>作为透明的，然后检查<code>card.soft - card.hard != 0</code>是否为真。如果为真，这些信息足够算出hard点数和soft点数。</p>
+
+<p>下面是一个使用<code>total</code>方法计算soft值和hard值之间差值的版本：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">delta_soft</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">soft</span><span class="o">-</span><span class="n">c</span><span class="o">.</span><span class="n">hard</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
+    <span class="n">hard</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">hard</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hard</span><span class="o">+</span><span class="n">delta_soft</span> <span class="o">&lt;=</span> <span class="mi">21</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hard</span><span class="o">+</span><span class="n">delta_soft</span>
+    <span class="k">return</span> <span class="n">hard</span></code></pre></div>
+
+<p>我们将计算hard点数和soft点数差作为<code>delta_soft</code>。对于大多数牌，差异是零。对于A，差异是非零。</p>
+
+<p>鉴于hard点数和<code>delta_soft</code>，我们可以确定返回那个总数。如果是<code>hard + delta_soft</code>小于或等于21，值是soft点数。如果soft点数大于21，又恢复到hard点数。</p>
+
+<p>我们可以考虑让值21为显式常量。一个有意义的名字有时比文字更有帮助。因为21点的规则，21不太可能会改变到一个不同的值。没有比文字含义的21更有意义的了。</p>
+
+<h4 id="section-4"><strong>5. 混合类比较示例</strong></h4>
+
+<p>为<code>Hand</code>对象给定一个点数，我们可以有意义地定义<code>Hand</code>实例之间的比较以及<code>Hand</code>和<code>int</code>之间的对比。为了确定我们做哪一种比较，我们被迫使用<code>isinstance()</code>。</p>
+
+<p>以下是部分<code>Hand</code>比较的定义：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Hand</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dealer_card</span><span class="p">,</span> <span class="o">*</span><span class="n">cards</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dealer_card</span> <span class="o">=</span> <span class="n">dealer_card</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cards</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;{__class__.__name__}({dealer_card!r}, {_cards_str})&quot;</span>
+          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">__class__</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="n">_cards_str</span><span class="o">=</span><span class="s">&quot;, &quot;</span>
+          <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">cards</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dealer_card</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">dealer_card</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">other</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">total</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">other</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">other</span><span class="o">.</span><span class="n">total</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+       <span class="n">__hash__</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">delta_soft</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">soft</span><span class="o">-</span><span class="n">c</span><span class="o">.</span><span class="n">hard</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
+        <span class="n">hard</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">hard</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hard</span><span class="o">+</span><span class="n">delta_soft</span> <span class="o">&lt;=</span> <span class="mi">21</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">hard</span><span class="o">+</span><span class="n">delta_soft</span>
+        <span class="k">return</span> <span class="n">hard</span></code></pre></div>
+
+<p>我们定义了三个比较，不是所有的六个。</p>
+
+<p>为了与<code>Hand</code>交互我，们需要几个<code>Card</code>对象：</p>
+
+<pre><code>&gt;&gt;&gt; two = card21(2, '♠')
+&gt;&gt;&gt; three = card21(3, '♠')
+&gt;&gt;&gt; two_c = card21(2, '♣')
+&gt;&gt;&gt; ace = card21(1, '♣')
+&gt;&gt;&gt; cards = [ace, two, two_c, three]
+</code></pre>
+
+<p>我们将使用这个序列的牌来看看两个不同的<code>hand</code>实例。</p>
+
+<p>第一个<code>Hands</code>对象有一个无关紧要的庄家的<code>Card</code>对象和先前创建的四张牌。<code>Card</code>对象中的一个是A：</p>
+
+<pre><code>&gt;&gt;&gt; h= Hand(card21(10,'♠'), *cards)
+&gt;&gt;&gt; print(h)
+A♣, 2♠, 2♣, 3♠
+&gt;&gt;&gt; h.total()
+18
+</code></pre>
+
+<p>soft点数是18，hard点数是8。</p>
+
+<p>下面是第二个对象，有一个额外的<code>Card</code>对象：</p>
+
+<pre><code>&gt;&gt;&gt; h2= Hand(card21(10,'♠'), card21(5,'♠'), *cards)
+&gt;&gt;&gt; print(h2)
+5♠, A♣, 2♠, 2♣, 3♠
+&gt;&gt;&gt; h2.total()
+13
+</code></pre>
+
+<p>hard点数是13。没有soft点数，因为它超过了21。</p>
+
+<p><code>Hands</code>之间的比较工作得很好，如下代码片段所示：</p>
+
+<pre><code>&gt;&gt;&gt; h &lt; h2
+False
+&gt;&gt;&gt; h &gt; h2
+True
+</code></pre>
+
+<p>我们基于比较运算符对<code>Hands</code>进行排名。</p>
+
+<p>我们也可以让<code>Hands</code>与整数进行比较，如下代码片段所示：</p>
+
+<pre><code>&gt;&gt;&gt; h == 18
+True
+&gt;&gt;&gt; h &lt; 19
+True
+&gt;&gt;&gt; h &gt; 17
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+TypeError: unorderable types: Hand() &gt; int()
+</code></pre>
+
+<p>只要与整数的比较正常工作，Python不会被迫撤回。前面的例子告诉我们当没有<code>__gt__()</code>方法。Python检查相反的操作数，对于<code>Hand</code>整数17也没有适当的<code>__lt__()</code>方法。</p>
+
+<p>我们可以添加必要的<code>__gt__()</code>和<code>__ge__()</code>函数使得<code>Hand</code>与整数正常工作。</p>
 
   </article>
 

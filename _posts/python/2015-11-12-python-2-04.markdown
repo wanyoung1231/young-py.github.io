@@ -1,0 +1,614 @@
+---
+layout: post
+title:  "Python学习 —— 与Python无缝集成——基本特殊方法 4"
+date:   2015-11-12 16:10:20
+categories: python
+author: young
+---
+
+### **__del__()方法**
+
+`__del__()`方法有一个毫不起眼的用例。
+
+其目的是在对象被从内存中删除之前给对象一个机会做一些清理或终结。通过上下文管理对象和`with`声明这个用例处理更清晰地。这是第五章《使用可调用和上下文》的主要内容。创建上下文比`__del__()`处理和Python垃圾收集算法更可预测。
+
+如果Python对象有一个相关的操作系统资源，`__del__()`方法是一个最后的机会，干净利落地从Python应用程序中解决资源。作为例子，一个Python对象，隐藏的一个打开的文件、安装好的设备、或者一个子进程可能受益于资源部分`__del__()`相关的资源。
+
+`__del__()`方法并不在任何容易预测的时刻调用。当对象通过`del`语句删除时不会调用，也不因为名称空间被移除删除对象时而调用。文档中`__del__()`方法描述环境不稳定且在异常处理时提供额外的注意：异常发生在执行被忽略的时候，一个警告由`sys.stderr`打印。
+
+由于这些原因，通常更可取的是上下文管理器实现`__del__()`。
+
+#### **1、引用计数和析构**
+
+对于CPython的实现，对象有一个引用计数。当对象赋给一个变量时计数增加，当变量被移除时减少。当引用计数为零，不再需要该对象且可以销毁。对于简单的对象，`__del__()`方法将被调用且对象将被删除。
+
+对于复杂的对象，对象之间的会循环引用，引用计数可能永远不会为零且`__del__()`不能轻易被调用。
+
+下面是一个类，我们可以使用它来看看会发生什么：
+
+{% highlight python %}
+
+class Noisy:
+    def __del__(self):
+        print("Removing {0}".format(id(self)))
+
+{% endhighlight %}
+
+我们可以创建这些对象，如下：
+
+    >>> x = Noisy()
+    >>> del x
+    Removing 4313946640
+
+我们创建和删除`Noisy`对象，我们几乎立即看到来自`__del__()`的方法消息。这表明引用计数正确的变为零当变量`x`删除时。变量一旦消失，不再有`Noisy`引用的实例，也可以清理。
+
+下面是一个常见的情况，涉及到浅拷贝：
+
+    >>> ln = [Noisy(), Noisy()]
+    >>> ln2 = ln[:]
+    >>> del ln
+
+这个`del`语句没有响应。`Noisy`对象没有将它们的引用计数设为零；他们还被引用到其他地方，如下代码片段所示：
+
+    >>> del ln2
+    Removing 4313920336
+    Removing 4313920208
+
+`ln2`变量是`ln`的浅拷贝列表。`Noisy`对象被两个列表引用。直到列表都删除之前他们不能被销毁，引用计数减少为零。
+
+有许多其他的方法来创建浅拷贝。以下是一些方法来创建对象的浅拷贝：
+
+    a = b = Noisy()
+    c = [Noisy()] * 2
+
+这里的重点是，我们经常被对象的引用数量所迷惑，因为浅拷贝在Python中普遍存在。
+
+#### **2、循环引用和垃圾收集**
+
+涉及循环是一种常见的情况。一个类，`Parent`、包含一组孩子。每个`Child`实例包含一个`Parent`的引用。
+
+我们将使用这两个类来检查循环引用：
+
+{% highlight python %}
+
+class Parent:
+    
+    def __init__(self, *children):
+        self.children = list(children)
+        for child in self.children:
+            child.parent = self
+    
+    def __del__(self):
+        print("Removing {__class__.__name__} {id:d}".
+        format(__class__=self.__class__, id=id(self)))
+
+class Child:
+
+    def __del__(self):
+        print( "Removing {__class__.__name__} {id:d}".
+        format(__class__=self.__class__, id=id(self)))
+
+{% endhighlight %}
+
+`Parent`实例有一批放入`list`的孩子。
+
+每个`Child`实例都有一个`Parent`类的引用。在初始化期间，孩子们被插入到父母的内部集合中，引用被创建。
+
+我们创建的两个类相当嘈杂，当对象被删除时我们可以看到。如下：
+
+    >>> p = Parent(Child(), Child())
+    >>> id(p)
+    4313921808
+    >>> del p
+
+`Parent`和两个已初始化的`Child`实例不能被删除。他们相互引用。
+
+我们可以创建一个没有孩子的父母实例，如下代码片段所示：
+
+    >>> p = Parent()
+    >>> id(p)
+    4313921744
+    >>> del p
+    Removing Parent 4313921744
+
+和预期一样被删除。
+
+因为共同的循环引用，`Parent`实例及其`Child`列表实例不能被从内存中删除。如果我们引入垃圾回收接口——gc，我们可以收集和显示这些不可移除对象。
+
+我们将使用`gc.collect()`方法来收集所有的不可移除对象，且有一个`__del__()`方法，如下代码片段所示：
+
+    >>> import gc
+    >>> gc.collect()
+    174
+    >>> gc.garbage
+    [<__main__.Parent object at 0x101213910>, <__main__.Child object at
+    0x101213890>, <__main__.Child object at 0x101213650>, <__main__.
+    Parent object at 0x101213850>, <__main__.Child object at 0x1012130d0>,
+    <__main__.Child object at 0x101219a10>, <__main__.Parent object at
+    0x101213250>, <__main__.Child object at 0x101213090>, <__main__.
+    Child object at 0x101219810>, <__main__.Parent object at 0x101213050>,
+    <__main__.Child object at 0x101213210>, <__main__.Child object at
+    0x101219f90>, <__main__.Parent object at 0x101213810>, <__main__.Child
+    object at 0x1012137d0>, <__main__.Child object at 0x101213790>]
+
+我们可以看到我们的`Parent`对象（例如，ID为`4313921808 = 0x101213910`)是突出的的不可移除垃圾。为了减少引用计数到零，我们需要更新每个垃圾清单上的`Parent`实例来移除孩子，或更新列表中每个`Child`实例来删除`Parent`实例的引用。
+
+请注意，我们不能打破这个循环将代码放入`__del__()`方法中。`__del__()`方法在循环被打破后调用，引用计数已经为零。当我们有循环引用，我们可以不再依靠简单的Python引用计数来清除内存中未使用的对象。我们必须显式地打破循环或使用`weakref`引用，允许垃圾收集。
+
+#### **3、循环引用和weakref模块**
+
+我们需要循环引用的情况下也希望`__del__()`很好地工作，我们可以使用**弱引用**。循环引用一个常见的用例是相互引用：父母有一组孩子；每个孩子都有一个引用回到父母。如果一个`Player`类有多个手，它可能有利于`Hand`对象包含的引用来持有`Player`类。
+
+默认的对象引用可以称为强引用；然而，直接引用是一个更好的术语。在Python中他们所使用的引用计数机制且可以被垃圾收集器发现，如果引用计数不能删除对象。他们不能被忽略。
+
+强引用一个对象是直接的。考虑下面的语句
+
+当我们说：
+
+{% highlight python %}
+
+a = B()
+
+{% endhighlight %}
+
+一个变量直接引用B类创建的对象。B实例的引用计数至少为1，因为有一个变量引用了。
+
+弱引用是一个两步的过程来查找对象之间的联系。弱引用将使用`x.parent()`，调用弱引用作为一个可调用对象追踪实际的父对象。这两步的过程允许引用计数或垃圾收集删除引用对象，弱引用悬空。
+
+`weakref`模块定义一组集合使用弱引用，而不是强引用。这允许我们创建字典，例如，允许其他未使用的对象的垃圾收集。
+
+我们可以修改`Parent`和`Child`来使用弱引用从`Child`到`Parent`，允许一个简单的析构未使用的对象。
+
+以下是修改后的类，使用弱引用从`Child`到`Parent`：
+
+{% highlight python %}
+
+import weakref
+
+class Parent2:
+
+    def __init__(self, *children):
+        self.children = list(children)
+        for child in self.children:
+            child.parent = weakref.ref(self)
+    
+    def __del__(self):
+        print("Removing {__class__.__name__} {id:d}".
+        format(__class__=self.__class__, id=id(self)))
+
+{% endhighlight %}
+
+我们已经改变了孩子到家长引用为`weakref`对象引用。
+
+从`Child`类中，我们必须通过一个两步的操作找到`Parent`对象：
+
+{% highlight python %}
+
+p = self.parent()
+if p is not None:
+    # process p, the Parent instance
+else:
+    # the parent instance was garbage collected.
+
+{% endhighlight %}
+
+我们可以显式地检查确保引用的对象被发现。很有可能引用被悬空。
+
+当我们使用这个新`Parent2`类，我们看到引用计数为0且对象被删除：
+
+    >>> p = Parent2(Child(), Child())
+    >>> del p
+    Removing Parent2 4303253584
+    Removing Child 4303256464
+    Removing Child 4303043344
+
+当`weakref`引用死了（因为该引用被销毁），我们有三个潜在的反应：
+
+* 重新创建指示物。也许从数据库重新加载它。
+
+* 使用`warnings`模块编写调试信息在内存垃圾收集器的情况下意外删除的对象
+
+* 忽略这个问题
+
+通常，`weakref`死了因为对象的引用已被移除：变量超出范围，名称空间不再使用，应用程序关闭。出于这个原因，第三反应是相当普遍。试图创建引用的对象可能是要被删除。
+
+#### **4、__del__()和close()方法**
+
+`__del__()`最常见的用途是确保文件都关门了。
+
+一般，类定义打开文件将有类似下面的代码所示：
+
+{% highlight python %}
+
+__del__ = close
+
+{% endhighlight %}
+
+这将确保`__del__()`方法也`__close__()`方法。
+
+任何比这更好的是一个复杂上下文管理器。第五章《使用可调用和上下文》，有关于上下文管理器的更多信息。
+
+### **__new__()方法和不可变对象**
+
+`__new__()`方法的一个用例是用来初始化不可变的对象。`__new__()`方法就是我们的代码可以构建一个未初始化的对象。这允许`__init__()`方法来设置对象属性值。
+
+`__new__()`方法用于扩展不可变类，`__init__()`方法不能很容易地被覆盖。
+
+以下类它不工作。我们定义一个版本的`float`携带单元相关信息：
+
+{% highlight python %}
+
+class Float_Fail(float):
+    
+    def __init__(self, value, unit):
+        super().__init__(value)
+        self.unit = unit
+
+{% endhighlight %}
+
+我们正在初始化一个不可变的对象。
+
+以下是当我们试图使用这个类时发生的情况：
+
+    >>> s2 = Float_Fail(6.5, "knots")
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    TypeError: float() takes at most 1 argument (2 given)
+
+由此，我们看到，我们不能轻易地覆盖`__init__()`方法建立不可变`float`类。我们与所有其他不可变类一样有类似的问题。我们不能设置不可变对象上的属性值，`self`，因为定义的不变性。我们只能在对象构造时设置属性值。输入`__new__()`方法。
+
+`__new__()`方法是一个很神奇的静态方法。这是真的不使用`@staticmethod`装饰器。它不使用`self`变量，它的工作就是创建对象，最终将被分配到`self`变量。
+
+对于这个用例，方法签名是`__new__(cls, *args, **kwa)`。`cls`参数是必须创建该类的一个实例。对于元类用例在下一节中，`args`序列值比这里更复杂。
+
+`__new__()`的默认：`return super().__new__(cls)`。它委托操作到超类。最终得到的工作委托给`object.__new__()`，构建所需类的简单的、空对象。`__new__()`的参数和关键字，除了`cls`参数，将被传递给`__init__()`作为标准的Python行为的一部分。
+
+有两个值得注意的异常，这正是我们想要的。以下是异常：
+
+* 当我们想要一个不可变类子类定义，稍后我们会深入。
+
+* 当我们需要创建一个元类。这是下一节的主题，从创建不可变的对象是完全不同的。
+
+相比覆盖`__init__()`当创建一个内置的不可变类型的子类时，我们必须调整对象创建时通过覆盖`__new__()`。下面是一个示例类定义显示我们扩展`float`的正确方法：
+
+{% highlight python %}
+
+class Float_Units(float):
+    
+    def __new__(cls, value, unit):
+        obj = super().__new__(cls, value)
+        obj.unit = unit
+        return obj
+
+{% endhighlight %}
+
+在前面的代码中，我们设置一个对象的属性值。
+
+下面的代码片段给了我们一个浮点价值与附属单位信息：
+
+    >>> speed = Float_Units(6.5, "knots")
+    >>> speed
+    6.5
+    >>> speed * 10
+    65.0
+    >>> speed.unit
+    'knots'
+
+注意，一个表达式，如`speed * 10`不创建一个`Float_Units`对象。定义这个类继承了的所有操作符特殊方法创建`float`对象。创建`Float_Units`对象是第七章《创造数字》的内容。
+
+### **__new__()方法和元类**
+
+作为元类的一部分，`__new__()`的其他是控制如何构建定义一个类。这是有别于`__new__()`控制如何构建一个不可变对象，如之前显示。
+
+一个元类构建一个类。一旦已经形成了一个类对象，类对象是用于构建实例。所有类的元类定义`type`。`type()`函数是用来创建类对象。
+
+此外，`type()`函数可以用作函数来揭示对象的类。
+
+下面是一个愚蠢的例子，建立一个新的，几乎没用类直接与`type()`构造函数：
+
+{% highlight python %}
+
+Useless= type("Useless",(),{})
+
+{% endhighlight %}
+
+一旦我们创建这个类，我们可以创建这个`Useless`类的对象。然而，他们不会做太多，因为他们没有方法或属性。
+
+我们可以使用这个新`Useless`的类来创建对象，不值得。下面是一个例子：
+
+    >>> Useless()
+    <__main__.Useless object at 0x101001910>
+    >>> u=_
+    >>> u.attr= 1
+    >>> dir(u)
+    ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__',
+    '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__',
+    '__hash__', '__init__', '__le__', '__lt__', '__module__', '__ne__',
+    '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__',
+    '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'attr']
+
+我们可以将属性添加到这个类的对象。它工作时，最低限度，作为一个对象。
+
+这几乎相当于使用`type.SimpleNamespace`或定义一个类，如下所示：
+
+{% highlight python %}
+
+class Useless:
+    pass
+
+{% endhighlight %}
+
+这会带来重要的问题：我们为什么要惹已定义类的方式在皇家莎士比亚剧院的地方？
+
+答案是，类的一些默认功能不完全适用于一些边界情况。我们将讨论四个情况我们想介绍一个元类：
+
+* 我们可以使用元类来保存一些类的源文本的信息。类由内置的类型使用`dict`类型来存储各种方法和类级别属性。`dict`本质上是无序的，属性和方法出现在没有特定的顺序。非常不可能，他们将出现在最初的源。我们将展示这在我们的第一个例子中。
+
+* 元类用来创建**抽象基类（ABC）*从第4章到7章看。ABC依赖一个元类的`__new__()`方法来反对的具体子类。我们将在第4章《一致设计的基本知识》介绍这些。
+
+* 可以使用元类来简化某些对象序列化。我们将在第9章看看《序列化和储蓄JSON、YAML、Pickle、CSV和XML》。
+
+* 作为最后简单的例子，我们将看一个类里的自我引用。我们将设计类引用一个**主类**。这不是一个父类、子类关系。这是一群子类，但有一个与它的一个同龄群体的主人。与同行相一致，主需要引用本身是不可能没有一个元类的东西。这将是我们的第二个例子。
+
+#### **1、元类示例1——已排序属性**
+
+这是3.3.3节典型例子《创建自定义类，Python语言的参考》。这个元类将记录属性和方法。
+
+有以下三个部分：
+
+1、创建一个元类。`__prepare__()`函数和`__new__()`函数的元类将改变构建目标类的方式，更换比较`dict`类与`OrderedDict`类。
+
+2、创建一个基于元类的抽象超类。这个抽象类简化其他类的继承。
+
+3、创建抽象超类的子类，得益于元类。
+
+下面是示例元类，将保留创建属性的顺序：
+
+{% highlight python %}
+
+import collections
+
+class Ordered_Attributes(type):
+    
+    @classmethod
+    def __prepare__(metacls, name, bases, **kwds):
+        return collections.OrderedDict()
+       
+    def __new__(cls, name, bases, namespace, **kwds):
+        result = super().__new__(cls, name, bases, namespace)
+        result._order = tuple(n for n in namespace if not n.startswith('__'))
+        return result
+
+{% endhighlight %}
+
+这个类扩展内置的默认元类、`type`和新版本的`__prepare__()`的`__new__()`。
+
+`__prepare__()`方法执行之前创建的类，它的工作是创建初始定义的名称空间对象将被添加。这个方法可以在其他前准备执行类的身体正在处理。
+
+`__new__()`静态方法执行后类身体元素已经被添加到名称空间。鉴于类对象、类名、超类元组，充分建立命名空间映射对象。这是典型的例子：它代表`__new__()`的实际工作超类；一个元类的超类是内置类型；我们使用类型。`__new__()`来创建默认的类对象，可以调整。
+
+`__new__()`方法，在这个例子中添加一个属性，到类定义显示我们的原始订单属性。
+
+我们可以使用这种类型的元类，而不是当定义一个新的抽象超类，如下所示：
+
+{% highlight python %}
+
+class Order_Preserved(metaclass=Ordered_Attributes):
+    pass
+
+{% endhighlight %}
+
+我们可以使用这个新的抽象类作为任何新类的超类，如下：
+
+{% highlight python %}
+
+class Something(Order_Preserved):
+    
+    this = 'text'
+    
+    def z(self):
+        return False
+    
+    b= 'order is preserved'
+    a= 'more text'
+
+{% endhighlight %}
+
+当我们看一些类，我们可以看到如下代码片段：
+
+    >>> Something._order
+    >>> ('this', 'z', 'b', 'a')
+
+我们可以考虑利用这些信息正确序列化对象或提供调试信息，与原始源的定义。
+
+#### **2、元类示例2——自引用**
+
+我们来看一个例子，涉及到单位转换。例如，包括长度单位米、厘米、英寸、英尺和许多其他单位。管理单元转换可以是一个挑战。超级脸部用的，我们需要一个矩阵中所有可能的转换因子的各种单位。米、英尺、英寸、脚码、米、英寸、每组合米码等等。
+
+实际上，然而，我们可以做得更好如果我们定义长度的标准单位。我们可以转换任何单位标准和标准的其他单位。通过这样做，我们可以很容易的执行任何可能的转换为一个两步操作，消除了复杂的矩阵的所有可能的转换：脚标准、英寸标准、标准码标准、米。
+
+在接下来的例子中，我们不打算子类`float`或数字。以任何方式。而非绑定值的单位。我们将允许每个值保持一个简单的数字。这是一个轻量级设计模式的一个例子。类不德不包含相关值的对象。对象只包含转换因素。
+
+另一种（绑定单元值）会导致相当复杂的多维度分析。虽然有趣，但它是相当复杂的。
+
+我们将定义两类：单元测试和标准单位。我们可以很容易地确定每个单元类都有一个参考适当的标准单位。我们如何确保每个标准单位类都有一个参考本身？科学家将在班德定义是不可能的，因为尚未定义的类。
+
+以下是我们单位类定义：
+
+{% highlight python %}
+
+class Unit:
+    """Full name for the unit."""
+    factor = 1.0
+    standard = None # Reference to the appropriate StandardUnit
+    name = "" # Abbreviation of the unit's name.
+
+    @classmethod
+    def value(class_, value):
+        if value is None: 
+            return None
+        return value / class_.factor
+    
+    @classmethod
+    def convert(class_, value):
+        if value is None: 
+            return None
+        return value * class_.factor
+
+{% endhighlight %}
+
+意图是`Unit.value()`将一个值转换单位的标准单位。`Unit.convert()`方法将一个标准的价值转换为给定的单位。
+
+这允许我们使用单位,如下面代码片段所示
+
+    >>> m_f= FOOT.value(4)
+    >>> METER.convert(m_f)
+    1.2191999999999998
+
+是内置的浮点值创建的值。对于温度。这个`value()`和`convert()`方法需要覆盖，作为一个简单的乘法是行不通的。
+
+标准单位，我们想做一些如下：
+
+{% highlight python %}
+
+class INCH:
+    standard= INCH
+
+{% endhighlight %}
+
+然而，这不会起作用。寸没有定义的英寸的身体内。类不存在之前定义。
+
+我们可以作为后备，这样做：
+
+{% highlight python %}
+
+class INCH:
+    pass
+    INCH.standard = INCH
+
+{% endhighlight %}
+
+然而，这是相当丑陋。
+
+我们可以定义装饰器如下：
+
+{% highlight python %}
+
+@standard
+class INCH:
+    pass
+
+{% endhighlight %}
+
+这个修饰符函数可以调整类定义添加一个属性。我们将在第8章《修饰符和mixin横切方面》。
+
+反而，我们将定义元类插入循环引用到类定义，如下：
+
+{% highlight python %}
+
+class UnitMeta(type):
+
+    def __new__(cls, name, bases, dict):
+        new_class= super().__new__(cls, name, bases, dict)
+        new_class.standard = new_class
+        return new_class
+
+{% endhighlight %}
+
+这就迫使类变量的标准到类定义。
+
+对大多数单位，`SomeUnit.standard`引用`TheStandardUnit`类。与我们也有TheStandardUnit。标准引用`TheStandardUnit`类。这种一致的结构单元和标准单元之间的子类可以帮助编写文档和自动化单元转换。
+
+下面是标准单元类
+
+{% highlight python %}
+
+class Standard_Unit(Unit, metaclass=UnitMeta):
+    pass
+
+{% endhighlight %}
+
+单位转换因子继承单位是1.0，所以这类没有提供的值。它包括特殊的元类定义，这样它将会有一个自我引用这类标准这个维度的测量。
+
+作为一个优化，我们可以覆盖的`value()`和`convert()`方法转换为避免乘法和除法。
+
+以下是一些样例类定义为单位
+
+{% highlight python %}
+
+class INCH(Standard_Unit):
+    """Inches"""
+    name = "in"
+
+class FOOT(Unit):
+    """Feet"""
+    name = "ft"
+    standard = INCH
+    factor = 1 / 12
+
+class CENTIMETER(Unit):
+    """Centimeters"""
+    name = "cm"
+    standard = INCH
+    factor = 2.54
+
+class METER(Unit):
+    """Meters"""
+    name = "m"
+    standard = INCH
+    factor = .0254
+
+{% endhighlight %}
+
+我们定义英寸标准单位。其他单位的德定义将转换与英寸。
+
+我们为每个单元提供了一些文档：全名的文档字符串和一个短名称的名称属性。所应用的转换因子自动`convert()`和`value()`函数继承单位。
+
+这些德定义允许在我们的应用程序的编程：
+
+    >>> x_std= INCH.value(159.625)
+    >>> FOOT.convert(x_std)
+    13.302083333333332
+    >>> METER.convert(x_std)
+    4.054475
+    >>> METER.factor
+    0.0254
+
+我们可以设置一个特定的测量在英寸，报告中从一个给定的值，值在任何其他兼容的单位。
+
+元类所做的是让我们做出这样的查询从定义类：
+
+    >>> INCH.standard.__name__
+    'INCH'
+    >>> FOOT.standard.__name__
+    'INCH'
+
+这些类型的引用可以让我们跟踪所有给定维度的各单位。
+
+### **总结**
+
+我们看了许多基本的特殊方法，这是任何类，我们设计的基本特征。这些方法已经在每一个类的一部分，但我们默认继承对象可能不符合我们的加工要求。
+
+我们几乎总是需要覆盖`__repr__()`、`__str__()`和`__foramt__()`。这些方法的默认实现不是很有帮助。
+
+我们罕见的需要覆写`__bool__()`直到我们写自己的集合。这是第6章《创建容器和集合》的主题。
+
+我们经常需要覆盖和`__hash__()`方法进行了比较。定义适用于简单的不可变对象但不适合可变的对象。我们可能不需要编写所有的比较运算符，我们来看看`@ functools`。第8章《修饰符和mixin横切方面》。
+
+其他两个**基本的**特殊方法名称，`__new__()`和`__del__()`，用于专门的目的。对该方法的功能使用`__new__()`来扩展一个不可变类是最常见的用例。
+
+这些基本的特殊方法，连同`__init__()`，将出现在每一个几乎类我们定义的类中。其余的特殊方法都用于专门的目的；他们分为六个类别：
+
+* **属性访问**：这些特殊的方法实现我们所看到的表达式中的`object.attribute`，`object.attribute`左边的赋值和`object.attribute`在`del`声明中。
+
+* **可调用**：一个特殊的方法实现我们看到的，作为一个函数应用于参数，就像内置的`len()`函数。
+
+* **集合**：这些特殊的方法实现众多集合特征。这包括诸如`sequence[index]`、`mapping[key]`和`set | set`。
+
+* **数字**：这些特殊方法提供了算术运算符和比较运算符。我们可以用这些方法来扩展Python使用的数字域。
+
+* **上下文**：有两个特殊的方法使用`with`语句实现一个上下文管理器。
+
+* **迭代器**：有特殊方法定义为迭代器。这不是必要的，作为生成器函数处理这个特性非常优雅。然而，我们来看看如何设计自己的迭代器。
+
+在下一章，我们将解说属性、特性和描述符。
