@@ -67,52 +67,53 @@
 
 &lt;p&gt;&lt;code&gt;__del__()&lt;/code&gt;方法有一个毫不起眼的用例。&lt;/p&gt;
 
-&lt;p&gt;其目的是在对象被从内存中删除之前给对象一个机会做一些清理或终结。通过上下文管理对象和&lt;code&gt;with&lt;/code&gt;声明这个用例处理更清晰地。这是第五章《使用可调用和上下文》的主要内容。创建上下文比&lt;code&gt;__del__()&lt;/code&gt;处理和Python垃圾收集算法更可预测。&lt;/p&gt;
+&lt;p&gt;其目的是在对象被从内存中移除之前给对象一个机会做一些清理或终结工作。通过上下文管理对象和&lt;code&gt;with&lt;/code&gt;语句这个用例处理得更清晰。这是第五章《使用可调用和上下文》的主要内容。创建上下文比用&lt;code&gt;__del__()&lt;/code&gt;和Python垃圾收集算法处理起来更可预知。&lt;/p&gt;
 
-&lt;p&gt;如果Python对象有一个相关的操作系统资源，&lt;code&gt;__del__()&lt;/code&gt;方法是一个最后的机会，干净利落地从Python应用程序中解决资源。作为例子，一个Python对象，隐藏的一个打开的文件、安装好的设备、或者一个子进程可能受益于资源部分&lt;code&gt;__del__()&lt;/code&gt;相关的资源。&lt;/p&gt;
+&lt;p&gt;如果Python对象有一个相关的操作系统资源，&lt;code&gt;__del__()&lt;/code&gt;方法就是那个最后的机会，干净利落地从Python应用程序中彻底解决资源。例如，Python对象隐藏的一个打开的文件、安装好的设备、子进程，或许都能因为资源释放是&lt;code&gt;__del__()&lt;/code&gt;处理的一部分而受益。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;__del__()&lt;/code&gt;方法并不在任何容易预测的时刻调用。当对象通过&lt;code&gt;del&lt;/code&gt;语句删除时不会调用，也不因为名称空间被移除删除对象时而调用。文档中&lt;code&gt;__del__()&lt;/code&gt;方法描述环境不稳定且在异常处理时提供额外的注意：异常发生在执行被忽略的时候，一个警告由&lt;code&gt;sys.stderr&lt;/code&gt;打印。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;__del__()&lt;/code&gt;方法并不在任何容易预知的时刻调用。对象通过&lt;code&gt;del&lt;/code&gt;语句删除时不会调用，也不因为名称空间被移除删除对象时而调用。文档中描述&lt;code&gt;__del__()&lt;/code&gt;方法环境&lt;strong&gt;不稳定&lt;/strong&gt;且在异常处理时需额外注意：异常在执行时会被忽略，替而代之的是由&lt;code&gt;sys.stderr&lt;/code&gt;打印一个警告。&lt;/p&gt;
 
-&lt;p&gt;由于这些原因，通常更可取的是上下文管理器实现&lt;code&gt;__del__()&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;由于这些原因，上下文管理器通常更适合用来实现&lt;code&gt;__del__()&lt;/code&gt;。&lt;/p&gt;
 
 &lt;h4 id=&quot;section&quot;&gt;&lt;strong&gt;1、引用计数和析构&lt;/strong&gt;&lt;/h4&gt;
 
-&lt;p&gt;对于CPython的实现，对象有一个引用计数。当对象赋给一个变量时计数增加，当变量被移除时减少。当引用计数为零，不再需要该对象且可以销毁。对于简单的对象，&lt;code&gt;__del__()&lt;/code&gt;方法将被调用且对象将被删除。&lt;/p&gt;
+&lt;p&gt;对于CPython的实现，对象有一个引用计数。当对象赋给一个变量时计数增加，当变量被移除时减少。当引用计数为零，则不再需要该对象且可以销毁。对于简单的对象，&lt;code&gt;__del__()&lt;/code&gt;方法将被调用且对象将被移除。&lt;/p&gt;
 
-&lt;p&gt;对于复杂的对象，对象之间的会循环引用，引用计数可能永远不会为零且&lt;code&gt;__del__()&lt;/code&gt;不能轻易被调用。&lt;/p&gt;
+&lt;p&gt;对于对象之间会循环引用的复杂对象，引用计数可能永远不会为零且&lt;code&gt;__del__()&lt;/code&gt;不能轻易被调用。&lt;/p&gt;
 
-&lt;p&gt;下面是一个类，我们可以使用它来看看会发生什么：&lt;/p&gt;
+&lt;p&gt;下面这个类，我们可以使用它来看看会发生什么：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Noisy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+
     &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__del__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Removing {0}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;我们可以创建这些对象，如下：&lt;/p&gt;
+&lt;p&gt;我们可以创建对象，如下：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; x = Noisy()
 &amp;gt;&amp;gt;&amp;gt; del x
 Removing 4313946640
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;我们创建和删除&lt;code&gt;Noisy&lt;/code&gt;对象，我们几乎立即看到来自&lt;code&gt;__del__()&lt;/code&gt;的方法消息。这表明引用计数正确的变为零当变量&lt;code&gt;x&lt;/code&gt;删除时。变量一旦消失，不再有&lt;code&gt;Noisy&lt;/code&gt;引用的实例，也可以清理。&lt;/p&gt;
+&lt;p&gt;我们创建了并删除了&lt;code&gt;Noisy&lt;/code&gt;对象，我们几乎立即看到来自&lt;code&gt;__del__()&lt;/code&gt;方法的反馈。这表明当变量&lt;code&gt;x&lt;/code&gt;被删除时引用计数正确的变为零。变量一旦消失，不再有&lt;code&gt;Noisy&lt;/code&gt;引用的实例，它也可以被清理掉。&lt;/p&gt;
 
-&lt;p&gt;下面是一个常见的情况，涉及到浅拷贝：&lt;/p&gt;
+&lt;p&gt;下面是一个常见的情况，涉及到经常创建的浅拷贝：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; ln = [Noisy(), Noisy()]
 &amp;gt;&amp;gt;&amp;gt; ln2 = ln[:]
 &amp;gt;&amp;gt;&amp;gt; del ln
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;这个&lt;code&gt;del&lt;/code&gt;语句没有响应。&lt;code&gt;Noisy&lt;/code&gt;对象没有将它们的引用计数设为零；他们还被引用到其他地方，如下代码片段所示：&lt;/p&gt;
+&lt;p&gt;这个&lt;code&gt;del&lt;/code&gt;语句没有响应。&lt;code&gt;Noisy&lt;/code&gt;对象没有将它们的引用计数设为零；因为它们还被引用到其他地方，如下代码片段所示：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; del ln2
 Removing 4313920336
 Removing 4313920208
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;code&gt;ln2&lt;/code&gt;变量是&lt;code&gt;ln&lt;/code&gt;的浅拷贝列表。&lt;code&gt;Noisy&lt;/code&gt;对象被两个列表引用。直到列表都删除之前他们不能被销毁，引用计数减少为零。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ln2&lt;/code&gt;变量是&lt;code&gt;ln&lt;/code&gt;的浅拷贝列表。&lt;code&gt;Noisy&lt;/code&gt;对象被两个列表引用。直到两个列表都被删除，引用计数减少为零之前它们是不能被销毁的。&lt;/p&gt;
 
-&lt;p&gt;有许多其他的方法来创建浅拷贝。以下是一些方法来创建对象的浅拷贝：&lt;/p&gt;
+&lt;p&gt;有许多其他方法来创建浅拷贝。以下是一些创建对象浅拷贝的方法：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;a = b = Noisy()
 c = [Noisy()] * 2
@@ -122,7 +123,7 @@ c = [Noisy()] * 2
 
 &lt;h4 id=&quot;section-1&quot;&gt;&lt;strong&gt;2、循环引用和垃圾收集&lt;/strong&gt;&lt;/h4&gt;
 
-&lt;p&gt;涉及循环是一种常见的情况。一个类，&lt;code&gt;Parent&lt;/code&gt;、包含一组孩子。每个&lt;code&gt;Child&lt;/code&gt;实例包含一个&lt;code&gt;Parent&lt;/code&gt;的引用。&lt;/p&gt;
+&lt;p&gt;涉及到循环是一种常见的情况。一个&lt;code&gt;Parent&lt;/code&gt;类，包含一组孩子。每个&lt;code&gt;Child&lt;/code&gt;实例包含了一个&lt;code&gt;Parent&lt;/code&gt;的引用。&lt;/p&gt;
 
 &lt;p&gt;我们将使用这两个类来检查循环引用：&lt;/p&gt;
 
@@ -143,11 +144,11 @@ c = [Noisy()] * 2
         &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Removing {__class__.__name__} {id:d}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;&lt;code&gt;Parent&lt;/code&gt;实例有一批放入&lt;code&gt;list&lt;/code&gt;的孩子。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Parent&lt;/code&gt;实例有一组作为简单&lt;code&gt;list&lt;/code&gt;的孩子。&lt;/p&gt;
 
 &lt;p&gt;每个&lt;code&gt;Child&lt;/code&gt;实例都有一个&lt;code&gt;Parent&lt;/code&gt;类的引用。在初始化期间，孩子们被插入到父母的内部集合中，引用被创建。&lt;/p&gt;
 
-&lt;p&gt;我们创建的两个类相当嘈杂，当对象被删除时我们可以看到。如下：&lt;/p&gt;
+&lt;p&gt;我们创建的两个类相当于&lt;code&gt;Noisy&lt;/code&gt;，当对象被删除时我们可以看到如下：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; p = Parent(Child(), Child())
 &amp;gt;&amp;gt;&amp;gt; id(p)
@@ -155,7 +156,7 @@ c = [Noisy()] * 2
 &amp;gt;&amp;gt;&amp;gt; del p
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;code&gt;Parent&lt;/code&gt;和两个已初始化的&lt;code&gt;Child&lt;/code&gt;实例不能被删除。他们相互引用。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Parent&lt;/code&gt;和两个已初始化的&lt;code&gt;Child&lt;/code&gt;实例不能被删除，因为它们相互引用。&lt;/p&gt;
 
 &lt;p&gt;我们可以创建一个没有孩子的父母实例，如下代码片段所示：&lt;/p&gt;
 
@@ -168,9 +169,9 @@ Removing Parent 4313921744
 
 &lt;p&gt;和预期一样被删除。&lt;/p&gt;
 
-&lt;p&gt;因为共同的循环引用，&lt;code&gt;Parent&lt;/code&gt;实例及其&lt;code&gt;Child&lt;/code&gt;列表实例不能被从内存中删除。如果我们引入垃圾回收接口——gc，我们可以收集和显示这些不可移除对象。&lt;/p&gt;
+&lt;p&gt;因为共同的循环引用，&lt;code&gt;Parent&lt;/code&gt;实例及其&lt;code&gt;Child&lt;/code&gt;列表实例不能被从内存中删除。如果我们引入垃圾回收接口——&lt;code&gt;gc&lt;/code&gt;，我们可以收集和显示这些不可移除对象。&lt;/p&gt;
 
-&lt;p&gt;我们将使用&lt;code&gt;gc.collect()&lt;/code&gt;方法来收集所有的不可移除对象，且有一个&lt;code&gt;__del__()&lt;/code&gt;方法，如下代码片段所示：&lt;/p&gt;
+&lt;p&gt;我们将使用&lt;code&gt;gc.collect()&lt;/code&gt;方法来收集所有有一个&lt;code&gt;__del__()&lt;/code&gt;方法的不可移除对象，如下代码片段所示：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; import gc
 &amp;gt;&amp;gt;&amp;gt; gc.collect()
@@ -187,29 +188,29 @@ Child object at 0x101219810&amp;gt;, &amp;lt;__main__.Parent object at 0x1012130
 object at 0x1012137d0&amp;gt;, &amp;lt;__main__.Child object at 0x101213790&amp;gt;]
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;我们可以看到我们的&lt;code&gt;Parent&lt;/code&gt;对象（例如，ID为&lt;code&gt;4313921808 = 0x101213910&lt;/code&gt;)是突出的的不可移除垃圾。为了减少引用计数到零，我们需要更新每个垃圾清单上的&lt;code&gt;Parent&lt;/code&gt;实例来移除孩子，或更新列表中每个&lt;code&gt;Child&lt;/code&gt;实例来删除&lt;code&gt;Parent&lt;/code&gt;实例的引用。&lt;/p&gt;
+&lt;p&gt;我们可以看到我们的&lt;code&gt;Parent&lt;/code&gt;对象（例如，ID为&lt;code&gt;0x101213910&lt;/code&gt;）是突出的不可移除垃圾。为了减少引用计数到零，我们既需要更新每个垃圾清单上的&lt;code&gt;Parent&lt;/code&gt;实例来移除孩子，又需要更新列表中每个&lt;code&gt;Child&lt;/code&gt;实例来删除&lt;code&gt;Parent&lt;/code&gt;实例的引用。&lt;/p&gt;
 
-&lt;p&gt;请注意，我们不能打破这个循环将代码放入&lt;code&gt;__del__()&lt;/code&gt;方法中。&lt;code&gt;__del__()&lt;/code&gt;方法在循环被打破后调用，引用计数已经为零。当我们有循环引用，我们可以不再依靠简单的Python引用计数来清除内存中未使用的对象。我们必须显式地打破循环或使用&lt;code&gt;weakref&lt;/code&gt;引用，允许垃圾收集。&lt;/p&gt;
+&lt;p&gt;请注意，我们不能通过将代码放入&lt;code&gt;__del__()&lt;/code&gt;方法中来打破这个循环。&lt;code&gt;__del__()&lt;/code&gt;方法只能在循环被&lt;strong&gt;打破后&lt;/strong&gt;且引用计数已经为零时调用。当我们有循环引用，我们可以不再依靠简单的Python引用计数来清除内存中未使用的对象。我们必须既显式地打破循环又使用允许垃圾收集的&lt;code&gt;weakref&lt;/code&gt;引用。&lt;/p&gt;
 
 &lt;h4 id=&quot;weakref&quot;&gt;&lt;strong&gt;3、循环引用和weakref模块&lt;/strong&gt;&lt;/h4&gt;
 
-&lt;p&gt;我们需要循环引用的情况下也希望&lt;code&gt;__del__()&lt;/code&gt;很好地工作，我们可以使用&lt;strong&gt;弱引用&lt;/strong&gt;。循环引用一个常见的用例是相互引用：父母有一组孩子；每个孩子都有一个引用回到父母。如果一个&lt;code&gt;Player&lt;/code&gt;类有多个手，它可能有利于&lt;code&gt;Hand&lt;/code&gt;对象包含的引用来持有&lt;code&gt;Player&lt;/code&gt;类。&lt;/p&gt;
+&lt;p&gt;我们需要循环引用的情况下但也希望&lt;code&gt;__del__()&lt;/code&gt;很好地工作的情况下，我们可以使用&lt;strong&gt;弱引用&lt;/strong&gt;。循环引用的一个常见用例就是相互引用：父母有一组孩子；每个孩子都有一个引用回到父母。如果一个&lt;code&gt;Player&lt;/code&gt;类有多个手，&lt;code&gt;Hand&lt;/code&gt;对象包含拥有它的&lt;code&gt;Player&lt;/code&gt;类的引用会很有帮助。&lt;/p&gt;
 
-&lt;p&gt;默认的对象引用可以称为强引用；然而，直接引用是一个更好的术语。在Python中他们所使用的引用计数机制且可以被垃圾收集器发现，如果引用计数不能删除对象。他们不能被忽略。&lt;/p&gt;
+&lt;p&gt;默认的对象引用可以称为&lt;strong&gt;强引用&lt;/strong&gt;；然而，直接引用是一个更好的术语。如果引用计数不能删除对象，它们被用于Python中的引用计数机制且可以被垃圾收集器发现。它们不能被忽略。&lt;/p&gt;
 
-&lt;p&gt;强引用一个对象是直接的。考虑下面的语句&lt;/p&gt;
+&lt;p&gt;强引用一个对象是如此直接。考虑下面的语句：&lt;/p&gt;
 
 &lt;p&gt;当我们说：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;B&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;一个变量直接引用B类创建的对象。B实例的引用计数至少为1，因为有一个变量引用了。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;a&lt;/code&gt;变量直接引用B类创建的对象。B实例的引用计数至少为1，因为有一个变量引用了。&lt;/p&gt;
 
-&lt;p&gt;弱引用是一个两步的过程来查找对象之间的联系。弱引用将使用&lt;code&gt;x.parent()&lt;/code&gt;，调用弱引用作为一个可调用对象追踪实际的父对象。这两步的过程允许引用计数或垃圾收集删除引用对象，弱引用悬空。&lt;/p&gt;
+&lt;p&gt;弱引用是包含两个步骤来查找对象之间的联系。弱引用将使用&lt;code&gt;x.parent()&lt;/code&gt;，调用弱引用作为一个可调用对象来跟踪实际的父母对象。这两步的过程允许引用计数或垃圾收集删除已引用的对象，让弱引用悬空。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;weakref&lt;/code&gt;模块定义一组集合使用弱引用，而不是强引用。这允许我们创建字典，例如，允许其他未使用的对象的垃圾收集。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;weakref&lt;/code&gt;模块定义一组的使用弱引用集合来代替强引用。这允许我们去创建字典，例如，允许其他未使用对象的垃圾集合。&lt;/p&gt;
 
-&lt;p&gt;我们可以修改&lt;code&gt;Parent&lt;/code&gt;和&lt;code&gt;Child&lt;/code&gt;来使用弱引用从&lt;code&gt;Child&lt;/code&gt;到&lt;code&gt;Parent&lt;/code&gt;，允许一个简单的析构未使用的对象。&lt;/p&gt;
+&lt;p&gt;我们可以修改&lt;code&gt;Parent&lt;/code&gt;和&lt;code&gt;Child&lt;/code&gt;类来使用弱引用从&lt;code&gt;Child&lt;/code&gt;到&lt;code&gt;Parent&lt;/code&gt;，允许更简单的析构未使用的对象。&lt;/p&gt;
 
 &lt;p&gt;以下是修改后的类，使用弱引用从&lt;code&gt;Child&lt;/code&gt;到&lt;code&gt;Parent&lt;/code&gt;：&lt;/p&gt;
 
@@ -226,9 +227,9 @@ object at 0x1012137d0&amp;gt;, &amp;lt;__main__.Child object at 0x101213790&amp;
         &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Removing {__class__.__name__} {id:d}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__class__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;我们已经改变了孩子到家长引用为&lt;code&gt;weakref&lt;/code&gt;对象引用。&lt;/p&gt;
+&lt;p&gt;我们已经改变了&lt;code&gt;Child&lt;/code&gt;到&lt;code&gt;Parent&lt;/code&gt;的引用为&lt;code&gt;weakref&lt;/code&gt;对象引用。&lt;/p&gt;
 
-&lt;p&gt;从&lt;code&gt;Child&lt;/code&gt;类中，我们必须通过一个两步的操作找到&lt;code&gt;Parent&lt;/code&gt;对象：&lt;/p&gt;
+&lt;p&gt;从&lt;code&gt;Child&lt;/code&gt;类中，我们必须通过两步操作找到&lt;code&gt;Parent&lt;/code&gt;对象：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
@@ -247,41 +248,41 @@ Removing Child 4303256464
 Removing Child 4303043344
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;当&lt;code&gt;weakref&lt;/code&gt;引用死了（因为该引用被销毁），我们有三个潜在的反应：&lt;/p&gt;
+&lt;p&gt;当&lt;code&gt;weakref&lt;/code&gt;引用死了（因为该引用被销毁），我们有三个潜在的响应：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
-    &lt;p&gt;重新创建指示物。也许从数据库重新加载它。&lt;/p&gt;
+    &lt;p&gt;重新创建引用。也许会从数据库重新加载它。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;使用&lt;code&gt;warnings&lt;/code&gt;模块编写调试信息在内存垃圾收集器的情况下意外删除的对象&lt;/p&gt;
+    &lt;p&gt;在内存垃圾收集器意外删除对象情况下使用&lt;code&gt;warnings&lt;/code&gt;模块编写调试信息。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;忽略这个问题&lt;/p&gt;
+    &lt;p&gt;忽略这个问题。&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;通常，&lt;code&gt;weakref&lt;/code&gt;死了因为对象的引用已被移除：变量超出范围，名称空间不再使用，应用程序关闭。出于这个原因，第三反应是相当普遍。试图创建引用的对象可能是要被删除。&lt;/p&gt;
+&lt;p&gt;通常，&lt;code&gt;weakref&lt;/code&gt;死了是因为对象的引用已被移除：变量超出范围，名称空间不再使用，应用程序关闭。出于这个原因，第三个响应是相当普遍的。对象试图创建引用很可能是要被删除。&lt;/p&gt;
 
 &lt;h4 id=&quot;delclose&quot;&gt;&lt;strong&gt;4、__del__()和close()方法&lt;/strong&gt;&lt;/h4&gt;
 
-&lt;p&gt;&lt;code&gt;__del__()&lt;/code&gt;最常见的用途是确保文件都关门了。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;__del__()&lt;/code&gt;最常见的用途是确保文件都已经关闭了。&lt;/p&gt;
 
-&lt;p&gt;一般，类定义打开文件将有类似下面的代码所示：&lt;/p&gt;
+&lt;p&gt;一般，类定义打开文件将有类似下面显示的代码：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;__del__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;close&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;这将确保&lt;code&gt;__del__()&lt;/code&gt;方法也&lt;code&gt;__close__()&lt;/code&gt;方法。&lt;/p&gt;
+&lt;p&gt;这将确保&lt;code&gt;__del__()&lt;/code&gt;方法同样也是&lt;code&gt;close()&lt;/code&gt;方法。&lt;/p&gt;
 
-&lt;p&gt;任何比这更好的是一个复杂上下文管理器。第五章《使用可调用和上下文》，有关于上下文管理器的更多信息。&lt;/p&gt;
+&lt;p&gt;任何比这更复杂的情况最好是使用上下文管理器。在第五章《使用可调用和上下文》中可以看到有关于上下文管理器的更多信息。&lt;/p&gt;
 
 &lt;h3 id=&quot;new&quot;&gt;&lt;strong&gt;__new__()方法和不可变对象&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;方法的一个用例是用来初始化不可变的对象。&lt;code&gt;__new__()&lt;/code&gt;方法就是我们的代码可以构建一个未初始化的对象。这允许&lt;code&gt;__init__()&lt;/code&gt;方法来设置对象属性值。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;方法的一个用例是用来初始化不可变对象。&lt;code&gt;__new__()&lt;/code&gt;方法就是我们构建一个未初始化对象的地方。这允许在&lt;code&gt;__init__()&lt;/code&gt;方法设置对象属性值之前进行处理。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;方法用于扩展不可变类，&lt;code&gt;__init__()&lt;/code&gt;方法不能很容易地被覆盖。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;方法用于扩展不可变类而&lt;code&gt;__init__()&lt;/code&gt;方法不能轻易地被覆写。&lt;/p&gt;
 
-&lt;p&gt;以下类它不工作。我们定义一个版本的&lt;code&gt;float&lt;/code&gt;携带单元相关信息：&lt;/p&gt;
+&lt;p&gt;以下是行不通的类。我们定义一个版本的&lt;code&gt;float&lt;/code&gt;携带了单元相关信息：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Float_Fail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     
@@ -289,9 +290,9 @@ Removing Child 4303043344
         &lt;span class=&quot;nb&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
         &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unit&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;我们正在初始化一个不可变的对象。&lt;/p&gt;
+&lt;p&gt;我们正在（错误地）初始化一个不可变对象。&lt;/p&gt;
 
-&lt;p&gt;以下是当我们试图使用这个类时发生的情况：&lt;/p&gt;
+&lt;p&gt;以下是当我们试图使用这个类时发生的情形：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; s2 = Float_Fail(6.5, &quot;knots&quot;)
 Traceback (most recent call last):
@@ -299,26 +300,26 @@ Traceback (most recent call last):
 TypeError: float() takes at most 1 argument (2 given)
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;由此，我们看到，我们不能轻易地覆盖&lt;code&gt;__init__()&lt;/code&gt;方法建立不可变&lt;code&gt;float&lt;/code&gt;类。我们与所有其他不可变类一样有类似的问题。我们不能设置不可变对象上的属性值，&lt;code&gt;self&lt;/code&gt;，因为定义的不变性。我们只能在对象构造时设置属性值。输入&lt;code&gt;__new__()&lt;/code&gt;方法。&lt;/p&gt;
+&lt;p&gt;由此我们看到，我们不能轻易地覆写&lt;code&gt;__init__()&lt;/code&gt;方法来建立内置不可变的&lt;code&gt;float&lt;/code&gt;类。我们与所有其他不可变类一样有类似的问题。因为不变性定义，我们不能设置不可变对象、&lt;code&gt;self&lt;/code&gt;的属性值。我们只能在对象构造时设置属性值。在这之后进入&lt;code&gt;__new__()&lt;/code&gt;方法。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;方法是一个很神奇的静态方法。这是真的不使用&lt;code&gt;@staticmethod&lt;/code&gt;装饰器。它不使用&lt;code&gt;self&lt;/code&gt;变量，它的工作就是创建对象，最终将被分配到&lt;code&gt;self&lt;/code&gt;变量。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;方法是一个很神奇的静态方法。这是真的不使用&lt;code&gt;@staticmethod&lt;/code&gt;装饰器。它不使用&lt;code&gt;self&lt;/code&gt;变量，它的工作就是创建对象且最终将被分配到&lt;code&gt;self&lt;/code&gt;变量。&lt;/p&gt;
 
-&lt;p&gt;对于这个用例，方法签名是&lt;code&gt;__new__(cls, *args, **kwa)&lt;/code&gt;。&lt;code&gt;cls&lt;/code&gt;参数是必须创建该类的一个实例。对于元类用例在下一节中，&lt;code&gt;args&lt;/code&gt;序列值比这里更复杂。&lt;/p&gt;
+&lt;p&gt;对于这个用例，方法签名是&lt;code&gt;__new__(cls, *args, **kwa)&lt;/code&gt;。&lt;code&gt;cls&lt;/code&gt;参数是一个类实例必须创建的。对于下一节中的元类用例，&lt;code&gt;args&lt;/code&gt;序列值比这更复杂。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;的默认：&lt;code&gt;return super().__new__(cls)&lt;/code&gt;。它委托操作到超类。最终得到的工作委托给&lt;code&gt;object.__new__()&lt;/code&gt;，构建所需类的简单的、空对象。&lt;code&gt;__new__()&lt;/code&gt;的参数和关键字，除了&lt;code&gt;cls&lt;/code&gt;参数，将被传递给&lt;code&gt;__init__()&lt;/code&gt;作为标准的Python行为的一部分。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;的默认实现仅仅做如下操作：&lt;code&gt;return super().__new__(cls)&lt;/code&gt;。它委托操作到超类。该工作结束委托到&lt;code&gt;object.__new__()&lt;/code&gt;，构建所需类简单的、空对象。&lt;code&gt;__new__()&lt;/code&gt;的参数和关键字，带有异常的&lt;code&gt;cls&lt;/code&gt;参数，将被传递给&lt;code&gt;__init__()&lt;/code&gt;作为标准的Python行为的一部分。&lt;/p&gt;
 
-&lt;p&gt;有两个值得注意的异常，这正是我们想要的。以下是异常：&lt;/p&gt;
+&lt;p&gt;有两个值得注意的例外，这正是我们想要的。以下是一些例外：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
-    &lt;p&gt;当我们想要一个不可变类子类定义，稍后我们会深入。&lt;/p&gt;
+    &lt;p&gt;当我们想要子类化不可变类定义，稍后我们会深入研究。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;当我们需要创建一个元类。这是下一节的主题，从创建不可变的对象是完全不同的。&lt;/p&gt;
+    &lt;p&gt;当我们需要创建一个元类。这是下一节的主题，和创建不可变对象完全不同。&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;相比覆盖&lt;code&gt;__init__()&lt;/code&gt;当创建一个内置的不可变类型的子类时，我们必须调整对象创建时通过覆盖&lt;code&gt;__new__()&lt;/code&gt;。下面是一个示例类定义显示我们扩展&lt;code&gt;float&lt;/code&gt;的正确方法：&lt;/p&gt;
+&lt;p&gt;相比在创建内置不可变类型的子类时覆写&lt;code&gt;__init__()&lt;/code&gt;，我们必须在创建时通过覆写&lt;code&gt;__new__()&lt;/code&gt;来调整对象。下面是一个示例类定义来展示我们扩展&lt;code&gt;float&lt;/code&gt;的正确方法：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Float_Units&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     
@@ -327,9 +328,9 @@ TypeError: float() takes at most 1 argument (2 given)
         &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unit&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;在前面的代码中，我们设置一个对象的属性值。&lt;/p&gt;
+&lt;p&gt;在前面的代码中，我们在创建对象时设置属性值。&lt;/p&gt;
 
-&lt;p&gt;下面的代码片段给了我们一个浮点价值与附属单位信息：&lt;/p&gt;
+&lt;p&gt;以下代码片段给了我们一个附有单位信息的浮点值：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; speed = Float_Units(6.5, &quot;knots&quot;)
 &amp;gt;&amp;gt;&amp;gt; speed
@@ -340,28 +341,28 @@ TypeError: float() takes at most 1 argument (2 given)
 &#39;knots&#39;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;注意，一个表达式，如&lt;code&gt;speed * 10&lt;/code&gt;不创建一个&lt;code&gt;Float_Units&lt;/code&gt;对象。定义这个类继承了的所有操作符特殊方法创建&lt;code&gt;float&lt;/code&gt;对象。创建&lt;code&gt;Float_Units&lt;/code&gt;对象是第七章《创造数字》的内容。&lt;/p&gt;
+&lt;p&gt;注意&lt;code&gt;speed * 10&lt;/code&gt;表达式，没有创建&lt;code&gt;Float_Units&lt;/code&gt;对象。这个类定义继承了来自&lt;code&gt;float&lt;/code&gt;的所有操作符特殊方法；&lt;code&gt;float&lt;/code&gt;运算特殊方法都能创建&lt;code&gt;float&lt;/code&gt;对象。创建&lt;code&gt;Float_Units&lt;/code&gt;对象是第七章《创造数字》的内容。&lt;/p&gt;
 
 &lt;h3 id=&quot;new-1&quot;&gt;&lt;strong&gt;__new__()方法和元类&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;作为元类的一部分，&lt;code&gt;__new__()&lt;/code&gt;的其他是控制如何构建定义一个类。这是有别于&lt;code&gt;__new__()&lt;/code&gt;控制如何构建一个不可变对象，如之前显示。&lt;/p&gt;
+&lt;p&gt;作为元类的一部分，&lt;code&gt;__new__()&lt;/code&gt;的其他用例是如何控制构建一个类定义。这有别于&lt;code&gt;__new__()&lt;/code&gt;如何控制构建一个不可变对象，如之前展示的那样。&lt;/p&gt;
 
-&lt;p&gt;一个元类构建一个类。一旦已经形成了一个类对象，类对象是用于构建实例。所有类的元类定义&lt;code&gt;type&lt;/code&gt;。&lt;code&gt;type()&lt;/code&gt;函数是用来创建类对象。&lt;/p&gt;
+&lt;p&gt;元类构建类。一旦已经形成了一个类对象，类对象就被用于构建实例。所有类的元类定义是&lt;code&gt;type&lt;/code&gt;。&lt;code&gt;type()&lt;/code&gt;函数被用来创建类对象。&lt;/p&gt;
 
-&lt;p&gt;此外，&lt;code&gt;type()&lt;/code&gt;函数可以用作函数来揭示对象的类。&lt;/p&gt;
+&lt;p&gt;此外，&lt;code&gt;type()&lt;/code&gt;函数可以用来揭示类对象。&lt;/p&gt;
 
-&lt;p&gt;下面是一个愚蠢的例子，建立一个新的，几乎没用类直接与&lt;code&gt;type()&lt;/code&gt;构造函数：&lt;/p&gt;
+&lt;p&gt;下面是一个微不足道的例子用来构建一个新的、几乎没有直接使用&lt;code&gt;type()&lt;/code&gt;类作为构造函数：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;Useless&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Useless&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,(),{})&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;一旦我们创建这个类，我们可以创建这个&lt;code&gt;Useless&lt;/code&gt;类的对象。然而，他们不会做太多，因为他们没有方法或属性。&lt;/p&gt;
+&lt;p&gt;一旦我们创建这个类，我们可以创建这个&lt;code&gt;Useless&lt;/code&gt;类的对象。然而，它们不会做太多因为没有方法或属性。&lt;/p&gt;
 
-&lt;p&gt;我们可以使用这个新&lt;code&gt;Useless&lt;/code&gt;的类来创建对象，不值得。下面是一个例子：&lt;/p&gt;
+&lt;p&gt;我们可以使用这个新创建的&lt;code&gt;Useless&lt;/code&gt;类来创建对象。下面是一个例子：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; Useless()
 &amp;lt;__main__.Useless object at 0x101001910&amp;gt;
-&amp;gt;&amp;gt;&amp;gt; u=_
-&amp;gt;&amp;gt;&amp;gt; u.attr= 1
+&amp;gt;&amp;gt;&amp;gt; u = _
+&amp;gt;&amp;gt;&amp;gt; u.attr = 1
 &amp;gt;&amp;gt;&amp;gt; dir(u)
 [&#39;__class__&#39;, &#39;__delattr__&#39;, &#39;__dict__&#39;, &#39;__dir__&#39;, &#39;__doc__&#39;,
 &#39;__eq__&#39;, &#39;__format__&#39;, &#39;__ge__&#39;, &#39;__getattribute__&#39;, &#39;__gt__&#39;,
@@ -370,45 +371,45 @@ TypeError: float() takes at most 1 argument (2 given)
 &#39;__sizeof__&#39;, &#39;__str__&#39;, &#39;__subclasshook__&#39;, &#39;__weakref__&#39;, &#39;attr&#39;]
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;我们可以将属性添加到这个类的对象。它工作时，最低限度，作为一个对象。&lt;/p&gt;
+&lt;p&gt;我们可以将属性添加到这个类对象。它工作得很好，最起码可以作为一个对象。&lt;/p&gt;
 
-&lt;p&gt;这几乎相当于使用&lt;code&gt;type.SimpleNamespace&lt;/code&gt;或定义一个类，如下所示：&lt;/p&gt;
+&lt;p&gt;这几乎相当于使用&lt;code&gt;type.SimpleNamespace&lt;/code&gt;或定义了一个类，如下所示：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Useless&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;这会带来重要的问题：我们为什么要惹已定义类的方式在皇家莎士比亚剧院的地方？&lt;/p&gt;
+&lt;p&gt;这会带来严重的问题：我们为什么会在首先定义类的定义方式上混乱？&lt;/p&gt;
 
-&lt;p&gt;答案是，类的一些默认功能不完全适用于一些边界情况。我们将讨论四个情况我们想介绍一个元类：&lt;/p&gt;
+&lt;p&gt;答案是，类的一些默认特性不能&lt;strong&gt;完美的&lt;/strong&gt;适用于一些边缘情况。我们将讨论四个情况来介绍一下元类：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
-    &lt;p&gt;我们可以使用元类来保存一些类的源文本的信息。类由内置的类型使用&lt;code&gt;dict&lt;/code&gt;类型来存储各种方法和类级别属性。&lt;code&gt;dict&lt;/code&gt;本质上是无序的，属性和方法出现在没有特定的顺序。非常不可能，他们将出现在最初的源。我们将展示这在我们的第一个例子中。&lt;/p&gt;
+    &lt;p&gt;我们可以使用元类来保存一些类的源文本的信息。通过内置&lt;code&gt;type&lt;/code&gt;构建的类使用&lt;code&gt;dict&lt;/code&gt;类型来存储各种方法和类级别属性。&lt;code&gt;dict&lt;/code&gt;本质上是无序的，属性和方法的出现没有特定的顺序。在源处以最初的顺序呈现极其不可能的。我们将在第一个例子中展示。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;元类用来创建&lt;em&gt;*抽象基类（ABC）&lt;/em&gt;从第4章到7章看。ABC依赖一个元类的&lt;code&gt;__new__()&lt;/code&gt;方法来反对的具体子类。我们将在第4章《一致设计的基本知识》介绍这些。&lt;/p&gt;
+    &lt;p&gt;我们将从第4章到7章看到元类用来创建&lt;strong&gt;抽象基类（ABC）&lt;/strong&gt;。依赖元类的&lt;code&gt;__new__()&lt;/code&gt;方法来确认具体子类是完整的基础知识，我们将在第4章《一致设计的基本知识》介绍。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;可以使用元类来简化某些对象序列化。我们将在第9章看看《序列化和储蓄JSON、YAML、Pickle、CSV和XML》。&lt;/p&gt;
+    &lt;p&gt;可以使用元类来简化某些对象序列化。我们将在第9章《序列化和储蓄JSON、YAML、Pickle、CSV和XML》看到。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;作为最后简单的例子，我们将看一个类里的自我引用。我们将设计类引用一个&lt;strong&gt;主类&lt;/strong&gt;。这不是一个父类、子类关系。这是一群子类，但有一个与它的一个同龄群体的主人。与同行相一致，主需要引用本身是不可能没有一个元类的东西。这将是我们的第二个例子。&lt;/p&gt;
+    &lt;p&gt;作为最后且相比简单的例子，我们将看一个类里的自我引用。我们将设计类引用一个&lt;strong&gt;主类&lt;/strong&gt;。这不是一个父类子类关系。这是一群同等的子类，但有与一个同等组里面的一个有联系且作为的主类。为了与同行保持一致，主类需要引用它本身，不可能没有元类。这将是我们的第二个例子。&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h4 id=&quot;section-2&quot;&gt;&lt;strong&gt;1、元类示例1——已排序属性&lt;/strong&gt;&lt;/h4&gt;
 
-&lt;p&gt;这是3.3.3节典型例子《创建自定义类，Python语言的参考》。这个元类将记录属性和方法。&lt;/p&gt;
+&lt;p&gt;这是&lt;em&gt;Python语言参考&lt;/em&gt;3.3.3节&lt;em&gt;创建自定义类&lt;/em&gt;的典型例子。这个元类将记录已定义的属性和方法函数的顺序。&lt;/p&gt;
 
 &lt;p&gt;有以下三个部分：&lt;/p&gt;
 
-&lt;p&gt;1、创建一个元类。&lt;code&gt;__prepare__()&lt;/code&gt;函数和&lt;code&gt;__new__()&lt;/code&gt;函数的元类将改变构建目标类的方式，更换比较&lt;code&gt;dict&lt;/code&gt;类与&lt;code&gt;OrderedDict&lt;/code&gt;类。&lt;/p&gt;
+&lt;p&gt;1、创建一个元类。&lt;code&gt;__prepare__()&lt;/code&gt;函数和&lt;code&gt;__new__()&lt;/code&gt;函数的元类将改变构建目标类的方式，通过&lt;code&gt;OrderedDict&lt;/code&gt;类改变老式的&lt;code&gt;dict&lt;/code&gt;类。&lt;/p&gt;
 
 &lt;p&gt;2、创建一个基于元类的抽象超类。这个抽象类简化其他类的继承。&lt;/p&gt;
 
 &lt;p&gt;3、创建抽象超类的子类，得益于元类。&lt;/p&gt;
 
-&lt;p&gt;下面是示例元类，将保留创建属性的顺序：&lt;/p&gt;
+&lt;p&gt;下面是元类示例，将保留创建属性的顺序：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;collections&lt;/span&gt;
 
@@ -423,20 +424,20 @@ TypeError: float() takes at most 1 argument (2 given)
         &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_order&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;tuple&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;startswith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;__&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;这个类扩展内置的默认元类、&lt;code&gt;type&lt;/code&gt;和新版本的&lt;code&gt;__prepare__()&lt;/code&gt;的&lt;code&gt;__new__()&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;这个类通过新版本的&lt;code&gt;__prepare__()&lt;/code&gt;和&lt;code&gt;__new__()&lt;/code&gt;来扩展内置的默认元类——&lt;code&gt;type&lt;/code&gt;。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;__prepare__()&lt;/code&gt;方法执行之前创建的类，它的工作是创建初始定义的名称空间对象将被添加。这个方法可以在其他前准备执行类的身体正在处理。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;__prepare__()&lt;/code&gt;方法在创建类之前执行，它的工作是创建初始定义的名称空间对象到被添加的定义中。这个方法可以在其他准备前执行类体正在处理。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;静态方法执行后类身体元素已经被添加到名称空间。鉴于类对象、类名、超类元组，充分建立命名空间映射对象。这是典型的例子：它代表&lt;code&gt;__new__()&lt;/code&gt;的实际工作超类；一个元类的超类是内置类型；我们使用类型。&lt;code&gt;__new__()&lt;/code&gt;来创建默认的类对象，可以调整。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;静态方法在类体元素已经被添加到名称空间后执行。给出类对象、类名、超类元组，完整建立好的命名空间映射对象。这是个典型的例子：它委托&lt;code&gt;__new__()&lt;/code&gt;的实际工作到超类；元类的超类是内置&lt;code&gt;type&lt;/code&gt;；我们使用&lt;code&gt;type.__new__()&lt;/code&gt;来创建可以调整的默认类对象。&lt;/p&gt;
 
-&lt;p&gt;&lt;code&gt;__new__()&lt;/code&gt;方法，在这个例子中添加一个属性，到类定义显示我们的原始订单属性。&lt;/p&gt;
+&lt;p&gt;该示例的&lt;code&gt;__new__()&lt;/code&gt;方法添加了一个属性、&lt;code&gt;_order&lt;/code&gt;到类定义中，给我们展示了属性原来的顺序。&lt;/p&gt;
 
-&lt;p&gt;我们可以使用这种类型的元类，而不是当定义一个新的抽象超类，如下所示：&lt;/p&gt;
+&lt;p&gt;我们可以使用这个元类来代替&lt;code&gt;type&lt;/code&gt;当定义新的抽象超类，如下所示：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Order_Preserved&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;metaclass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Ordered_Attributes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;我们可以使用这个新的抽象类作为任何新类的超类，如下：&lt;/p&gt;
+&lt;p&gt;然后我们可以使用这个新的抽象类作为任何新类的超类，如下：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Something&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Order_Preserved&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     
@@ -448,27 +449,27 @@ TypeError: float() takes at most 1 argument (2 given)
     &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;order is preserved&amp;#39;&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;more text&amp;#39;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;当我们看一些类，我们可以看到如下代码片段：&lt;/p&gt;
+&lt;p&gt;当我们看到&lt;code&gt;Something&lt;/code&gt;类，我们可以看到如下代码片段：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; Something._order
 &amp;gt;&amp;gt;&amp;gt; (&#39;this&#39;, &#39;z&#39;, &#39;b&#39;, &#39;a&#39;)
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;我们可以考虑利用这些信息正确序列化对象或提供调试信息，与原始源的定义。&lt;/p&gt;
+&lt;p&gt;我们可以考虑利用这些信息来正确的序列化对象或与源定义相关的提供调试信息。&lt;/p&gt;
 
 &lt;h4 id=&quot;section-3&quot;&gt;&lt;strong&gt;2、元类示例2——自引用&lt;/strong&gt;&lt;/h4&gt;
 
-&lt;p&gt;我们来看一个例子，涉及到单位转换。例如，包括长度单位米、厘米、英寸、英尺和许多其他单位。管理单元转换可以是一个挑战。超级脸部用的，我们需要一个矩阵中所有可能的转换因子的各种单位。米、英尺、英寸、脚码、米、英寸、每组合米码等等。&lt;/p&gt;
+&lt;p&gt;我们来看一个例子，涉及到单位转换。例如，长度单位包括米、厘米、英寸、英尺和许多其他单位。管理单位转换可以算是一个挑战。表面上，我们需要一个在所有各种单位中可能的转换因子矩阵。英尺到米、英尺到英寸、英尺到脚码、米到英寸、米到码等等——每一个组合。&lt;/p&gt;
 
-&lt;p&gt;实际上，然而，我们可以做得更好如果我们定义长度的标准单位。我们可以转换任何单位标准和标准的其他单位。通过这样做，我们可以很容易的执行任何可能的转换为一个两步操作，消除了复杂的矩阵的所有可能的转换：脚标准、英寸标准、标准码标准、米。&lt;/p&gt;
+&lt;p&gt;然而实际上，我们可以做得更好如果我们定义长度的标准单位。我们可以转换任何单位到标准且标准到其他单位。通过这样做，我们可以很容易的执行任何可能的转换为两步操作，消除了复杂的所有可能转换的矩阵：英尺到标准、英寸到标准、码到标准、米到标准。&lt;/p&gt;
 
-&lt;p&gt;在接下来的例子中，我们不打算子类&lt;code&gt;float&lt;/code&gt;或数字。以任何方式。而非绑定值的单位。我们将允许每个值保持一个简单的数字。这是一个轻量级设计模式的一个例子。类不德不包含相关值的对象。对象只包含转换因素。&lt;/p&gt;
+&lt;p&gt;在接下来的例子中，我们不打算以任何方式子类化&lt;code&gt;float&lt;/code&gt;或&lt;code&gt;numbers.Number&lt;/code&gt;。比起绑单位到某个值，我们将允许每个值保留一个简单的数字。这是&lt;strong&gt;Flyweight&lt;/strong&gt;设计模式的一个例子。类不定义包含相关值的对象。对象只包含转换因素。&lt;/p&gt;
 
-&lt;p&gt;另一种（绑定单元值）会导致相当复杂的多维度分析。虽然有趣，但它是相当复杂的。&lt;/p&gt;
+&lt;p&gt;另一种（绑定单位到值）会导致相当复杂的多维度分析。虽然有趣，但是它相当的复杂。&lt;/p&gt;
 
-&lt;p&gt;我们将定义两类：单元测试和标准单位。我们可以很容易地确定每个单元类都有一个参考适当的标准单位。我们如何确保每个标准单位类都有一个参考本身？科学家将在班德定义是不可能的，因为尚未定义的类。&lt;/p&gt;
+&lt;p&gt;我们将定义两个类：&lt;code&gt;Unit&lt;/code&gt;和&lt;code&gt;Standard_Unit&lt;/code&gt;。我们可以很容易地确定每个&lt;code&gt;Unit&lt;/code&gt;类都有一个引用到相对应的&lt;code&gt;Standard_Unit&lt;/code&gt;。我们如何确保每个&lt;code&gt;Standard_Unit&lt;/code&gt;类都有一个引用到自身？类定义里的自引用是不可能的，因为类尚未定义。&lt;/p&gt;
 
-&lt;p&gt;以下是我们单位类定义：&lt;/p&gt;
+&lt;p&gt;以下是我们&lt;code&gt;Unit&lt;/code&gt;类定义：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Unit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
     &lt;span class=&quot;sd&quot;&gt;&amp;quot;&amp;quot;&amp;quot;Full name for the unit.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
@@ -488,41 +489,41 @@ TypeError: float() takes at most 1 argument (2 given)
             &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;class_&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;factor&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;意图是&lt;code&gt;Unit.value()&lt;/code&gt;将一个值转换单位的标准单位。&lt;code&gt;Unit.convert()&lt;/code&gt;方法将一个标准的价值转换为给定的单位。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Unit.value()&lt;/code&gt;的意图是将一个给定单位转换为标准单位值。&lt;code&gt;Unit.convert()&lt;/code&gt;方法是将一个标准单位值转换为给定的单位。&lt;/p&gt;
 
-&lt;p&gt;这允许我们使用单位,如下面代码片段所示&lt;/p&gt;
+&lt;p&gt;单位转换工作，如下面代码片段所示：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; m_f= FOOT.value(4)
 &amp;gt;&amp;gt;&amp;gt; METER.convert(m_f)
 1.2191999999999998
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;是内置的浮点值创建的值。对于温度。这个&lt;code&gt;value()&lt;/code&gt;和&lt;code&gt;convert()&lt;/code&gt;方法需要覆盖，作为一个简单的乘法是行不通的。&lt;/p&gt;
+&lt;p&gt;创建的值是内置&lt;code&gt;float&lt;/code&gt;值。对于温度，&lt;code&gt;value()&lt;/code&gt;和&lt;code&gt;convert()&lt;/code&gt;方法需要覆写，简单的乘法是行不通的。&lt;/p&gt;
 
-&lt;p&gt;标准单位，我们想做一些如下：&lt;/p&gt;
+&lt;p&gt;对于&lt;code&gt;Standard_Unit&lt;/code&gt;，我们可以如下操作：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;INCH&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;standard&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INCH&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;然而，这不会起作用。寸没有定义的英寸的身体内。类不存在之前定义。&lt;/p&gt;
+&lt;p&gt;然而，并没有什么用。&lt;code&gt;INCH&lt;/code&gt;并没有在&lt;code&gt;INCH&lt;/code&gt;类体内定义。类在定义前并不存在。&lt;/p&gt;
 
-&lt;p&gt;我们可以作为后备，这样做：&lt;/p&gt;
+&lt;p&gt;我们可以做这些作为备胎：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;INCH&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;INCH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;standard&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INCH&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;n&quot;&gt;INCH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;standard&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INCH&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;然而，这是相当丑陋。&lt;/p&gt;
+&lt;p&gt;然而，这相当让人讨厌。&lt;/p&gt;
 
-&lt;p&gt;我们可以定义装饰器如下：&lt;/p&gt;
+&lt;p&gt;我们可以定义装饰器，如下：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@standard&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;INCH&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;这个修饰符函数可以调整类定义添加一个属性。我们将在第8章《修饰符和mixin横切方面》。&lt;/p&gt;
+&lt;p&gt;这个修饰器函数可以调整类定义来添加一个属性。我们将在第八章《修饰符和Mixins——交叉方面》。&lt;/p&gt;
 
-&lt;p&gt;反而，我们将定义元类插入循环引用到类定义，如下：&lt;/p&gt;
+&lt;p&gt;因此，我们将定义可以插入循环引用到类定义的元类，如下：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;UnitMeta&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
 
@@ -531,20 +532,20 @@ TypeError: float() takes at most 1 argument (2 given)
         &lt;span class=&quot;n&quot;&gt;new_class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;standard&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_class&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_class&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;这就迫使类变量的标准到类定义。&lt;/p&gt;
+&lt;p&gt;这就迫使将类变量&lt;code&gt;standard&lt;/code&gt;加入到类定义。&lt;/p&gt;
 
-&lt;p&gt;对大多数单位，&lt;code&gt;SomeUnit.standard&lt;/code&gt;引用&lt;code&gt;TheStandardUnit&lt;/code&gt;类。与我们也有TheStandardUnit。标准引用&lt;code&gt;TheStandardUnit&lt;/code&gt;类。这种一致的结构单元和标准单元之间的子类可以帮助编写文档和自动化单元转换。&lt;/p&gt;
+&lt;p&gt;对于大多数单位，&lt;code&gt;SomeUnit.standard&lt;/code&gt;引用&lt;code&gt;TheStandardUnit&lt;/code&gt;类。同时我们也有&lt;code&gt;TheStandardUnit.standard&lt;/code&gt;引用&lt;code&gt;TheStandardUnit&lt;/code&gt;类。这种&lt;code&gt;Unit&lt;/code&gt;和子类&lt;code&gt;Standard_Unit&lt;/code&gt;中一致的结构可以帮助编写文档和单位转换自动化。&lt;/p&gt;
 
-&lt;p&gt;下面是标准单元类&lt;/p&gt;
+&lt;p&gt;下面是&lt;code&gt;Standard_Unit&lt;/code&gt;类：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Standard_Unit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Unit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;metaclass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UnitMeta&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;pass&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;单位转换因子继承单位是1.0，所以这类没有提供的值。它包括特殊的元类定义，这样它将会有一个自我引用这类标准这个维度的测量。&lt;/p&gt;
+&lt;p&gt;单位转换因子1.0继承自&lt;code&gt;Unit&lt;/code&gt;，所以这个类对于提供的值不做任何事情。它包含了特殊的元类定义，这样它将会有一个自引用来阐明这个类是标准的对于特别尺寸规格。&lt;/p&gt;
 
-&lt;p&gt;作为一个优化，我们可以覆盖的&lt;code&gt;value()&lt;/code&gt;和&lt;code&gt;convert()&lt;/code&gt;方法转换为避免乘法和除法。&lt;/p&gt;
+&lt;p&gt;作为最优选择，我们可以覆写&lt;code&gt;value()&lt;/code&gt;和&lt;code&gt;convert()&lt;/code&gt;方法来避免乘法和除法。&lt;/p&gt;
 
-&lt;p&gt;以下是一些样例类定义为单位&lt;/p&gt;
+&lt;p&gt;以下是一些单位类定义的示例：&lt;/p&gt;
 
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;INCH&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Standard_Unit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;sd&quot;&gt;&amp;quot;&amp;quot;&amp;quot;Inches&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
@@ -568,11 +569,11 @@ TypeError: float() takes at most 1 argument (2 given)
     &lt;span class=&quot;n&quot;&gt;standard&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;INCH&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;factor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;0254&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;我们定义英寸标准单位。其他单位的德定义将转换与英寸。&lt;/p&gt;
+&lt;p&gt;我们定义&lt;code&gt;INCH&lt;/code&gt;为标准单位。其他单位的定义将转换到英寸和从英寸转换过来。&lt;/p&gt;
 
-&lt;p&gt;我们为每个单元提供了一些文档：全名的文档字符串和一个短名称的名称属性。所应用的转换因子自动&lt;code&gt;convert()&lt;/code&gt;和&lt;code&gt;value()&lt;/code&gt;函数继承单位。&lt;/p&gt;
+&lt;p&gt;我们为每个单位提供了一些文档：文档字符串全名和一个短名称的&lt;code&gt;name&lt;/code&gt;属性。转换因子自动应用继承自&lt;code&gt;Unit&lt;/code&gt;的&lt;code&gt;convert()&lt;/code&gt;和&lt;code&gt;value()&lt;/code&gt;函数。&lt;/p&gt;
 
-&lt;p&gt;这些德定义允许在我们的应用程序的编程：&lt;/p&gt;
+&lt;p&gt;在我们的应用程序中，这些定义允许以下类型的编程：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; x_std= INCH.value(159.625)
 &amp;gt;&amp;gt;&amp;gt; FOOT.convert(x_std)
@@ -583,9 +584,9 @@ TypeError: float() takes at most 1 argument (2 given)
 0.0254
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;我们可以设置一个特定的测量在英寸，报告中从一个给定的值，值在任何其他兼容的单位。&lt;/p&gt;
+&lt;p&gt;我们可以给英寸设置一个特定的尺寸，然后报告该值给任何其他兼容的单位。&lt;/p&gt;
 
-&lt;p&gt;元类所做的是让我们做出这样的查询从定义类：&lt;/p&gt;
+&lt;p&gt;元类所做的就是让我们从单元类定义中做下面这样的查询：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; INCH.standard.__name__
 &#39;INCH&#39;
@@ -593,40 +594,40 @@ TypeError: float() takes at most 1 argument (2 given)
 &#39;INCH&#39;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;这些类型的引用可以让我们跟踪所有给定维度的各单位。&lt;/p&gt;
+&lt;p&gt;这些类型的引用可以让我们跟踪所有给定规格的各种单位。&lt;/p&gt;
 
 &lt;h3 id=&quot;section-4&quot;&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h3&gt;
 
-&lt;p&gt;我们看了许多基本的特殊方法，这是任何类，我们设计的基本特征。这些方法已经在每一个类的一部分，但我们默认继承对象可能不符合我们的加工要求。&lt;/p&gt;
+&lt;p&gt;我们看了许多&lt;strong&gt;基本的&lt;/strong&gt;特殊方法，这是我们设计的任何类的基本特征。这些方法已经是每个类的一部分，但默认继承自对象可能不符合我们的处理需求。&lt;/p&gt;
 
-&lt;p&gt;我们几乎总是需要覆盖&lt;code&gt;__repr__()&lt;/code&gt;、&lt;code&gt;__str__()&lt;/code&gt;和&lt;code&gt;__foramt__()&lt;/code&gt;。这些方法的默认实现不是很有帮助。&lt;/p&gt;
+&lt;p&gt;我们几乎总是需要覆写&lt;code&gt;__repr__()&lt;/code&gt;、&lt;code&gt;__str__()&lt;/code&gt;和&lt;code&gt;__foramt__()&lt;/code&gt;。这些方法的默认实现不是很有帮助。&lt;/p&gt;
 
-&lt;p&gt;我们罕见的需要覆写&lt;code&gt;__bool__()&lt;/code&gt;直到我们写自己的集合。这是第6章《创建容器和集合》的主题。&lt;/p&gt;
+&lt;p&gt;比较罕见的是如果我们编写自己的集合需要覆写&lt;code&gt;__bool__()&lt;/code&gt;。这是第六章《创建容器和集合》的主题。&lt;/p&gt;
 
-&lt;p&gt;我们经常需要覆盖和&lt;code&gt;__hash__()&lt;/code&gt;方法进行了比较。定义适用于简单的不可变对象但不适合可变的对象。我们可能不需要编写所有的比较运算符，我们来看看&lt;code&gt;@ functools&lt;/code&gt;。第8章《修饰符和mixin横切方面》。&lt;/p&gt;
+&lt;p&gt;我们经常需要覆写比较关系和&lt;code&gt;__hash__()&lt;/code&gt;方法。定义仅适用于简单的不可变对象但不适合可变对象。当然我们可能不需要编写所有的比较运算符；我们将在第八章《修饰符和Mixins——交叉方面》看看&lt;code&gt;@functools.total_ordering&lt;/code&gt;装饰器。&lt;/p&gt;
 
-&lt;p&gt;其他两个&lt;strong&gt;基本的&lt;/strong&gt;特殊方法名称，&lt;code&gt;__new__()&lt;/code&gt;和&lt;code&gt;__del__()&lt;/code&gt;，用于专门的目的。对该方法的功能使用&lt;code&gt;__new__()&lt;/code&gt;来扩展一个不可变类是最常见的用例。&lt;/p&gt;
+&lt;p&gt;其他两个&lt;strong&gt;基本的&lt;/strong&gt;特殊方法名称，&lt;code&gt;__new__()&lt;/code&gt;和&lt;code&gt;__del__()&lt;/code&gt;，都用于专门的目的。使用&lt;code&gt;__new__()&lt;/code&gt;来扩展一个不可变类对它来说是最常见的用例。&lt;/p&gt;
 
-&lt;p&gt;这些基本的特殊方法，连同&lt;code&gt;__init__()&lt;/code&gt;，将出现在每一个几乎类我们定义的类中。其余的特殊方法都用于专门的目的；他们分为六个类别：&lt;/p&gt;
+&lt;p&gt;这些基本的特殊方法，连同&lt;code&gt;__init__()&lt;/code&gt;，将几乎出现在每一个我们定义的类中。其余的特殊方法都用于专门的目的；它们分为六个类别：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;属性访问&lt;/strong&gt;：这些特殊的方法实现我们所看到的表达式中的&lt;code&gt;object.attribute&lt;/code&gt;，&lt;code&gt;object.attribute&lt;/code&gt;左边的赋值和&lt;code&gt;object.attribute&lt;/code&gt;在&lt;code&gt;del&lt;/code&gt;声明中。&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;属性访问&lt;/strong&gt;：这些特殊的方法实现我们所看到的&lt;code&gt;object.attribute&lt;/code&gt;表达式，&lt;code&gt;object.attribute&lt;/code&gt;左边的赋值和在&lt;code&gt;del&lt;/code&gt;语句中的&lt;code&gt;object.attribute&lt;/code&gt;。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;可调用&lt;/strong&gt;：一个特殊的方法实现我们看到的，作为一个函数应用于参数，就像内置的&lt;code&gt;len()&lt;/code&gt;函数。&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;可调用&lt;/strong&gt;：一个特殊的方法实现我们所看到的，函数作为一个参数来应用，就像内置&lt;code&gt;len()&lt;/code&gt;函数一样。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;集合&lt;/strong&gt;：这些特殊的方法实现众多集合特征。这包括诸如&lt;code&gt;sequence[index]&lt;/code&gt;、&lt;code&gt;mapping[key]&lt;/code&gt;和&lt;code&gt;set | set&lt;/code&gt;。&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;集合&lt;/strong&gt;：这些特殊的方法实现众多集合的特性。包括诸如&lt;code&gt;sequence[index]&lt;/code&gt;、&lt;code&gt;mapping[key]&lt;/code&gt;和&lt;code&gt;set | set&lt;/code&gt;。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;数字&lt;/strong&gt;：这些特殊方法提供了算术运算符和比较运算符。我们可以用这些方法来扩展Python使用的数字域。&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;数字&lt;/strong&gt;：这些特殊方法提供了算术运算符和比较运算符。我们可以用这些方法来扩展Python使用的数字领域。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;上下文&lt;/strong&gt;：有两个特殊的方法使用&lt;code&gt;with&lt;/code&gt;语句实现一个上下文管理器。&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;上下文&lt;/strong&gt;：通过&lt;code&gt;with&lt;/code&gt;语句有两个特殊的方法实现一个上下文管理器。&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;&lt;strong&gt;迭代器&lt;/strong&gt;：有特殊方法定义为迭代器。这不是必要的，作为生成器函数处理这个特性非常优雅。然而，我们来看看如何设计自己的迭代器。&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;迭代器&lt;/strong&gt;：有特殊方法定义迭代器。这不是必要的，作为生成器函数可以非常优雅的处理这个特性。如论如何，我们都要看看如何设计自己的迭代器。&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
